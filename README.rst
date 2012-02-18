@@ -7,13 +7,22 @@ used by the `JNRain`_ forum.
 
 .. _JNRain: http://bbs.jnrain.com/
 
+Dependencies
+------------
+
+``weiyu`` utilizes non-relational DBMS, at present only MongoDB with the
+``pymongo`` wrapper is supported.
+
+The system makes use of message queue, and the preferred MQ provider is
+``rabbitmq``.
 
 TODO
 ----
 
 The overall architecture is slowly being worked out at the moment, so there is
-not much activity at present. This README will be updated occassionally to
-follow the development progress.
+not much activity at present.
+
+This README will be updated as planning goes.
 
 
 .. vim:ai:et:ts=4:sw=4:sts=4:fenc=utf-8:
