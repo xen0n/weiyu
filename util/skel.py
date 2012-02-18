@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / <component> / <file desc>
 #
-# Copyright (C) 2012  <AUTHOR>
+# Copyright (C) 2012 <AUTHOR>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
