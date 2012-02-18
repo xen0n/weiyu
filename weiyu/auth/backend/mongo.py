@@ -104,7 +104,8 @@ class MongoAuthBackend(AuthBackendBase):
         if self.connection is None:
             raise NotConnectedError
 
-        # unify encoding and fail before hitting db
+        # coerce to plain unicode in case of things like smartstr or fail
+        # before hitting db
         role = unicode(role)
 
         qr = self.roles_collection.find_one({FIELD_ROLE_NAME: role},
