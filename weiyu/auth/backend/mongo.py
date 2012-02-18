@@ -19,6 +19,8 @@
 
 import pymongo
 
+_DuplicateKeyError = pymongo.errors.DuplicateKeyError
+
 from .baseclass import AuthBackendBase
 from .exc import NotConnectedError, AlreadyConnectedError
 
@@ -40,6 +42,14 @@ class MongoAuthBackend(AuthBackendBase):
                            )
         self.connection = None
 
+    def _chk_conn(self):
+        if self.connection is None:
+            raise NotConnectedError
+
+    def _chk_disconn(self):
+        if self.connection is not None:
+            raise AlreadyConnectedError
+
     def _post_connect(self):
         cnn = self.connection
         auth_db = cnn[DATABASE_NAME]
@@ -51,22 +61,21 @@ class MongoAuthBackend(AuthBackendBase):
 
     def connect(self):
         # XXX Atomicity needs to be guaranteed!!
-        if self.connection is not None:
-            raise AlreadyConnectedError
+        self._chk_disconn()
 
         self.connection = self._conn_type(self.host, self.port)
         self._post_connect()
 
     def disconnect(self):
         # XXX Atomicity!!
-        if self.connection is None:
-            raise NotConnectedError
+        self._chk_conn()
 
         self._pre_disconnect()
         self.connection.close()
         self.connection = None
 
     def __enter__(self):
+        self._chk_disconn()
         self.connect()
         return self
 
@@ -74,35 +83,51 @@ class MongoAuthBackend(AuthBackendBase):
         self.disconnect()
 
     def _init_idx(self):
-        if self.connection is None: 
-            raise NotConnectedError
+        self._chk_conn()
 
         self.roles_collection.ensure_index(FIELD_ROLE_CAPS)
 
-    def get_role(self, names=None):
-        if self.connection is None:
-            raise NotConnectedError
+    def get_role(self, name):
+        self._chk_conn()
+
+        name = unicode(name)
+        doc = self.roles_collection.find_one({FIELD_ROLE_NAME: name})
+
+        if doc is None:
+            raise ValueError(u"No role named '%s'" % name)
+        return doc
+
+    def get_roles_iter(self, names=None):
+        self._chk_conn()
 
         if names is None:
             # return all roles
             cursor = self.roles_collection.find(None, {FIELD_ROLE_NAME: 1})
-            return (item[FIELD_ROLE_NAME] for item in cursor)
+            return ((item[FIELD_ROLE_NAME], item[FIELD_ROLE_CAPS], )
+                    for item in cursor
+                    )
         else:
             # names is a list or str...
             # TODO
             raise NotImplementedError
 
-    def add_role(self, name, caps=[]):
-        if self.connection is None:
-            raise NotConnectedError
+    def get_roles(self, *args, **kwargs):
+        return [i for i in self.get_roles_iter(*args, **kwargs)]
 
-        doc = {FIELD_ROLE_NAME: unicode(name), FIELD_ROLE_CAPS: caps, }
-        self.roles_collection.insert(doc, safe=True)
-        # TODO: pymongo exc catching
+    def add_role(self, name, caps=[]):
+        self._chk_conn()
+
+        name = unicode(name)
+        doc = {FIELD_ROLE_NAME: name, FIELD_ROLE_CAPS: caps, }
+
+        # do the insertion with uniqueness checked
+        try:
+            self.roles_collection.insert(doc, safe=True)
+        except _DuplicateKeyError:
+            raise ValueError(u"Role '%s' already exists!" % name)
 
     def get_role_caps(self, role):
-        if self.connection is None:
-            raise NotConnectedError
+        self._chk_conn()
 
         # coerce to plain unicode in case of things like smartstr or fail
         # before hitting db
@@ -117,5 +142,19 @@ class MongoAuthBackend(AuthBackendBase):
 
         return qr[FIELD_ROLE_CAPS]
 
+    def set_role_caps(self, role, caps):
+        self._chk_conn()
+
+        role = unicode(role)
+
+        if issubclass(caps, unicode):
+            caps = [caps]
+        else:
+            if issubclass(caps, str):
+                caps = [unicode(caps)]
+
+        caps = list(caps)
+
+        if self.
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
