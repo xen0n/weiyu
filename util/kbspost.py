@@ -136,7 +136,9 @@ def separate_signature(sign_reverse):
 
 def parse_footer(lines):
     addr_line = lines[-1]
-    sign_zone_reverse = lines[-3:-11:-1] # reserve 7 lines, that is 6 + 1 delim
+    # reserve 8 lines, that is 6 + 1 delim + 1 possibly blank line
+    # Not sure why some people have 7-line sigs...
+    sign_zone_reverse = lines[-3:-11:-1]
 
     print addr_line
     fromaddr = KBS_ADDR.search(addr_line).group(u'addr')
