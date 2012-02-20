@@ -34,7 +34,9 @@ OUTPUT_ENCODING = 'utf-8'
 SIGN_EXACT, SIGN_AMBIGUOUS, SIGN_BLURRY = range(3)
 
 # REs.
-KBS_FROM = re.compile(ur'^发信人: (?P<ID>[^ ]+) \((?P<nick>.*?)\)?, 信区: (?P<board>.*)$')
+KBS_FROM = re.compile(ur'^发信人: (?P<ID>[^ ]+) \((?P<nick>.*?)\)?, '
+                      ur'信区: (?P<board>.*)$'
+                      )
 KBS_TITLE = re.compile(ur'^标  题: (?P<title>.*)$')
 KBS_SITE = re.compile(ur'^发信站: (?P<site>.*?) \((?P<date>.*)\), 站内$')
 KBS_ADDR = re.compile(ur'\[FROM: (?P<addr>.*)\]')
