@@ -113,10 +113,6 @@ def parse(lines):
 def parse_header(lines):
     from_line, title_line, site_line = lines[:3]
 
-    #print from_line
-    #print title_line
-    #print site_line
-    
     from_g = KBS_FROM.match(from_line).group
     title_g = KBS_TITLE.match(title_line).group
     site_g = KBS_SITE.match(site_line).group
@@ -167,7 +163,6 @@ def separate_signature(sign_reverse):
     if delim_count > 1:
         return SIGN_AMBIGUOUS, u'\n'.join(result), first_delim
 
-    # if delim_count == 0:
     return SIGN_BLURRY, u'', 0
 
 def parse_footer(lines):
@@ -183,19 +178,9 @@ def parse_footer(lines):
     if fromaddr_m is not None:
         fromaddr = fromaddr_m.group(u'addr')
     status, signature, sign_delim_idx = separate_signature(sign_zone_reverse)
-    # exactness = -1 # u'FIXME'
-
-    #if status == SIGN_EXACT:
-    #    exactness = u'EXACT'
-    #else:
-    #    if status == SIGN_AMBIGUOUS:
-    #        exactness = u'AMBIGUOUS'
-    #    else:
-    #        if status == SIGN_BLURRY:
-    #            exactness = u'BLURRY'
 
     return {u'signature': signature,
-            u'exactness': status, # exactness,
+            u'exactness': status,
             u'fromaddr': fromaddr,
             }, sign_delim_idx
 
