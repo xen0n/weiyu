@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals, division
+
 import pymongo
 
 _DuplicateKeyError = pymongo.errors.DuplicateKeyError
@@ -155,6 +157,7 @@ class MongoAuthBackend(AuthBackendBase):
 
         caps = list(caps)
 
-        if self.
+        # TODO
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
