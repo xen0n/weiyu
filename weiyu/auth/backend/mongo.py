@@ -17,6 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+u'''\
+This is the MongoDB backend for ``weiyu``'s authentication framework.
+
+This implementation depends on the ``pymongo`` library to talk to MongoDB
+servers.
+
+'''
+
 from __future__ import unicode_literals, division
 
 import pymongo
@@ -26,15 +34,27 @@ _DuplicateKeyError = pymongo.errors.DuplicateKeyError
 from .baseclass import AuthBackendBase
 from .exc import NotConnectedError, AlreadyConnectedError
 
-DATABASE_NAME = u'auth'
-COLLECTION_ROLES = u'roles'
-COLLECTION_USERS = u'users'
+DEFAULT_HOST, DEFAULT_PORT = 'localhost', 27017
+DATABASE_NAME = 'auth'
+COLLECTION_ROLES = 'roles'
+COLLECTION_USERS = 'users'
 
-FIELD_ROLE_NAME = u'_id'
-FIELD_ROLE_CAPS = u'c'
+FIELD_ROLE_NAME = '_id'
+FIELD_ROLE_CAPS = 'c'
 
 class MongoAuthBackend(AuthBackendBase):
-    def __init__(self, host='localhost', port=27017, is_replica=False):
+    u'''MongoDB authentication backend class.'''
+    
+    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, is_replica=False):
+        u'''Constructor function.
+
+        The database is specified through the parameters ``host`` and ``port``.
+
+        If the database to connect to is actually a replica set, set
+        ``is_replica`` to ``True``.
+
+        '''
+
         super(MongoAuthBackend, self).__init__()
 
         self.host, self.port = host, port
@@ -96,7 +116,7 @@ class MongoAuthBackend(AuthBackendBase):
         doc = self.roles_collection.find_one({FIELD_ROLE_NAME: name})
 
         if doc is None:
-            raise ValueError(u"No role named '%s'" % name)
+            raise ValueError("No role named '%s'" % name)
         return doc
 
     def get_roles_iter(self, names=None):
@@ -126,7 +146,7 @@ class MongoAuthBackend(AuthBackendBase):
         try:
             self.roles_collection.insert(doc, safe=True)
         except _DuplicateKeyError:
-            raise ValueError(u"Role '%s' already exists!" % name)
+            raise ValueError("Role '%s' already exists!" % name)
 
     def get_role_caps(self, role):
         self._chk_conn()
@@ -140,7 +160,7 @@ class MongoAuthBackend(AuthBackendBase):
                                              FIELD_ROLE_CAPS: 1,
                                              })
         if qr is None:
-            raise ValueError(u"No role named '%s' was found", role)
+            raise ValueError("No role named '%s'", role)
 
         return qr[FIELD_ROLE_CAPS]
 
