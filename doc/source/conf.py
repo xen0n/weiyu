@@ -14,7 +14,7 @@
 import sys, os
 
 # Include package directory in sys.path
-sys.path.insert(0, os.path.realpath(u'../../weiyu'))
+sys.path.insert(0, os.path.realpath(u'../../'))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
