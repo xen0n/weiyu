@@ -177,7 +177,14 @@ class MongoAuthBackend(AuthBackendBase):
 
         caps = list(caps)
 
-        # TODO
+        # hit db
+        self.roles_collection.update({FIELD_ROLE_NAME: role},
+                                     {'$addToSet': {
+                                          FIELD_ROLE_CAPS: {
+                                              '$each': caps
+                                              }
+                                          }
+                                      })
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
