@@ -1,13 +1,6 @@
 MongoDB Authentication Backend
 ==============================
 
-.. rubric::
-    This module depends on the ``pymongo`` driver for communicating with the
-    database.
-
-Module documentation
---------------------
-
 .. automodule:: auth.backend.mongo
    :members:
 
