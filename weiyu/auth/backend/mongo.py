@@ -42,6 +42,9 @@ COLLECTION_USERS = 'users'
 FIELD_ROLE_NAME = '_id'
 FIELD_ROLE_CAPS = 'c'
 
+# capabilities operation
+CAPS_UPDATE, CAPS_ADD, CAPS_REMOVE = range(3)
+
 class MongoAuthBackend(AuthBackendBase):
     u'''MongoDB authentication backend class.'''
     
@@ -124,7 +127,7 @@ class MongoAuthBackend(AuthBackendBase):
 
         if names is None:
             # return all roles
-            cursor = self.roles_collection.find(None, {FIELD_ROLE_NAME: 1})
+            cursor = self.roles_collection.find(None)
             return ((item[FIELD_ROLE_NAME], item[FIELD_ROLE_CAPS], )
                     for item in cursor
                     )
@@ -164,27 +167,37 @@ class MongoAuthBackend(AuthBackendBase):
 
         return qr[FIELD_ROLE_CAPS]
 
-    def set_role_caps(self, role, caps):
+    def set_role_caps(self, role, caps, mode=CAPS_UPDATE):
         self._chk_conn()
 
         role = unicode(role)
 
-        if issubclass(caps, unicode):
+        if issubclass(type(caps), unicode):
             caps = [caps]
         else:
-            if issubclass(caps, str):
+            if issubclass(type(caps), str):
                 caps = [unicode(caps)]
 
         caps = list(caps)
 
+        # generate query doc
+        if mode == CAPS_UPDATE:
+            doc = {'$set': {FIELD_ROLE_CAPS: caps}, }
+        elif mode == CAPS_ADD:
+            doc = {'$addToSet': {FIELD_ROLE_CAPS: {'$each': caps}}, }
+        elif mode == CAPS_REMOVE:
+            doc = {'$pullAll': {FIELD_ROLE_CAPS: caps}}
+        else:
+            raise ValueError('Invalid mode -- use CAPS_{UPDATE,ADD,REMOVE}')
+
         # hit db
-        self.roles_collection.update({FIELD_ROLE_NAME: role},
-                                     {'$addToSet': {
-                                          FIELD_ROLE_CAPS: {
-                                              '$each': caps
-                                              }
-                                          }
-                                      })
+        self.roles_collection.update({FIELD_ROLE_NAME: role}, doc)
+
+    def add_role_caps(self, role, caps):
+        return self.set_role_caps(role, caps, CAPS_ADD)
+
+    def remove_role_caps(self, role, caps):
+        return self.set_role_caps(role, caps, CAPS_REMOVE)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
