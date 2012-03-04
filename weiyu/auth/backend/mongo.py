@@ -46,10 +46,10 @@ FIELD_ROLE_CAPS = 'c'
 CAPS_UPDATE, CAPS_ADD, CAPS_REMOVE = range(3)
 
 class MongoAuthBackend(AuthBackendBase):
-    u'''MongoDB authentication backend class.'''
+    '''MongoDB authentication backend class.'''
     
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, is_replica=False):
-        u'''Constructor function.
+        '''Constructor function.
 
         The database is specified through the parameters ``host`` and ``port``.
 
@@ -68,10 +68,30 @@ class MongoAuthBackend(AuthBackendBase):
         self.connection = None
 
     def _chk_conn(self):
+        '''Check if the database connection has already been established.
+
+        Raises ``NotConnectedError`` if a connection object is not present.
+
+        .. warning::
+            This is an internal function, not meant for outside use. **Do not**
+            use it.
+
+        '''
+
         if self.connection is None:
             raise NotConnectedError
 
     def _chk_disconn(self):
+        '''Check if the database connection has not yet been established.
+
+        Raises ``AlreadyConnectedError`` if a connection object is present.
+
+        .. warning::
+            This is an internal function, not meant for outside use. **Do not**
+            use it.
+
+        '''
+
         if self.connection is not None:
             raise AlreadyConnectedError
 
@@ -85,6 +105,12 @@ class MongoAuthBackend(AuthBackendBase):
         self.roles_collection = self.users_collection = None
 
     def connect(self):
+        '''Connect to the auth database specified in constructor.
+
+        Raises ``AlreadyConnectedError`` if connected.
+
+        '''
+
         # XXX Atomicity needs to be guaranteed!!
         self._chk_disconn()
 
@@ -92,6 +118,12 @@ class MongoAuthBackend(AuthBackendBase):
         self._post_connect()
 
     def disconnect(self):
+        '''Disconnect from database.
+
+        Raises ``NotConnectedError`` if not connected.
+
+        '''
+
         # XXX Atomicity!!
         self._chk_conn()
 
@@ -100,19 +132,42 @@ class MongoAuthBackend(AuthBackendBase):
         self.connection = None
 
     def __enter__(self):
+        '''Context manager protocol function.
+
+        This function establishes the db connection for you.
+        
+        '''
+
         self._chk_disconn()
         self.connect()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        '''Contect manager protocol function.
+
+        Automatically closes the db connection.
+
+        '''
+
         self.disconnect()
 
     def _init_idx(self):
+        '''Ensures proper indexing of relevant fields.
+
+        Meant to be called from initialization routines.
+
+        '''
+
         self._chk_conn()
 
         self.roles_collection.ensure_index(FIELD_ROLE_CAPS)
 
     def get_role(self, name):
+        '''Get details of a role named ``name``.
+
+        Raises ``ValueError`` if the requested role does not exist.
+        '''
+
         self._chk_conn()
 
         name = unicode(name)
