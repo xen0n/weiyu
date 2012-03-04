@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# NOTE: the SVN support code reused Django project's.
+
 from __future__ import unicode_literals, division
 
 __all__ = ['VERSION_MAJOR', 'VERSION_MINOR', 'VERSION_REV',
