@@ -17,8 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-u'''\
-This is the MongoDB backend for ``weiyu``'s authentication framework.
+u'''This is the MongoDB backend for ``weiyu``'s authentication framework.
 
 This implementation depends on the ``pymongo`` library to talk to MongoDB
 servers.
