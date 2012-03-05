@@ -1,6 +1,3 @@
-MongoDB Authentication Backend
-==============================
-
 .. automodule:: weiyu.auth.backend.mongo
    :members:
    :private-members:

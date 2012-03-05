@@ -17,7 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-u'''This is the MongoDB backend for ``weiyu``'s authentication framework.
+u'''
+MongoDB Authentication Backend
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is the MongoDB backend for ``weiyu``'s authentication framework.
 
 This implementation depends on the ``pymongo`` library to talk to MongoDB
 servers.
@@ -34,6 +38,7 @@ from .baseclass import AuthBackendBase
 from .exc import NotConnectedError, AlreadyConnectedError
 
 DEFAULT_HOST, DEFAULT_PORT = 'localhost', 27017
+
 DATABASE_NAME = 'auth'
 COLLECTION_ROLES = 'roles'
 COLLECTION_USERS = 'users'
@@ -41,7 +46,6 @@ COLLECTION_USERS = 'users'
 FIELD_ROLE_NAME = '_id'
 FIELD_ROLE_CAPS = 'c'
 
-# capabilities operation
 CAPS_UPDATE, CAPS_ADD, CAPS_REMOVE = range(3)
 
 class MongoAuthBackend(AuthBackendBase):
@@ -95,12 +99,28 @@ class MongoAuthBackend(AuthBackendBase):
             raise AlreadyConnectedError
 
     def _post_connect(self):
+        '''Post-connect initialization routine.
+
+        .. warning::
+            This is an internal function, not meant for outside use. **Do not**
+            use it.
+
+        '''
+
         cnn = self.connection
         auth_db = cnn[DATABASE_NAME]
         self.roles_collection = auth_db[COLLECTION_ROLES]
         self.users_collection = auth_db[COLLECTION_USERS]
 
     def _pre_disconnect(self):
+        '''Pre-disconnect cleaning routine.
+
+        .. warning::
+            This is an internal function, not meant for outside use. **Do not**
+            use it.
+
+        '''
+
         self.roles_collection = self.users_collection = None
 
     def connect(self):
@@ -177,6 +197,14 @@ class MongoAuthBackend(AuthBackendBase):
         return doc
 
     def get_roles_iter(self, names=None):
+        '''Get an iterator over the roles specified in ``names``.
+
+        If ``names`` is ``None`` (the default value), the entire list of roles
+        is returned. Otherwise only those roles whose name is in ``names`` are
+        returned.
+
+        '''
+
         self._chk_conn()
 
         if names is None:
@@ -191,9 +219,23 @@ class MongoAuthBackend(AuthBackendBase):
             raise NotImplementedError
 
     def get_roles(self, *args, **kwargs):
+        '''Get a list of roles.
+
+        Usage is exactly the same as ``get_roles_iter`` except the return value
+        is a plain old list rather than genexpr.
+
+        '''
+
         return [i for i in self.get_roles_iter(*args, **kwargs)]
 
     def add_role(self, name, caps=[]):
+        '''Add a role named ``name``, with capabilities ``caps``.
+
+        ``caps`` should be a list of ``unicode``'s, naming the desired
+        capabilities, if any.
+
+        '''
+
         self._chk_conn()
 
         name = unicode(name)
