@@ -231,7 +231,7 @@ class MongoAuthBackend(AuthBackendBase):
     def add_role(self, name, caps=[]):
         '''Add a role named ``name``, with capabilities ``caps``.
 
-        ``caps`` should be a list of ``unicode``'s, naming the desired
+        ``caps`` should be a list of ``unicode``'s specifying the initial
         capabilities, if any.
 
         '''
@@ -248,6 +248,12 @@ class MongoAuthBackend(AuthBackendBase):
             raise ValueError("Role '%s' already exists!" % name)
 
     def get_role_caps(self, role):
+        '''Get the role ``role``'s capabilities.
+
+        Returns a ``list`` of ``unicode`` capability strings.
+
+        '''
+
         self._chk_conn()
 
         # coerce to plain unicode in case of things like smartstr or fail
@@ -264,6 +270,20 @@ class MongoAuthBackend(AuthBackendBase):
         return qr[FIELD_ROLE_CAPS]
 
     def set_role_caps(self, role, caps, mode=CAPS_UPDATE):
+        '''Update the given role's capability array.
+
+        ``mode`` parameter can be one of the following:
+        
+        * ``CAPS_UPDATE`` -- replaces the old capabilities with ``caps``
+        * ``CAPS_ADD`` -- adds capabilities which are not prevoiusly owned from
+          ``caps``
+        * ``CAPS_REMOVE`` -- removes capabilities found in ``caps``
+
+        ``caps`` can be a ``unicode`` or ``str`` literal, or it will be
+        converted to a ``list``. The list should only contain ``unicode``'s.
+
+        '''
+
         self._chk_conn()
 
         role = unicode(role)
@@ -290,9 +310,21 @@ class MongoAuthBackend(AuthBackendBase):
         self.roles_collection.update({FIELD_ROLE_NAME: role}, doc)
 
     def add_role_caps(self, role, caps):
+        '''Add capabilities to ``role``.
+
+        Equivalent to calling ``set_role_caps`` with ``mode=CAPS_ADD``.
+
+        '''
+
         return self.set_role_caps(role, caps, CAPS_ADD)
 
     def remove_role_caps(self, role, caps):
+        '''Remove capabilities from ``role``.
+
+        Equivalent to calling ``set_role_caps`` with ``mode=CAPS_REMOVE``.
+
+        '''
+
         return self.set_role_caps(role, caps, CAPS_REMOVE)
 
 
