@@ -34,7 +34,7 @@ import pymongo
 
 _DuplicateKeyError = pymongo.errors.DuplicateKeyError
 
-from .baseclass import AuthBackendBase
+from .baseclass import *
 from .exc import NotConnectedError, AlreadyConnectedError
 
 DEFAULT_HOST, DEFAULT_PORT = 'localhost', 27017
@@ -46,7 +46,6 @@ COLLECTION_USERS = 'users'
 FIELD_ROLE_NAME = '_id'
 FIELD_ROLE_CAPS = 'c'
 
-CAPS_UPDATE, CAPS_ADD, CAPS_REMOVE = range(3)
 
 class MongoAuthBackend(AuthBackendBase):
     '''MongoDB authentication backend class.'''
@@ -69,34 +68,6 @@ class MongoAuthBackend(AuthBackendBase):
                            else pymongo.Connection
                            )
         self.connection = None
-
-    def _chk_conn(self):
-        '''Check if the database connection has already been established.
-
-        Raises ``NotConnectedError`` if a connection object is not present.
-
-        .. warning::
-            This is an internal function, not meant for outside use. **Do not**
-            use it.
-
-        '''
-
-        if self.connection is None:
-            raise NotConnectedError
-
-    def _chk_disconn(self):
-        '''Check if the database connection has not yet been established.
-
-        Raises ``AlreadyConnectedError`` if a connection object is present.
-
-        .. warning::
-            This is an internal function, not meant for outside use. **Do not**
-            use it.
-
-        '''
-
-        if self.connection is not None:
-            raise AlreadyConnectedError
 
     def _post_connect(self):
         '''Post-connect initialization routine.
@@ -123,6 +94,7 @@ class MongoAuthBackend(AuthBackendBase):
 
         self.roles_collection = self.users_collection = None
 
+    @ensure_disconn
     def connect(self):
         '''Connect to the auth database specified in constructor.
 
@@ -131,11 +103,10 @@ class MongoAuthBackend(AuthBackendBase):
         '''
 
         # XXX Atomicity needs to be guaranteed!!
-        self._chk_disconn()
-
         self.connection = self._conn_type(self.host, self.port)
         self._post_connect()
 
+    @ensure_conn
     def disconnect(self):
         '''Disconnect from database.
 
@@ -144,12 +115,11 @@ class MongoAuthBackend(AuthBackendBase):
         '''
 
         # XXX Atomicity!!
-        self._chk_conn()
-
         self._pre_disconnect()
         self.connection.close()
         self.connection = None
 
+    @ensure_disconn
     def __enter__(self):
         '''Context manager protocol function.
 
@@ -157,7 +127,6 @@ class MongoAuthBackend(AuthBackendBase):
         
         '''
 
-        self._chk_disconn()
         self.connect()
         return self
 
@@ -170,6 +139,7 @@ class MongoAuthBackend(AuthBackendBase):
 
         self.disconnect()
 
+    @ensure_conn
     def _init_idx(self):
         '''Ensures proper indexing of relevant fields.
 
@@ -177,17 +147,14 @@ class MongoAuthBackend(AuthBackendBase):
 
         '''
 
-        self._chk_conn()
-
         self.roles_collection.ensure_index(FIELD_ROLE_CAPS)
 
+    @ensure_conn
     def get_role(self, name):
         '''Get details of a role named ``name``.
 
         Raises ``ValueError`` if the requested role does not exist.
         '''
-
-        self._chk_conn()
 
         name = unicode(name)
         doc = self.roles_collection.find_one({FIELD_ROLE_NAME: name})
@@ -196,6 +163,7 @@ class MongoAuthBackend(AuthBackendBase):
             raise ValueError("No role named '%s'" % name)
         return doc
 
+    @ensure_conn
     def get_roles_iter(self, names=None):
         '''Get an iterator over the roles specified in ``names``.
 
@@ -204,8 +172,6 @@ class MongoAuthBackend(AuthBackendBase):
         returned.
 
         '''
-
-        self._chk_conn()
 
         if names is None:
             # return all roles
@@ -228,6 +194,7 @@ class MongoAuthBackend(AuthBackendBase):
 
         return [i for i in self.get_roles_iter(*args, **kwargs)]
 
+    @ensure_conn
     def add_role(self, name, caps=[]):
         '''Add a role named ``name``, with capabilities ``caps``.
 
@@ -235,8 +202,6 @@ class MongoAuthBackend(AuthBackendBase):
         capabilities, if any.
 
         '''
-
-        self._chk_conn()
 
         name = unicode(name)
         doc = {FIELD_ROLE_NAME: name, FIELD_ROLE_CAPS: caps, }
@@ -247,14 +212,13 @@ class MongoAuthBackend(AuthBackendBase):
         except _DuplicateKeyError:
             raise ValueError("Role '%s' already exists!" % name)
 
+    @ensure_conn
     def get_role_caps(self, role):
         '''Get the role ``role``'s capabilities.
 
         Returns a ``list`` of ``unicode`` capability strings.
 
         '''
-
-        self._chk_conn()
 
         # coerce to plain unicode in case of things like smartstr or fail
         # before hitting db
@@ -269,6 +233,7 @@ class MongoAuthBackend(AuthBackendBase):
 
         return qr[FIELD_ROLE_CAPS]
 
+    @ensure_conn
     def set_role_caps(self, role, caps, mode=CAPS_UPDATE):
         '''Update the given role's capability array.
 
@@ -283,8 +248,6 @@ class MongoAuthBackend(AuthBackendBase):
         converted to a ``list``. The list should only contain ``unicode``'s.
 
         '''
-
-        self._chk_conn()
 
         role = unicode(role)
 

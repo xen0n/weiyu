@@ -17,9 +17,54 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals, division
+
+from functools import wraps
+
+CAPS_UPDATE, CAPS_ADD, CAPS_REMOVE = range(3)
+
+def ensure_conn(fn):
+    '''Check if the database connection has already been established.
+
+    Raises ``NotConnectedError`` if a connection object is not present.
+
+    .. warning::
+        This is an internal function, not meant for outside use. **Do not**
+        use it.
+
+    '''
+
+    @wraps(fn)
+    def __wrapper__(self, *args, **kwargs):
+        if self.connection is None:
+            raise NotConnectedError
+        # fn is a bound method, so don't pass self around
+        return fn(*args, **kwargs)
+    return __wrapper__
+
+def ensure_disconn(fn):
+    '''Check if the database connection has not yet been established.
+
+    Raises ``AlreadyConnectedError`` if a connection object is present.
+
+    .. warning::
+        This is an internal function, not meant for outside use. **Do not**
+        use it.
+
+    '''
+
+    @wraps(fn)
+    def __wrapper__(self, *args, **kwargs):
+        if self.connection is not None:
+            raise AlreadyConnectedError
+        # fn is a bound method, so don't pass self around
+        return fn(*args, **kwargs)
+    return __wrapper__
+
+
 class AuthBackendBase(object):
     def __init__(self):
-        pass
+        self.connection = None
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
