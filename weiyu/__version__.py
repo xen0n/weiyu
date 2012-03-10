@@ -22,7 +22,7 @@
 from __future__ import unicode_literals, division
 
 __all__ = ['VERSION_MAJOR', 'VERSION_MINOR', 'VERSION_REV',
-           'VERSION', 'VERSION_STR',
+           'VERSION', 'VERSION_DEV', 'VERSION_STR',
            ]
 
 import os.path
@@ -46,12 +46,8 @@ def get_version():
         if VERSION[3] != 'final':
             version = '%s %s %s' % (version, VERSION[3], VERSION[4])
 
-    # VCS revision, if we are in an devel environment
-    # updated to support Git too
-    vcs_ok, vcs_rev = get_vcs_revision()
-    if vcs_ok:
-        version = ' '.join([version, vcs_rev])
     return version
+
 
 ###############################################################
 ## for getting revision info from a VCS
@@ -71,9 +67,8 @@ def get_vcs_revision(path=None):
     return (False, None, )
 
 def get_svn_revision(path=None):
-    """
-    Returns the SVN revision in the form SVN-XXXX,
-    where XXXX is the revision number.
+    '''Returns the SVN revision in the form SVN-XXXX, where XXXX is the
+    revision number.
 
     Returns (False, None) if anything goes wrong, such as an unexpected
     format of internal SVN files.
@@ -81,7 +76,9 @@ def get_svn_revision(path=None):
     If path is provided, it should be a directory whose SVN info you want to
     inspect. If it's not provided, this will use the root package
     directory.
-    """
+
+    '''
+
     rev = None
     if path is None:
         path = weiyu.__path__[0]
@@ -95,8 +92,8 @@ def get_svn_revision(path=None):
     else:
         # Versions >= 7 of the entries file are flat text.  The first line is
         # the version number. The next set of digits after 'dir' is the revision.
-        if re.match('(\d+)', entries):
-            rev_match = re.search('\d+\s+dir\s+(\d+)', entries)
+        if re.match(r'(\d+)', entries):
+            rev_match = re.search(r'\d+\s+dir\s+(\d+)', entries)
             if rev_match:
                 rev = rev_match.groups()[0]
         # Older XML versions of the file specify revision as an attribute of
@@ -107,23 +104,22 @@ def get_svn_revision(path=None):
             rev = dom.getElementsByTagName('entry')[0].getAttribute('revision')
 
     if rev:
-        return (True, u'SVN-%s' % rev, )
+        return (True, 'SVN-%s' % rev, )
     return (False, None, )
 
 VCS_HANDLERS.append(get_svn_revision)
 
 def get_git_commit(path=None):
-    """
-    Returns the Git commit id in the form Git-01234567,
-    where the commit id is truncated after the 8th hex digit.
+    '''Returns the Git commit id in the form Git-xxxxxxxx,
+    where xxxxxxxx is the commit hash truncated after the 8th hex digit.
 
-    Returns (False, None) if anything goes wrong, such as an unexpected
-    format of internal Git files.
+    Returns (False, None) if anything goes wrong.
 
     If path is provided, it should be a directory whose Git info you want to
     inspect. If it's not provided, this will use the root package
     directory's parent dir.
-    """
+
+    '''
 
     # Git directory...
     if path is None:
@@ -161,12 +157,21 @@ def get_git_commit(path=None):
         commit_id = commit[:8]
 
     # if we arrive here, we're done and commit id is ready.
-    return (True, u'Git-%s' % commit_id, )
+    return (True, 'Git-%s' % commit_id, )
 
 VCS_HANDLERS.append(get_git_commit)
 
-# init our version str... this is constant during one run
-VERSION_STR = get_version()
+# init our version strings... they are constant during one run
+_verstr = get_version()
+
+# VCS revision, if we are in an devel environment
+# updated to support Git too
+_vcs_ok, _vcs_rev = get_vcs_revision()
+
+VERSION_DEV = _vcs_rev if _vcs_ok else ''
+VERSION_STR = _verstr if not _vcs_ok else ' '.join([_verstr, _vcs_rev])
+
+del _vcs_ok, _vcs_rev, _verstr
 
 
 # vi:ai:et:ts=4 sw=4 sts=4 fenc=utf-8
