@@ -36,6 +36,9 @@ VERSION_REV = 1
 
 VERSION = (VERSION_MAJOR, VERSION_MINOR, VERSION_REV, 'alpha', 0)
 
+_VCS_HANDLERS = []
+
+
 def get_version():
     version = '%s.%s' % (VERSION[0], VERSION[1])
     if VERSION[2]:
@@ -57,18 +60,18 @@ def get_version():
 ## for getting revision info from a VCS
 ###############################################################
 
-VCS_HANDLERS = []
 
 def get_vcs_revision(path=None):
     # try the handlers one by one, return the first successful
     # match of VCS info
-    for handler in VCS_HANDLERS:
+    for handler in _VCS_HANDLERS:
         is_ok, result = handler(path)
         if is_ok:
             return (is_ok, result, )
 
     # no info available, signal failure
     return (False, None, )
+
 
 def get_svn_revision(path=None):
     """
@@ -94,7 +97,8 @@ def get_svn_revision(path=None):
         return (False, None, )
     else:
         # Versions >= 7 of the entries file are flat text.  The first line is
-        # the version number. The next set of digits after 'dir' is the revision.
+        # the version number. The next set of digits after 'dir' is the
+        # revision.
         if re.match('(\d+)', entries):
             rev_match = re.search('\d+\s+dir\s+(\d+)', entries)
             if rev_match:
@@ -110,7 +114,8 @@ def get_svn_revision(path=None):
         return (True, u'SVN-%s' % rev, )
     return (False, None, )
 
-VCS_HANDLERS.append(get_svn_revision)
+_VCS_HANDLERS.append(get_svn_revision)
+
 
 def get_git_commit(path=None):
     """
@@ -163,7 +168,7 @@ def get_git_commit(path=None):
     # if we arrive here, we're done and commit id is ready.
     return (True, u'Git-%s' % commit_id, )
 
-VCS_HANDLERS.append(get_git_commit)
+_VCS_HANDLERS.append(get_git_commit)
 
 # init our version str... this is constant during one run
 VERSION_STR = get_version()

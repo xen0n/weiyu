@@ -23,6 +23,7 @@ from functools import wraps
 
 CAPS_UPDATE, CAPS_ADD, CAPS_REMOVE = range(3)
 
+
 def ensure_conn(fn):
     '''Check if the database connection has already been established.
 
@@ -41,6 +42,7 @@ def ensure_conn(fn):
         # fn is a bound method, so don't pass self around
         return fn(*args, **kwargs)
     return __wrapper__
+
 
 def ensure_disconn(fn):
     '''Check if the database connection has not yet been established.

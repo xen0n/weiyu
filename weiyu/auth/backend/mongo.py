@@ -49,7 +49,7 @@ FIELD_ROLE_CAPS = 'c'
 
 class MongoAuthBackend(AuthBackendBase):
     '''MongoDB authentication backend class.'''
-    
+
     def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, is_replica=False):
         '''Constructor function.
 
@@ -124,7 +124,7 @@ class MongoAuthBackend(AuthBackendBase):
         '''Context manager protocol function.
 
         This function establishes the db connection for you.
-        
+
         '''
 
         self.connect()
@@ -238,7 +238,7 @@ class MongoAuthBackend(AuthBackendBase):
         '''Update the given role's capability array.
 
         ``mode`` parameter can be one of the following:
-        
+
         * ``CAPS_UPDATE`` -- replaces the old capabilities with ``caps``
         * ``CAPS_ADD`` -- adds capabilities which are not prevoiusly owned from
           ``caps``

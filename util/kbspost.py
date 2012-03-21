@@ -64,6 +64,7 @@ STATISTIC_LINE = (u'\rT=%(tot)-6d, A=%(att)-3d, S=%(sys)-3d, E=%(err)-3d, '
                   u'Sl=%(sign)s'
                   )
 
+
 # Helper routines.
 def read_post_lines(name):
     # TODO: Attachment problem!!
@@ -93,6 +94,7 @@ def read_post_lines(name):
             have_att,
             )
 
+
 # Parsing functions.
 def parse(lines):
     result = {}
@@ -108,6 +110,7 @@ def parse(lines):
     result.update(extract_content(lines, sign_delim_idx, have_footer))
 
     return result
+
 
 # Parsing of the individual parts.
 def parse_header(lines):
@@ -133,6 +136,7 @@ def parse_header(lines):
             u'site': site,
             u'date': date,
             }
+
 
 def separate_signature(sign_reverse):
     # KBS imposes a 6-line limitation on signatures, so we can resonably guess
@@ -165,6 +169,7 @@ def separate_signature(sign_reverse):
 
     return SIGN_BLURRY, u'', 0
 
+
 def parse_footer(lines):
     addr_line = lines[-1]
     # reserve 8 lines, that is 6 + 1 delim + 1 possibly blank line
@@ -183,6 +188,7 @@ def parse_footer(lines):
             u'exactness': status,
             u'fromaddr': fromaddr,
             }, sign_delim_idx
+
 
 def extract_content(lines, sign_delim_idx, have_footer):
     # the last 2 lines are always not interesting, with knowledge of signature
@@ -203,6 +209,7 @@ def extract_content(lines, sign_delim_idx, have_footer):
 # for presentational and debug purpose
 def gen_printout_str(post):
     return (PRES_FORMAT % post).encode(OUTPUT_ENCODING)
+
 
 # main function
 def main(argc, argv):
@@ -260,7 +267,7 @@ def main(argc, argv):
 
         # final update
         cnt[u'tot'] = i
-        print (STATISTIC_LINE.replace(u'\r',u'')) % cnt
+        print (STATISTIC_LINE.replace(u'\r', u'')) % cnt
 
         return 0
 
@@ -270,7 +277,7 @@ def main(argc, argv):
 
 
 if __name__ == '__main__':
-   sys.exit(main(len(sys.argv), sys.argv))
+    sys.exit(main(len(sys.argv), sys.argv))
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
