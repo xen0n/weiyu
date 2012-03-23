@@ -23,10 +23,10 @@ from __future__ import unicode_literals, division
 class AuthRole(object):
     '''This class describes a *role* that owns 0 or more *capabilities*.
 
-    The concept "role" is similar to "group", but differs in that one user can have
-    multiple "identities", and he/she can choose which role or identity to use when
-    he/she decides to perform a certain privileged operation. This can reduce mistakes
-    by privileged users.
+    The concept "role" is similar to "group", but differs in that one user
+    can have multiple "identities", and he/she can choose which role or
+    identity to use when he/she decides to perform a certain privileged
+    operation. This can reduce mistakes by privileged users.
 
     '''
 
@@ -34,7 +34,8 @@ class AuthRole(object):
         self.backend = backend
 
     def has_caps(self, caps):
-        # TODO: self.backend.check, also to use Django's Q object-like helpers I hope...
+        # TODO: self.backend.check, also to use Django's Q object-like
+        # helpers I hope...
         pass
 
 
