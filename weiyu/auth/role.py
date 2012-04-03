@@ -17,13 +17,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals, division
+
 
 class AuthRole(object):
-    def __init__(self):
-        pass
+    '''This class describes a *role* that owns 0 or more *capabilities*.
 
-    def chk_perm(self, perm):
-        # TODO: self.backend.check
+    The concept "role" is similar to "group", but differs in that one user
+    can have multiple "identities", and he/she can choose which role or
+    identity to use when he/she decides to perform a certain privileged
+    operation. This can reduce mistakes by privileged users.
+
+    '''
+
+    def __init__(self, backend):
+        self.backend = backend
+
+    def has_caps(self, caps):
+        # TODO: self.backend.check, also to use Django's Q object-like
+        # helpers I hope...
         pass
 
 
