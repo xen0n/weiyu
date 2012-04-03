@@ -68,7 +68,7 @@ class DBDriverBase(object):
     '''Baseclass of database drivers.'''
 
     def __init__(self):
-        self.connection = None
+        self.connection = self.ops = self.storage = None
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

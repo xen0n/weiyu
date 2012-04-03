@@ -35,7 +35,6 @@ _DuplicateKeyError = pymongo.errors.DuplicateKeyError
 from .baseclass import *
 from weiyu.helpers import PathBuilderBase
 
-DEFAULT_HOST, DEFAULT_PORT = 'localhost', 27017
 
 class CollectionPath(PathBuilderBase):
     delim = u'.'
@@ -65,7 +64,7 @@ class CallReflector(object):
 class PymongoDriver(DBDriverBase):
     '''``pymongo`` driver class.'''
 
-    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, is_replica=False):
+    def __init__(self, host, port, name, is_replica=False):
         '''Constructor function.
 
         The database is specified through the parameters ``host`` and ``port``.
@@ -75,16 +74,13 @@ class PymongoDriver(DBDriverBase):
 
         '''
 
-        super(MongoAuthBackend, self).__init__()
+        super(PymongoDriver, self).__init__()
 
-        self.host, self.port = host, port
+        self.host, self.port, self.name = host, port, name
         self._conn_type = (pymongo.ReplicaSetConnection
                            if is_replica
                            else pymongo.Connection
                            )
-        self.connection = None
-        self.storage = CollectionPath()
-
 
     @ensure_disconn
     def connect(self):
@@ -96,6 +92,11 @@ class PymongoDriver(DBDriverBase):
 
         # XXX Atomicity needs to be guaranteed!!
         self.connection = self._conn_type(self.host, self.port)
+        self.storage = CollectionPath()
+        self.ops = CallReflector(
+                self.connection.__getattr__(self.name),
+                CollectionPath,
+                )
 
     @ensure_conn
     def disconnect(self):
@@ -107,8 +108,7 @@ class PymongoDriver(DBDriverBase):
 
         # XXX Atomicity!!
         self.connection.close()
-        self.connection = None
-
+        self.connection = self.ops = self.storage = None
 
     @ensure_disconn
     def __enter__(self):
