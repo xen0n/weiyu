@@ -35,11 +35,7 @@ import pymongo
 _DuplicateKeyError = pymongo.errors.DuplicateKeyError
 
 from .baseclass import *
-from .exc import NotConnectedError, AlreadyConnectedError
 
-DEFAULT_HOST, DEFAULT_PORT = 'localhost', 27017
-
-DATABASE_NAME = 'auth'
 COLLECTION_ROLES = 'roles'
 COLLECTION_USERS = 'users'
 
@@ -50,106 +46,23 @@ FIELD_ROLE_CAPS = 'c'
 class MongoAuthBackend(AuthBackendBase):
     '''MongoDB authentication backend class.'''
 
-    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_PORT, is_replica=False):
+    def __init__(self, driver):
         '''Constructor function.
 
-        The database is specified through the parameters ``host`` and ``port``.
-
-        If the database to connect to is actually a replica set, set
-        ``is_replica`` to ``True``.
+        The database is passed in as a Driver object.
 
         '''
 
         super(MongoAuthBackend, self).__init__()
 
-        self.host, self.port = host, port
-        self._conn_type = (pymongo.ReplicaSetConnection
-                           if is_replica
-                           else pymongo.Connection
-                           )
-        self.connection = None
+        self.driver = driver
 
-    def _post_connect(self):
-        '''Post-connect initialization routine.
+        self.__ops, self.__stor = driver.ops, driver.storage
+        self.roles_collection = self.__stor.__getattr__(COLLECTION_ROLES)
+        self.users_collection = self.__stor.__getattr__(COLLECTION_USERS)
 
-        .. warning::
-            This is an internal function, not meant for outside use. **Do not**
-            use it.
+        self.__ops.ensure_index(self.roles_collection, FIELD_ROLE_CAPS)
 
-        '''
-
-        cnn = self.connection
-        auth_db = cnn[DATABASE_NAME]
-        self.roles_collection = auth_db[COLLECTION_ROLES]
-        self.users_collection = auth_db[COLLECTION_USERS]
-
-    def _pre_disconnect(self):
-        '''Pre-disconnect cleaning routine.
-
-        .. warning::
-            This is an internal function, not meant for outside use. **Do not**
-            use it.
-
-        '''
-
-        self.roles_collection = self.users_collection = None
-
-    @ensure_disconn
-    def connect(self):
-        '''Connect to the auth database specified in constructor.
-
-        Raises ``AlreadyConnectedError`` if connected.
-
-        '''
-
-        # XXX Atomicity needs to be guaranteed!!
-        self.connection = self._conn_type(self.host, self.port)
-        self._post_connect()
-
-    @ensure_conn
-    def disconnect(self):
-        '''Disconnect from database.
-
-        Raises ``NotConnectedError`` if not connected.
-
-        '''
-
-        # XXX Atomicity!!
-        self._pre_disconnect()
-        self.connection.close()
-        self.connection = None
-
-    @ensure_disconn
-    def __enter__(self):
-        '''Context manager protocol function.
-
-        This function establishes the db connection for you.
-
-        '''
-
-        self.connect()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        '''Contect manager protocol function.
-
-        Automatically closes the db connection.
-
-        '''
-
-        self.disconnect()
-
-    @ensure_conn
-    def _init_idx(self):
-        '''Ensures proper indexing of relevant fields.
-
-        Meant to be called from initialization routines.
-
-        '''
-
-        self.roles_collection.ensure_index(FIELD_ROLE_CAPS)
-
-    @ensure_conn
     def get_role(self, name):
         '''Get details of a role named ``name``.
 
@@ -157,13 +70,14 @@ class MongoAuthBackend(AuthBackendBase):
         '''
 
         name = unicode(name)
-        doc = self.roles_collection.find_one({FIELD_ROLE_NAME: name})
+        doc = self.__ops.find_one(self.roles_collection,
+                                  {FIELD_ROLE_NAME: name},
+                                  )
 
         if doc is None:
             raise ValueError("No role named '%s'" % name)
         return doc
 
-    @ensure_conn
     def get_roles_iter(self, names=None):
         '''Get an iterator over the roles specified in ``names``.
 
@@ -175,7 +89,7 @@ class MongoAuthBackend(AuthBackendBase):
 
         if names is None:
             # return all roles
-            cursor = self.roles_collection.find(None)
+            cursor = self.__ops.find(self.roles_collection, None)
             return ((item[FIELD_ROLE_NAME], item[FIELD_ROLE_CAPS], )
                     for item in cursor
                     )
@@ -194,7 +108,6 @@ class MongoAuthBackend(AuthBackendBase):
 
         return [i for i in self.get_roles_iter(*args, **kwargs)]
 
-    @ensure_conn
     def add_role(self, name, caps=[]):
         '''Add a role named ``name``, with capabilities ``caps``.
 
@@ -208,11 +121,10 @@ class MongoAuthBackend(AuthBackendBase):
 
         # do the insertion with uniqueness checked
         try:
-            self.roles_collection.insert(doc, safe=True)
+            self.__ops.insert(self.roles_collection, doc, safe=True)
         except _DuplicateKeyError:
             raise ValueError("Role '%s' already exists!" % name)
 
-    @ensure_conn
     def get_role_caps(self, role):
         '''Get the role ``role``'s capabilities.
 
@@ -224,16 +136,17 @@ class MongoAuthBackend(AuthBackendBase):
         # before hitting db
         role = unicode(role)
 
-        qr = self.roles_collection.find_one({FIELD_ROLE_NAME: role},
-                                            {FIELD_ROLE_NAME: 0,
-                                             FIELD_ROLE_CAPS: 1,
-                                             })
+        qr = self.__ops.find_one(self.roles_collection,
+                                 {FIELD_ROLE_NAME: role},
+                                 {
+                                    FIELD_ROLE_NAME: 0,
+                                    FIELD_ROLE_CAPS: 1,
+                                    })
         if qr is None:
-            raise ValueError("No role named '%s'", role)
+            raise ValueError("No role named '%s'" % role)
 
         return qr[FIELD_ROLE_CAPS]
 
-    @ensure_conn
     def set_role_caps(self, role, caps, mode=CAPS_UPDATE):
         '''Update the given role's capability array.
 
@@ -270,7 +183,7 @@ class MongoAuthBackend(AuthBackendBase):
             raise ValueError('Invalid mode -- use CAPS_{UPDATE,ADD,REMOVE}')
 
         # hit db
-        self.roles_collection.update({FIELD_ROLE_NAME: role}, doc)
+        self.__ops.update(self.roles_collection, {FIELD_ROLE_NAME: role}, doc)
 
     def add_role_caps(self, role, caps):
         '''Add capabilities to ``role``.
