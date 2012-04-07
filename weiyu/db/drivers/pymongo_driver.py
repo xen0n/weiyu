@@ -33,32 +33,11 @@ import pymongo
 _DuplicateKeyError = pymongo.errors.DuplicateKeyError
 
 from .baseclass import *
-from weiyu.helpers import PathBuilderBase
+from weiyu.helpers import PathBuilderBase, CallReflector
 
 
 class CollectionPath(PathBuilderBase):
     delim = u'.'
-
-
-class CallReflector(object):
-    def __init__(self, target, path_type):
-        self.__target = target
-        self.path_type = path_type
-
-    def __getattr__(self, att):
-        def _wrapper_(path_obj, *args, **kwargs):
-            if not issubclass(type(path_obj), self.path_type):
-                raise ValueError(u'path object type mismatch')
-
-            real_target = self.__target.__getattr__(unicode(path_obj))
-            real_att_unbound = real_target.__class__.__dict__[att]
-
-            if not hasattr(real_att_unbound, '__call__'):
-                raise AttributeError(u"'%s' attribute is not callable" % att)
-
-            return real_att_unbound(real_target, *args, **kwargs)
-
-        return _wrapper_
 
 
 class PymongoDriver(DBDriverBase):

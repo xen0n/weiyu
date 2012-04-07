@@ -47,7 +47,7 @@ class PathBuilderBase(object):
         return (self.__class__.delim).join(self.__chain)
 
     def __repr__(self):
-       return str(unicode(self))
+       return '<Path: %s>' % str(unicode(self))
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
