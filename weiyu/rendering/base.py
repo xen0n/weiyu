@@ -17,6 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+u'''
+Base classes for rendering
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This module provides the basic object rendering infrastructure, with
+both pre-rendering and post-rendering hooks.
+
+'''
+
 from __future__ import unicode_literals, division
 
 from .exc import RenderingError
