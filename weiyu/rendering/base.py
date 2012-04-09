@@ -25,6 +25,13 @@ __all__ = ['RenderContext', 'Renderable', ]
 
 
 class RenderContext(dict):
+    '''Render context class.
+    
+    Currently this is just another name for ``dict``; may restrict type of
+    keys to ``unicode`` only in the future when there is need.
+
+    '''
+
     pass
 
 
@@ -33,6 +40,28 @@ def is_render_context(obj):
 
 
 class Renderable(object):
+    '''Base class for any ``weiyu``-renderable object.
+
+    It supports two distinct sets of pre- and post-rendering hooks.
+    The separated sets of hooks seem to be more intuitive than Django's
+    middleware system, which actually is what inspired this design.
+
+    The pre-processor or post-processor can be any callable. Pre-processors
+    are called with one argument, a ``RenderContext`` instance; its return
+    type specifies the action following. A return value of ``None`` just
+    makes the system proceed to the next hook (if any); a ``unicode``
+    return value causes the actual rendering be skipped and post-processor
+    hooks invoked; a return value that is a ``RenderContext`` *replaces*
+    the current rendering context. Any other return types would lead to a
+    ``RenderingError``. The post-processors work almost the same way; they
+    are invoked with two parameters, the first being the newest
+    intermediate result of rendering, the second the final render context
+    object. Their return values are interpreted in a similar fashion,
+    *replacing the whole result string* when the returned value's type is a
+    subclass of ``unicode``.
+
+    '''
+
     def __init__(self, pre_hooks=None, post_hooks=None):
         self.pre_hooks = pre_hooks if pre_hooks is not None else []
         self.post_hooks = post_hooks if post_hooks is not None else []
