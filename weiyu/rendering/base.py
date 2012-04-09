@@ -26,7 +26,7 @@ __all__ = ['RenderContext', 'Renderable', ]
 
 class RenderContext(dict):
     '''Render context class.
-    
+
     Currently this is just another name for ``dict``; may restrict type of
     keys to ``unicode`` only in the future when there is need.
 
@@ -107,7 +107,7 @@ class Renderable(object):
         # Execute the postprocess hooks, w/ the result string and context.
         for hook in self.post_hooks:
             new_result = hook(result, real_context)
-            
+
             if new_result is None:
                 # skip to the next one
                 continue
