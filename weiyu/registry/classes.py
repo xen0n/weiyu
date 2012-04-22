@@ -91,7 +91,7 @@ class RegistryBase(object):
         if normalized_key in self.__registry:
             raise AttributeError(
                     "'%s' is already registered with value '%s'"
-                    % (repr(normalized_key), repr(value), )
+                    % (repr(normalized_key), repr(self.__registry[value]), )
                     )
         try:
             cooked_value = self.normalize_value(value)
