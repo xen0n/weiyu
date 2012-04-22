@@ -1,4 +1,4 @@
-.. automodule:: weiyu.bookkeeper.keeper
+.. automodule:: weiyu.registry.classes
    :members:
    :private-members:
    :special-members:
