@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 u'''
-Bookkeepers
-~~~~~~~~~~~
+Bookkeeper classes
+~~~~~~~~~~~~~~~~~~
 
 This module provides classes for global bookkeeping.
 
@@ -54,19 +54,32 @@ class BookkeeperBase(object):
 
     @abc.abstractmethod
     def normalize_key(self, key):
+        '''Called to normalize any key passed in.
+
+        Since the method is abstract, subclasses must override it.
+
+        '''
+
         pass
 
     def register(self, key, value):
+        '''Register a key-value pair into the bookkeeper.
+        '''
+
         normalized_key = self.normalize_key(key)
 
         if normalized_key in self.__registry:
-            raise AttributeError("'%s' is already registered with value '%s'"
-                                 % (repr(typed_key), repr(value), )
-                                 )
+            raise AttributeError(
+                    "'%s' is already registered with value '%s'"
+                    % (repr(typed_key), repr(value), )
+                    )
 
         self.__registry[normalized_key] = value
 
     def unregister(self, key):
+        '''Remove a previously registered entry.
+        '''
+
         normalized_key = self.normalize_key(key)
 
         try:
@@ -79,12 +92,25 @@ class BookkeeperBase(object):
 
 
 class UnicodeBookkeeper(BookkeeperBase):
+    '''Bookkeeper with Unicode keys.
+
+    As its name implies, this class is just ``BookkeeperBase`` with keys
+    all converted to ``unicode``. Values can still be of any type though.
+
+    '''
+
     def normalize_key(self, key):
         return unicode(key)
 
 
 class FunctionBookkeeper(UnicodeBookkeeper):
-    '''Bookkeeper for registering functions.'''
+    '''Bookkeeper for registering functions.
+
+    Note that ``register``'s signature is changed to make auto-registration
+    on function definition more Pythonic, which is also the bookkeeper's
+    desired usage pattern.
+
+    '''
 
     def register(self, name=None):
         '''Convenient decorator for registering functions.
@@ -94,7 +120,8 @@ class FunctionBookkeeper(UnicodeBookkeeper):
 
         .. note::
             To use function names, the decorator must be used with parens
-            like ``@registry.register()``, or the function won't be executed.
+            like ``@registry.register()``, or the decorator won't be
+            executed.
 
         '''
 
