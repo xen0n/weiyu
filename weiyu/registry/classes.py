@@ -21,7 +21,10 @@ u'''
 Registry classes
 ~~~~~~~~~~~~~~~~
 
-This module provides classes for global bookkeeping.
+This module provides classes for global preference/component registration.
+The classes are designed for usage as global singleton instances; put a
+registry instance request in your module and register all kinds of things
+in it.
 
 '''
 
@@ -109,6 +112,9 @@ class RegistryBase(object):
 
     def __getitem__(self, key):
         return self.__registry[self.normalize_key(key)]
+
+    def __contains__(self, key):
+        return key in self.__registry
 
 
 class UnicodeRegistry(RegistryBase):
