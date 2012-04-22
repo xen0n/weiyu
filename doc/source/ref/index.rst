@@ -5,6 +5,7 @@ Module reference
    :maxdepth: 2
 
    auth/index
+   bookkeeping/index
    rendering/index
 
 
