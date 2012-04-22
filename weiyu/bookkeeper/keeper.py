@@ -33,6 +33,7 @@ from types import FunctionType, MethodType
 __all__ = ['BookkeeperBase',
            'UnicodeBookkeeper',
            'FunctionBookkeeper',
+           'BookkeeperBookkeeper',
            ]
 
 
