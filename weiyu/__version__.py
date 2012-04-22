@@ -93,18 +93,21 @@ def get_svn_revision(path=None):
     except IOError:
         return (False, None, )
     else:
-        # Versions >= 7 of the entries file are flat text.  The first line is
-        # the version number. The next set of digits after 'dir' is the revision.
+        # Versions >= 7 of the entries file are flat text. The first line
+        # is the version number. The next set of digits after 'dir' is the
+        # revision.
         if re.match(r'(\d+)', entries):
             rev_match = re.search(r'\d+\s+dir\s+(\d+)', entries)
             if rev_match:
                 rev = rev_match.groups()[0]
-        # Older XML versions of the file specify revision as an attribute of
-        # the first entries node.
+        # Older XML versions of the file specify revision as an attribute
+        # of the first entries node.
         else:
             from xml.dom import minidom
             dom = minidom.parse(entries_path)
-            rev = dom.getElementsByTagName('entry')[0].getAttribute('revision')
+            rev = (dom.getElementsByTagName('entry')[0]
+                    .getAttribute('revision')
+                    )
 
     if rev:
         return (True, 'SVN-%s' % rev, )
@@ -119,8 +122,8 @@ def get_git_commit(path=None):
 
     Returns (False, None) if anything goes wrong.
 
-    If path is provided, it should be a directory whose Git info you want to
-    inspect. If it's not provided, this will use the root package
+    If path is provided, it should be a directory whose Git info you want
+    to inspect. If it's not provided, this will use the root package
     directory's parent dir.
 
     '''
@@ -131,6 +134,7 @@ def get_git_commit(path=None):
         git_path = '%s/../.git/' % path
     else:
         git_path = '%s/.git/' % path
+
     # normalize a little bit
     git_path = os.path.normpath(git_path)
 
