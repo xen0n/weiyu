@@ -44,11 +44,12 @@ class RegistryBase(object):
     '''A simple registry base class with a ``dict``-like interface.
 
     The registries are meant for use as global singleton instances, keeping
-    record of various components/preferences. The keys
+    record of various components/preferences. The keys and values can both
+    be validated and normalized.
 
     The class is abstract, thus *not* directly usable. You must subclass
-    and override its ``normalize_key`` method, which is used to convert
-    keys into a unified type.
+    and override its ``normalize_key`` and ``normalize_value``  method,
+    which are used to implement the said validation/normalization behavior.
 
     '''
 
