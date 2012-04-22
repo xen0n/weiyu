@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / central bookkeeper / classes
+# weiyu / central registry / classes
 #
 # Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 u'''
-Bookkeeper classes
-~~~~~~~~~~~~~~~~~~
+Registry classes
+~~~~~~~~~~~~~~~~
 
 This module provides classes for global bookkeeping.
 
@@ -30,17 +30,17 @@ from __future__ import unicode_literals, division
 import abc
 from types import FunctionType, MethodType
 
-__all__ = ['BookkeeperBase',
-           'UnicodeBookkeeper',
-           'FunctionBookkeeper',
-           'BookkeeperBookkeeper',
+__all__ = ['RegistryBase',
+           'UnicodeRegistry',
+           'FunctionRegistry',
+           'RegistryRegistry',
            ]
 
 
-class BookkeeperBase(object):
-    '''A simple bookkeeper base class with a ``dict``-like interface.
+class RegistryBase(object):
+    '''A simple registry base class with a ``dict``-like interface.
 
-    The bookkeepers are meant for use as global singleton instances, keeping
+    The registries are meant for use as global singleton instances, keeping
     record of various components/preferences. The keys
 
     The class is abstract, thus *not* directly usable. You must subclass
@@ -79,7 +79,7 @@ class BookkeeperBase(object):
         pass
 
     def register(self, key, value):
-        '''Register a key-value pair into the bookkeeper.
+        '''Register a key-value pair into the registry.
         '''
 
         normalized_key = self.normalize_key(key)
@@ -111,10 +111,10 @@ class BookkeeperBase(object):
         return self.__registry[self.normalize_key(key)]
 
 
-class UnicodeBookkeeper(BookkeeperBase):
-    '''Bookkeeper with Unicode keys.
+class UnicodeRegistry(RegistryBase):
+    '''Registry with Unicode keys.
 
-    As its name implies, this class is just ``BookkeeperBase`` with keys
+    As its name implies, this class is just ``RegistryBase`` with keys
     all converted to ``unicode``. Values can still be of any type though.
 
     '''
@@ -126,11 +126,11 @@ class UnicodeBookkeeper(BookkeeperBase):
         return value
 
 
-class FunctionBookkeeper(UnicodeBookkeeper):
-    '''Bookkeeper for registering functions.
+class FunctionRegistry(UnicodeRegistry):
+    '''Registry for registering functions.
 
     Note that ``register``'s signature is changed to make auto-registration
-    on function definition more Pythonic, which is also the bookkeeper's
+    on function definition more Pythonic, which is also the registry's
     desired usage pattern.
 
     '''
@@ -156,25 +156,25 @@ class FunctionBookkeeper(UnicodeBookkeeper):
 
         def _decorator_(fn):
             key = fn.func_name if name is None else name
-            super(FunctionBookkeeper, self).register(key, fn)
+            super(FunctionRegistry, self).register(key, fn)
 
             return fn
 
         return _decorator_
 
 
-class BookkeeperBookkeeper(UnicodeBookkeeper):
-    '''Bookkeeper for registering bookkeepers.
+class RegistryRegistry(UnicodeRegistry):
+    '''Registry for registering registries.
 
-    In order to ensure true singleton pattern, all bookkeepers should be
+    In order to ensure true singleton pattern, all registries should be
     acquired from the central registry. Which explains why this very class
     exists...
 
     '''
 
     def normalize_value(self, value):
-        if not issubclass(type(value), BookkeeperBase):
-            raise ValueError("'%s': not a bookkeeper" % (repr(value), ))
+        if not issubclass(type(value), RegistryBase):
+            raise ValueError("'%s': not a registry" % (repr(value), ))
 
         return value
 
