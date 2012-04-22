@@ -42,7 +42,7 @@ def request(name, autocreate=False, klass=None, *args, **kwargs):
     to ``klass.__init__``), if no registry with name ``name`` exists.
 
     If the auto-creation behavior is turned off (which is the default), a
-    ``KeyError`` will be ``raise``d. If auto-creation is enabled but
+    ``KeyError`` will be ``raise``\ d. If auto-creation is enabled but
     ``klass`` is not derived from ``RegistryBase``, ``TypeError`` will be
     raised.
 
