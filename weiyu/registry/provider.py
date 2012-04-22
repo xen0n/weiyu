@@ -18,11 +18,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 u'''
-Central provider of registries
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Registry service provider
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This module is the "official" provider of registry instances. To ensure a
-singleton pattern, all registries should be acquired from this module.
+This module is the "official" provider of registry instances, in which a
+``RegistryRegistry`` singleton lives.
+
+To ensure true singleton-ness, all registries should be acquired from this
+module, by calling ``request`` (see below).
 
 '''
 
