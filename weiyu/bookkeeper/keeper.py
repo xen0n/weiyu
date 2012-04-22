@@ -28,6 +28,7 @@ This module provides classes for global bookkeeping.
 from __future__ import unicode_literals, division
 
 import abc
+from types import FunctionType, MethodType
 
 __all__ = ['BookkeeperBase',
            'UnicodeBookkeeper',
@@ -62,6 +63,20 @@ class BookkeeperBase(object):
 
         pass
 
+    @abc.abstractmethod
+    def normalize_value(self, value):
+        '''Called to validate and normalize value before storing.
+
+        If ``value`` does not validate (may be because of incorrect types,
+        nonsense numerical value, etc), please raise ``ValueError``.
+
+        This method is abstract too, so be sure to override this in your
+        subclasses.
+
+        '''
+
+        pass
+
     def register(self, key, value):
         '''Register a key-value pair into the bookkeeper.
         '''
@@ -73,8 +88,12 @@ class BookkeeperBase(object):
                     "'%s' is already registered with value '%s'"
                     % (repr(typed_key), repr(value), )
                     )
+        try:
+            cooked_value = self.normalize_value(value)
+        except ValueError:
+            raise
 
-        self.__registry[normalized_key] = value
+        self.__registry[normalized_key] = cooked_value
 
     def unregister(self, key):
         '''Remove a previously registered entry.
@@ -102,6 +121,9 @@ class UnicodeBookkeeper(BookkeeperBase):
     def normalize_key(self, key):
         return unicode(key)
 
+    def normalize_value(self, value):
+        return value
+
 
 class FunctionBookkeeper(UnicodeBookkeeper):
     '''Bookkeeper for registering functions.
@@ -111,6 +133,12 @@ class FunctionBookkeeper(UnicodeBookkeeper):
     desired usage pattern.
 
     '''
+
+    def normalize_value(self, value):
+        if type(value) not in (FunctionType, MethodType, ):
+            raise ValueError("'%s': not a function" % (repr(value), ))
+
+        return value
 
     def register(self, name=None):
         '''Convenient decorator for registering functions.
@@ -132,6 +160,22 @@ class FunctionBookkeeper(UnicodeBookkeeper):
             return fn
 
         return _decorator_
+
+
+class BookkeeperBookkeeper(UnicodeBookkeeper):
+    '''Bookkeeper for registering bookkeepers.
+
+    In order to ensure true singleton pattern, all bookkeepers should be
+    acquired from the central registry. Which explains why this very class
+    exists...
+
+    '''
+
+    def normalize_value(self, value):
+        if not issubclass(type(value), BookkeeperBase):
+            raise ValueError("'%s': not a bookkeeper" % (repr(value), ))
+
+        return value
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
