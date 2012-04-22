@@ -113,6 +113,9 @@ class RegistryBase(object):
     def __getitem__(self, key):
         return self.__registry[self.normalize_key(key)]
 
+    def __setitem__(self, key, value):
+        self.register(key, value)
+
     def __contains__(self, key):
         return key in self.__registry
 
