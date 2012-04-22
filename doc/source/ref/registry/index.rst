@@ -4,6 +4,7 @@ Central registry modules
 .. toctree::
    :maxdepth: 1
 
+   provider
    classes
 
 
