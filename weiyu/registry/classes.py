@@ -35,9 +35,13 @@ from types import FunctionType, MethodType
 
 __all__ = ['RegistryBase',
            'UnicodeRegistry',
-           'FunctionRegistry',
+           'FunctionKeyRegistry',
+           'FunctionValueRegistry',
            'RegistryRegistry',
+           'FunctionlikeTypes',
            ]
+
+FunctionlikeTypes = (FunctionType, MethodType, )
 
 
 class RegistryBase(object):
@@ -84,9 +88,16 @@ class RegistryBase(object):
 
     def register(self, key, value):
         '''Register a key-value pair into the registry.
+
+        The key and value must both pass validation and normalization, or
+        the ``ValueError`` ``raise``'d will be propagated.
+
         '''
 
-        normalized_key = self.normalize_key(key)
+        try:
+            normalized_key = self.normalize_key(key)
+        except ValueError:
+            raise
 
         if normalized_key in self.__registry:
             raise AttributeError(
@@ -133,13 +144,46 @@ class UnicodeRegistry(RegistryBase):
     '''
 
     def normalize_key(self, key):
-        return unicode(key)
+        type_key = type(key)
+
+        if issubclass(type_key, unicode):
+            return key
+
+        # needs some form of conversion, or worse, decoding...
+        if not issubclass(type_key, str):
+            return unicode(key)
+
+        # key is a bytestring. ugh. force a UTF-8 encoding
+        # Punishment for those under Win32 and an editor not-so-decent,
+        # it seems... :-P
+        #
+        # Unicode{En,De}codeError are both subclass of ``ValueError``,
+        # and that's *exactly* what marks a failed validation. Perfect.
+        return key.decode('utf-8')
 
     def normalize_value(self, value):
         return value
 
 
-class FunctionRegistry(UnicodeRegistry):
+class FunctionKeyRegistry(RegistryBase):
+    '''Registry with functions as *keys*.
+
+    Mainly for supporting the hooking mechanism, where wrapped functions
+    are used as keys to retrieve lists of hooks to execute.
+
+    '''
+
+    def normalize_key(self, key):
+        if type(key) not in FunctionlikeTypes:
+            raise ValueError("'%s': not a function" % (repr(value), ))
+
+        return key
+
+    def normalize_value(self, value):
+        return value
+
+
+class FunctionValueRegistry(UnicodeRegistry):
     '''Registry for registering functions.
 
     Note that ``register``'s signature is changed to make auto-registration
@@ -149,7 +193,7 @@ class FunctionRegistry(UnicodeRegistry):
     '''
 
     def normalize_value(self, value):
-        if type(value) not in (FunctionType, MethodType, ):
+        if type(value) not in FunctionlikeTypes:
             raise ValueError("'%s': not a function" % (repr(value), ))
 
         return value

@@ -51,7 +51,7 @@ def request(name, autocreate=False, klass=None, *args, **kwargs):
 
     '''
 
-    # an extra layer of type guarantee... is it needed?
+    # an extra layer of input type guarantee... is it needed?
     name = unicode(name)
 
     try:
