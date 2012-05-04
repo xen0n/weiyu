@@ -26,14 +26,14 @@ __all__ = [
 
 import re
 
-from .base import RouterTargetBase, RouterBase
+from .base import *
 
 
 def args_from_match(match, named_groups):
     kwargs = match.groupdict()
-    args = tuple(i for idx, i in enumerate(match.groups())
-                 if idx not in named_groups
-                 )
+    args = [i for idx, i in enumerate(match.groups())
+            if idx not in named_groups
+            ]
     return (args, kwargs, )
 
 
@@ -46,18 +46,37 @@ class RegexRouterTarget(RouterTargetBase):
         self.pattern = re.compile(unicode(pattern))
         self._namedgrps = [i - 1 for i in self.pattern.groupindex.values()]
 
-    def check(self, querystr):
+    def check(self, querystr, prev_args, prev_kwargs):
         match = self.pattern.match(unicode(querystr))
 
         if not match:
-            return (False, None, None, )
+            return (STATUS_NOROUTE, None, None, None, )
 
-        args, kwargs = args_from_match(match, self._namedgrps)
-        return (True, args, kwargs, )
+        curr_args, curr_kwargs = args_from_match(match, self._namedgrps)
+
+        # update the previous context
+        args = prev_args[:]
+        args.extend(curr_args)
+
+        kwargs = prev_kwargs.copy()
+        kwargs.update(curr_kwargs)
+
+        # support for nested routing
+        if not self.target_is_router:
+            return (STATUS_REACHED, args, kwargs, None, )
+
+        # target is router, forward
+        # since the RE matches at the beginning, safely assume its span()
+        # starts at 0.
+        # now, extract the substring for further routing...
+        new_qs = querystr[match.span()[1]:]
+
+        # and indicate this status.
+        return (STATUS_FORWARD, args, kwargs, new_qs, )
 
 
 class RegexRouter(RouterBase):
-    target = RegexRouterTarget
+    target_type = RegexRouterTarget
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
