@@ -29,12 +29,11 @@ from __future__ import unicode_literals, division
 from weiyu.registry.classes import FunctionKeyRegistry, FunctionlikeTypes
 
 
-class HookRegistry(UnicodeRegistry):
-    '''Registry for registering registries.
+class HookRegistry(FunctionKeyRegistry):
+    '''Registry for hooks.
 
-    In order to ensure true singleton pattern, all registries should be
-    acquired from the central registry. Which explains why this very class
-    exists...
+    Key is the hooked function, while value is a 2-tuple of lists containing
+    hook callables.
 
     '''
 
