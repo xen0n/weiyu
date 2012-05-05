@@ -16,6 +16,12 @@ import sys, os
 # Include package directory in sys.path
 sys.path.insert(0, os.path.realpath(u'../../'))
 
+# Inform the ``import``ed modules that they are in autodoc's execution
+# environment, rather than going full-swing.
+import __builtin__
+__builtin__.__WEIYU_IN_SPHINX_AUTODOC = True
+del __builtin__
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
