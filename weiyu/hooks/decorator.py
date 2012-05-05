@@ -39,7 +39,7 @@ __all__ = [
 
 from functools import wraps
 
-from weiyu.registry.provider import request
+from ..registry.provider import request
 
 # protect this initialization against Sphinx's autodoc
 try:

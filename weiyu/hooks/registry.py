@@ -26,8 +26,8 @@ Hook information registry
 
 from __future__ import unicode_literals, division
 
-from weiyu.registry.classes import UnicodeRegistry
-from weiyu.registry.provider import request
+from ..registry.classes import UnicodeRegistry
+from ..registry.provider import request
 
 
 def validate_hook_tuple(t):
