@@ -27,7 +27,7 @@ __all__ = ['VERSION_MAJOR', 'VERSION_MINOR', 'VERSION_REV',
 
 import os.path
 import re
-import weiyu
+import weiyu as __this_pkg
 
 # Version information.
 VERSION_MAJOR = 0
@@ -84,7 +84,7 @@ def get_svn_revision(path=None):
 
     rev = None
     if path is None:
-        path = weiyu.__path__[0]
+        path = __this_pkg.__path__[0]
     entries_path = '%s/.svn/entries' % path
 
     try:
@@ -130,7 +130,7 @@ def get_git_commit(path=None):
 
     # Git directory...
     if path is None:
-        path = weiyu.__path__[0]
+        path = __this_pkg.__path__[0]
         git_path = '%s/../.git/' % path
     else:
         git_path = '%s/.git/' % path
