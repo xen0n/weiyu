@@ -6,6 +6,7 @@ Module reference
 
    auth/index
    registry/index
+   hooks/index
    rendering/index
 
 
