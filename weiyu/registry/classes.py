@@ -175,7 +175,7 @@ class FunctionKeyRegistry(RegistryBase):
 
     def normalize_key(self, key):
         if type(key) not in FunctionlikeTypes:
-            raise ValueError("'%s': not a function" % (repr(value), ))
+            raise ValueError("'%s': not a function" % (repr(key), ))
 
         return key
 
