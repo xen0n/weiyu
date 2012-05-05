@@ -26,22 +26,39 @@ Hook information registry
 
 from __future__ import unicode_literals, division
 
-from weiyu.registry.classes import FunctionKeyRegistry, FunctionlikeTypes
+from weiyu.registry.classes import UnicodeRegistry
+from weiyu.registry.provider import request
 
 
-class HookRegistry(FunctionKeyRegistry):
+def validate_hook_tuple(t):
+    if not issubclass(type(t), tuple):
+        raise ValueError('%s: not subclass of tuple' % repr(t))
+
+    if len(t) != 2:
+        raise ValueError('%s: length != 2' % repr(t))
+
+    if not all(issubclass(type(lst), list) for lst in t):
+        raise ValueError('%s: not all elements subclass of list' % repr(t))
+
+    if not all(hasattr(item, '__call__') for lst in t for item in lst):
+        raise ValueError('%s: non-callable item inside' % repr(t))
+
+
+class HookRegistry(UnicodeRegistry):
     '''Registry for hooks.
 
-    Key is the hooked function, while value is a 2-tuple of lists containing
+    Key is the hook's name, while value is a 2-tuple of lists containing
     hook callables.
 
     '''
 
     def normalize_value(self, value):
-        if not issubclass(type(value), RegistryBase):
-            raise ValueError("'%s': not a registry" % (repr(value), ))
+        validate_hook_tuple(value)
 
         return value
+
+# install a hook registry
+request('weiyu.hooks', True, HookRegistry)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
