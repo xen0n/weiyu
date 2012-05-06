@@ -64,7 +64,7 @@ class PrematureStopRequest(Exception):
 
 def hookable(name=None):
     '''Makes a function or method hookable by ``name``.
-    
+
     If ``name`` is ``None`` (as is the case when the decorator is used as
     ``@hookable()``), the function's ``func_name`` is used.
 
