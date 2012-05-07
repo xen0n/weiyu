@@ -80,7 +80,7 @@ def hookable(name=None):
         hooks_ref = HOOK_REGISTRY[hook_name]
 
         @wraps(fn)
-        def _wrapped_(*args, **kwargs):
+        def _wrapped_hookable_(*args, **kwargs):
             result = None
 
             try:
@@ -96,7 +96,7 @@ def hookable(name=None):
 
             return result
 
-        return _wrapped_
+        return _wrapped_hookable_
 
     return _decorator_
 
