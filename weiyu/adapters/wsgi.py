@@ -23,6 +23,9 @@ __all__ = [
             'WeiyuWSGIAdapter',
             ]
 
+
+from cgi import escape
+
 from weiyu.__version__ import VERSION_STR
 
 
@@ -37,10 +40,11 @@ PLACEHOLDER = ('''\
 
         <style type="text/css">
 /* YUI RESET */
-html{color:#000;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,select,p,blockquote,th,td{margin:0;padding:0}table{border-collapse:collapse;border-spacing:0}fieldset,img{border:0}address,button,caption,cite,code,dfn,em,input,optgroup,option,select,strong,textarea,th,var{font:inherit}del,ins{text-decoration:none}li{list-style:none}caption,th{text-align:left}h1,h2,h3,h4,h5,h6{font-size:100%%;font-weight:normal}q:before, q:after {content:''}abbr,acronym{border:0;font-variant:normal}sup{vertical-align:baseline}sub{vertical-align:baseline}legend{color:#000}a{text-decoration:none;color:inherit}
+html{color:#000;}body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,select,p,blockquote,th,td{margin:0;padding:0}table{border-collapse:collapse;border-spacing:0}fieldset,img{border:0}address,button,caption,cite,code,dfn,em,input,optgroup,option,select,strong,textarea,th,var{font:inherit}del,ins{text-decoration:none}li{list-style:none}caption,th{text-align:left}h1,h2,h3,h4,h5,h6{font-size:100%%%%;font-weight:normal}q:before, q:after {content:''}abbr,acronym{border:0;font-variant:normal}sup{vertical-align:baseline}sub{vertical-align:baseline}legend{color:#000}a{text-decoration:none;color:inherit}
 
 html {
     background-color: #333;
+    font-family: "Segoe UI Light", "WenQuanYi Micro Hei", "Sans", "Arial", sans-serif;
 }
 
 body {
@@ -65,6 +69,7 @@ div.header h1 {
     display: inline-block;
     color: #111;
     font-size: 54px;
+    font-weight: 200;
     text-shadow: 0 1px 0 #fff;
 
     padding: 0 64px 8px 0;
@@ -74,15 +79,37 @@ div.header h1 {
 div.content {
     color: #333;
     margin: 0 0 64px;
+    line-height: 1.75;
 }
 
 div.content p {
-    line-height: 1.75;
     font-weight: 200;
 
     margin: 0 0 16px;
     padding-left: 32px;
     border-left: 2px solid #999;
+}
+
+div.content table.env {
+    margin: 0 auto;
+    max-width: 1000px;
+}
+
+div.content table.env thead {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #333;
+}
+
+div.content table.env tbody {
+    font-family: "Courier New", "WenQuanYi Micro Hei Mono", "Monospace", monospace;
+}
+
+div.content table.env tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+div.content table.env td {
+    padding: 3px;
 }
 
 div.footer {
@@ -122,6 +149,25 @@ div.footer p {
                     Anyway, plz stay tuned.<br />
                     Wish you a good day.
                 </p>
+
+                <p>
+                    Here is the complete WSGI environment for the request,
+                    which can possibly help you figure out more about your
+                    WSGI configuration.
+                </p>
+
+                <table class="env">
+                    <thead>
+                        <tr>
+                            <td>Key</td>
+                            <td>Value</td>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+%%(env)s
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -142,11 +188,33 @@ div.footer p {
 </html>
 ''' % {'version': VERSION_STR, }).encode('utf-8')
 
+ENV_TEMPLATE = '''\
+                        <tr>
+                            <td>%(k)s</td>
+                            <td>%(v)s</td>
+                        </tr>
+'''.encode('utf-8')
+
+
+def make_one_env_row(k, v):
+    htmlsafe_k = escape(k).encode('ascii', 'xmlcharrefreplace')
+    htmlsafe_v = escape(repr(v)).encode('ascii', 'xmlcharrefreplace')
+
+    return ENV_TEMPLATE % {'k': htmlsafe_k, 'v': htmlsafe_v, }
+
+
+def make_env_entries(env):
+    return b''.join(make_one_env_row(k, v) for k, v in sorted(env.items()))
+
+
+def get_response(env):
+    return PLACEHOLDER % {'env': make_env_entries(env), }
+
 
 class WeiyuWSGIAdapter(object):
     def __call__(self, env, start_response):
         start_response(b'200 OK', [(b'Content-Type', b'text/html'), ])
-        yield PLACEHOLDER
+        yield get_response(env)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
