@@ -134,6 +134,15 @@ class RegistryBase(object):
     def __contains__(self, key):
         return key in self.__registry
 
+    def keys(self):
+        return self.__registry.iterkeys()
+
+    def values(self):
+        return self.__registry.itervalues()
+
+    def items(self):
+        return self.__registry.iteritems()
+
 
 class UnicodeRegistry(RegistryBase):
     '''Registry with Unicode keys.
