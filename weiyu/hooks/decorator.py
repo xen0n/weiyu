@@ -46,7 +46,7 @@ try:
     import __builtin__
     __builtin__.__WEIYU_IN_SPHINX_AUTODOC
     del __builtin__
-except NameError:
+except AttributeError:
     HOOK_REGISTRY = request('weiyu.hooks')
 
 

@@ -58,7 +58,12 @@ class HookRegistry(UnicodeRegistry):
         return value
 
 # install a hook registry
-request('weiyu.hooks', True, HookRegistry)
+try:
+    import __builtin__
+    __builtin__.__WEIYU_IN_SPHINX_AUTODOC
+    del __builtin__
+except AttributeError:
+    request('weiyu.hooks', True, HookRegistry)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
