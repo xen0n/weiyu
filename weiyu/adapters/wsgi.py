@@ -26,7 +26,8 @@ __all__ = [
 
 from cgi import escape
 
-from weiyu.__version__ import VERSION_STR
+from ..__version__ import VERSION_STR
+from ..registry.provider import request
 
 
 # TODO: put some REAL stuff here when enough infrastructure is in place!
@@ -34,7 +35,7 @@ PLACEHOLDER = ('''\
 <!DOCTYPE html>
 <html>
     <head>
-        <title>weiyu test page</title>
+        <title>Test drive - %%(sitename)s</title>
 
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
@@ -186,7 +187,9 @@ div.footer p {
         </div>
     </body>
 </html>
-''' % {'version': VERSION_STR, }).encode('utf-8')
+''' % {
+        'version': VERSION_STR,
+        }).encode('utf-8')
 
 ENV_TEMPLATE = '''\
                         <tr>
@@ -207,14 +210,19 @@ def make_env_entries(env):
     return b''.join(make_one_env_row(k, v) for k, v in sorted(env.items()))
 
 
-def get_response(env):
-    return PLACEHOLDER % {'env': make_env_entries(env), }
+def get_response(env, conf):
+    return PLACEHOLDER % {
+            'env': make_env_entries(env),
+            'sitename': conf['name'],
+            }
 
 
 class WeiyuWSGIAdapter(object):
     def __call__(self, env, start_response):
+        SITE_CONF = request('site')
+
         start_response(b'200 OK', [(b'Content-Type', b'text/html'), ])
-        yield get_response(env)
+        yield get_response(env, SITE_CONF)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
