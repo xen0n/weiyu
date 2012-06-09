@@ -21,11 +21,20 @@ from __future__ import unicode_literals, division
 
 import sys
 import struct
-from collections import namedtuple
+from ctypes import *
 
 
 # Site constants
+IDLEN, NAMELEN, OLDPASSLEN, MD5PASSLEN = 12, 40, 14, 16
 FILENAME_LEN, OWNER_LEN, ARTICLE_TITLE_LEN = 20, 14, 60
+
+# IPv4
+##IPLEN = 16
+# IPv6
+IPLEN = 46
+
+MAXCLUB = 128
+
 
 # Structure layouts
 fileheader_fmt = b'@%(fnlen)dsIIIiIII2s%(ownerlen)dsIiI%(titlelen)ds4B' % {
@@ -34,17 +43,55 @@ fileheader_fmt = b'@%(fnlen)dsIIIiIII2s%(ownerlen)dsIiI%(titlelen)ds4B' % {
         b'titlelen': ARTICLE_TITLE_LEN,
         }
 
-fileheader_t = struct.Struct(fileheader_fmt)
-fileheader_record = namedtuple(
-        b'fileheader',
-        (
-            b'filename id groupid reid'
-            b' o_bid o_id o_groupid o_reid'
-            b' innflag owner eff_size'
-            b' posttime attachment title'
-            b' accessed1 accessed2 accessed3 accessed4'
-            ),
-        )
+# b'@%(fnlen)dsIIIiIII2s%(ownerlen)dsIiI%(titlelen)ds4B'
+class fileheader(Structure):
+    _fields_ = [
+            ('filename', c_char * FILENAME_LEN),
+            ('id', c_uint),
+            ('groupid', c_uint),
+            ('reid', c_uint),
+            ('o_bid', c_int),
+            ('o_id', c_uint),
+            ('o_groupid', c_uint),
+            ('o_reid', c_uint),
+            ('innflag', c_char * 2),
+            ('owner', c_char * OWNER_LEN),
+            ('eff_size', c_uint),
+            ('posttime', c_int),
+            ('attachment', c_uint),
+            ('title', c_char * ARTICLE_TITLE_LEN),
+            ('accessed', c_ubyte * 4),
+            ]
+
+
+# b'@14sBBi46sII14s2b40s4I4I16sIiii2IiiiiI7i'
+class userec(Structure):
+    _fields_ = [
+            ('userid', c_char * (IDLEN + 2)),
+            ('flags', c_ubyte),
+            ('title', c_ubyte),
+            ('firstlogin', c_int),
+            ('lasthost', c_char * IPLEN),
+            ('numlogins', c_uint),
+            ('numposts', c_uint),
+            ('passwd', c_char * OLDPASSLEN),
+            ('unused_padding', c_byte * 2),
+            ('username', c_char * NAMELEN),
+            ('club_read_rights', c_uint * (MAXCLUB >> 5)),
+            ('club_write_rights', c_uint * (MAXCLUB >> 5)),
+            ('md5passwd', c_char * MD5PASSLEN),
+            ('userlevel', c_uint),
+            ('lastlogin', c_int),
+            ('stay', c_int),
+            ('signature', c_int),
+            ('userdefine', c_uint * 2),
+            ('notedate', c_int),
+            ('noteline', c_int),
+            ('unused_atppp', c_int),
+            ('exittime', c_int),
+            ('usedspace', c_uint),
+            ('unused', c_int * 7),
+            ]
 
 
 # main function
