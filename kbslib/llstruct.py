@@ -24,14 +24,14 @@ import struct
 from ctypes import *
 
 # for site constants
-from .sitecfg import *
+from . import sitecfg
 
 
 # Structure layouts
 
 class fileheader(Structure):
     _fields_ = [
-            ('filename', c_char * FILENAME_LEN),
+            ('filename', c_char * sitecfg.FILENAME_LEN),
             ('id', c_uint),
             ('groupid', c_uint),
             ('reid', c_uint),
@@ -40,30 +40,30 @@ class fileheader(Structure):
             ('o_groupid', c_uint),
             ('o_reid', c_uint),
             ('innflag', c_char * 2),
-            ('owner', c_char * OWNER_LEN),
+            ('owner', c_char * sitecfg.OWNER_LEN),
             ('eff_size', c_uint),
             ('posttime', c_int),
             ('attachment', c_uint),
-            ('title', c_char * ARTICLE_TITLE_LEN),
+            ('title', c_char * sitecfg.ARTICLE_TITLE_LEN),
             ('accessed', c_ubyte * 4),
             ]
 
 
 class userec(Structure):
     _fields_ = [
-            ('userid', c_char * (IDLEN + 2)),
+            ('userid', c_char * (sitecfg.IDLEN + 2)),
             ('flags', c_ubyte),
             ('title', c_ubyte),
             ('firstlogin', c_int),
-            ('lasthost', c_char * IPLEN),
+            ('lasthost', c_char * sitecfg.IPLEN),
             ('numlogins', c_uint),
             ('numposts', c_uint),
-            ('passwd', c_char * OLDPASSLEN),
+            ('passwd', c_char * sitecfg.OLDPASSLEN),
             ('unused_padding', c_byte * 2),
-            ('username', c_char * NAMELEN),
-            ('club_read_rights', c_uint * (MAXCLUB >> 5)),
-            ('club_write_rights', c_uint * (MAXCLUB >> 5)),
-            ('md5passwd', c_char * MD5PASSLEN),
+            ('username', c_char * sitecfg.NAMELEN),
+            ('club_read_rights', c_uint * (sitecfg.MAXCLUB >> 5)),
+            ('club_write_rights', c_uint * (sitecfg.MAXCLUB >> 5)),
+            ('md5passwd', c_char * sitecfg.MD5PASSLEN),
             ('userlevel', c_uint),
             ('lastlogin', c_int),
             ('stay', c_int),
