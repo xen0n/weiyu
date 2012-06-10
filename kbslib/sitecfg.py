@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals, division
+
 
 IDLEN, NAMELEN, OLDPASSLEN, MD5PASSLEN = 12, 40, 14, 16
 FILENAME_LEN, OWNER_LEN, ARTICLE_TITLE_LEN = 20, 14, 60
