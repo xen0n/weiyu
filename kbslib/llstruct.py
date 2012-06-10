@@ -23,17 +23,8 @@ import sys
 import struct
 from ctypes import *
 
-
-# Site constants
-IDLEN, NAMELEN, OLDPASSLEN, MD5PASSLEN = 12, 40, 14, 16
-FILENAME_LEN, OWNER_LEN, ARTICLE_TITLE_LEN = 20, 14, 60
-
-# IPv4
-##IPLEN = 16
-# IPv6
-IPLEN = 46
-
-MAXCLUB = 128
+# for site constants
+from .sitecfg import *
 
 
 # Structure layouts
