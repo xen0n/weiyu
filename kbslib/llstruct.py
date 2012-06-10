@@ -37,13 +37,7 @@ MAXCLUB = 128
 
 
 # Structure layouts
-fileheader_fmt = b'@%(fnlen)dsIIIiIII2s%(ownerlen)dsIiI%(titlelen)ds4B' % {
-        b'fnlen': FILENAME_LEN,
-        b'ownerlen': OWNER_LEN,
-        b'titlelen': ARTICLE_TITLE_LEN,
-        }
 
-# b'@%(fnlen)dsIIIiIII2s%(ownerlen)dsIiI%(titlelen)ds4B'
 class fileheader(Structure):
     _fields_ = [
             ('filename', c_char * FILENAME_LEN),
@@ -64,7 +58,6 @@ class fileheader(Structure):
             ]
 
 
-# b'@14sBBi46sII14s2b40s4I4I16sIiii2IiiiiI7i'
 class userec(Structure):
     _fields_ = [
             ('userid', c_char * (IDLEN + 2)),
