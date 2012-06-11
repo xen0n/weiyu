@@ -28,7 +28,6 @@ from . import sitecfg
 
 
 # Structure layouts
-
 class fileheader(Structure):
     _fields_ = [
             ('filename', c_char * sitecfg.FILENAME_LEN),
@@ -46,6 +45,32 @@ class fileheader(Structure):
             ('attachment', c_uint),
             ('title', c_char * sitecfg.ARTICLE_TITLE_LEN),
             ('accessed', c_ubyte * 4),
+            ]
+
+
+class _board_data_t(Union):
+    _fields_ = [
+            ('adv_club', c_uint),
+            ('group_total', c_uint),
+            ]
+
+
+class boardheader(Structure):
+    _fields_ = [
+            ('filename', c_char * sitecfg.STRLEN),
+            ('BM', c_char * sitecfg.BM_LEN),
+            ('title', c_char * sitecfg.STRLEN),
+            ('level', c_uint),
+            ('idseq', c_uint),
+            ('clubnum', c_uint),
+            ('flag', c_uint),
+            ('board_data', _board_data_t),
+            ('createtime', c_int),
+            ('score_level', c_uint),
+            ('ann_path', c_char * 128),
+            ('group', c_int),
+            ('title_level', c_byte),
+            ('des', c_char * 195),
             ]
 
 
