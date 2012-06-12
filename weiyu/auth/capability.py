@@ -17,15 +17,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+u'''
+Capability
+----------
+
+This module provides a ``Capability`` class, whose objects *really* should be
+acquired by calling the static factory method ``Capability.get``.
+
+'''
+
 from __future__ import unicode_literals, division
 
 
 class Capability(object):
-    def __init__(self, backend):
+    objects_cache = {}
+
+    @staticmethod
+    def get(name):
+        name = unicode(name)
+        cache = Capability.objects_cache
+        if name not in cache:
+            cache[name] = Capability(name)
+        return cache[name]
+
+
+    def __init__(self, name, backend=None):
+        self.name = name
         self.backend = backend
 
-    def chk(self):
-        # TODO: self.backend.check
+    def list_users(self):
+        # TODO: do backend reverse query
         pass
 
 
