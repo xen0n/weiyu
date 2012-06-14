@@ -22,6 +22,10 @@ from __future__ import unicode_literals, division
 from os.path import join as pathjoin
 from os.path import abspath  # , normpath
 
+from ctypes import sizeof
+
+from .llops import unpack
+
 
 BOARD_DIRNAME = 'boards'
 USER_DIRNAME = 'home'
@@ -45,6 +49,28 @@ class BaseFSDB(object):
 
     def bbshomepath(self, *args):
         return abspath(pathjoin(self.param(PARAM_BBSHOME), *args))
+
+    def read_raw_record_iter(self, path, cstruct):
+        rec_size = sizeof(cstruct)
+
+        with open(path, 'rb') as fp:
+            fp.seek(0, 2)
+            file_length = fp.tell()
+            if file_length % rec_size != 0:
+                raise ValueError('file length not multiple of record size')
+            fp.seek(0, 0)
+
+            while True:
+                record = fp.read(rec_size)
+
+                if not record:
+                    break
+
+                yield record
+
+    def read_record_iter(self, path, cstruct):
+        for rec in self.read_raw_record_iter(path, cstruct):
+            yield unpack(cstruct, rec)
 
 
 class ReadOnlyFSDB(BaseFSDB):
