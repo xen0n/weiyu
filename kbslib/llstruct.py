@@ -24,13 +24,22 @@ import struct
 from ctypes import *
 
 # for site constants
-from . import sitecfg
+if __name__ != '__main__':
+    from . import sitecfg
+else:
+    # XXX kludge!
+    import sitecfg
+
+
+# helper
+def c_str(l):
+    return c_char * l
 
 
 # Structure layouts
 class fileheader(Structure):
     _fields_ = [
-            ('filename', c_char * sitecfg.FILENAME_LEN),
+            ('filename', c_str(sitecfg.FILENAME_LEN)),
             ('id', c_uint),
             ('groupid', c_uint),
             ('reid', c_uint),
@@ -38,12 +47,12 @@ class fileheader(Structure):
             ('o_id', c_uint),
             ('o_groupid', c_uint),
             ('o_reid', c_uint),
-            ('innflag', c_char * 2),
-            ('owner', c_char * sitecfg.OWNER_LEN),
+            ('innflag', c_str(2)),
+            ('owner', c_str(sitecfg.OWNER_LEN)),
             ('eff_size', c_uint),
             ('posttime', c_int),
             ('attachment', c_uint),
-            ('title', c_char * sitecfg.ARTICLE_TITLE_LEN),
+            ('title', c_str(sitecfg.ARTICLE_TITLE_LEN)),
             ('accessed', c_ubyte * 4),
             ]
 
@@ -57,9 +66,9 @@ class _board_data_t(Union):
 
 class boardheader(Structure):
     _fields_ = [
-            ('filename', c_char * sitecfg.STRLEN),
-            ('BM', c_char * sitecfg.BM_LEN),
-            ('title', c_char * sitecfg.STRLEN),
+            ('filename', c_str(sitecfg.STRLEN)),
+            ('BM', c_str(sitecfg.BM_LEN)),
+            ('title', c_str(sitecfg.STRLEN)),
             ('level', c_uint),
             ('idseq', c_uint),
             ('clubnum', c_uint),
@@ -67,28 +76,28 @@ class boardheader(Structure):
             ('board_data', _board_data_t),
             ('createtime', c_int),
             ('score_level', c_uint),
-            ('ann_path', c_char * 128),
+            ('ann_path', c_str(128)),
             ('group', c_int),
             ('title_level', c_byte),
-            ('des', c_char * 195),
+            ('des', c_str(195)),
             ]
 
 
 class userec(Structure):
     _fields_ = [
-            ('userid', c_char * (sitecfg.IDLEN + 2)),
+            ('userid', c_str(sitecfg.IDLEN + 2)),
             ('flags', c_ubyte),
             ('title', c_ubyte),
             ('firstlogin', c_int),
-            ('lasthost', c_char * sitecfg.IPLEN),
+            ('lasthost', c_str(sitecfg.IPLEN)),
             ('numlogins', c_uint),
             ('numposts', c_uint),
-            ('passwd', c_char * sitecfg.OLDPASSLEN),
+            ('passwd', c_str(sitecfg.OLDPASSLEN)),
             ('unused_padding', c_byte * 2),
-            ('username', c_char * sitecfg.NAMELEN),
+            ('username', c_str(sitecfg.NAMELEN)),
             ('club_read_rights', c_uint * (sitecfg.MAXCLUB >> 5)),
             ('club_write_rights', c_uint * (sitecfg.MAXCLUB >> 5)),
-            ('md5passwd', c_char * sitecfg.MD5PASSLEN),
+            ('md5passwd', c_str(sitecfg.MD5PASSLEN)),
             ('userlevel', c_uint),
             ('lastlogin', c_int),
             ('stay', c_int),
@@ -103,8 +112,60 @@ class userec(Structure):
             ]
 
 
+class userdata(Structure):
+    _fields_ = [
+            ('userid', c_str(sitecfg.IDLEN + 2)),
+            ('__reserved', c_byte * 2),
+            ('realemail', c_str(sitecfg.STRLEN - 16)),
+            ('realname', c_str(sitecfg.NAMELEN)),
+            ('address', c_str(sitecfg.STRLEN)),
+            ('email', c_str(sitecfg.STRLEN)),
+            ('gender', c_byte),
+            ('birthyear', c_ubyte),
+            ('birthmonth', c_ubyte),
+            ('birthday', c_ubyte),
+            ('reg_email', c_str(sitecfg.STRLEN)),
+            ('mobileregistered', c_int),
+            ('mobilenumber', c_str(sitecfg.MOBILE_NUMBER_LEN)),
+            ('OICQ', c_str(sitecfg.STRLEN)),
+            ('ICQ', c_str(sitecfg.STRLEN)),
+            ('MSN', c_str(sitecfg.STRLEN)),
+            ('homepage', c_str(sitecfg.STRLEN)),
+            ('userface_img', c_int),
+            ('userface_url', c_str(sitecfg.STRLEN)),
+            ('userface_width', c_ubyte),
+            ('userface_height', c_ubyte),
+            ('group', c_uint),
+            ('country', c_str(sitecfg.STRLEN)),
+            ('province', c_str(sitecfg.STRLEN)),
+            ('city', c_str(sitecfg.STRLEN)),
+            ('shengxiao', c_ubyte),
+            ('bloodtype', c_ubyte),
+            ('religion', c_ubyte),
+            ('profession', c_ubyte),
+            ('married', c_ubyte),
+            ('education', c_ubyte),
+            ('graduateschool', c_str(sitecfg.STRLEN)),
+            ('character', c_ubyte),
+            ('photo_url', c_str(sitecfg.STRLEN)),
+            ('telephone', c_str(sitecfg.STRLEN)),
+            ('smsprefix', c_str(41)),
+            ('smsend', c_str(41)),
+            ('smsdef', c_uint),
+            ('signum', c_int),
+            ('this_field_is_reserved_by_atppp', c_int),
+            ('lastinvite', c_int),
+            ]
+
+
 # main function
 def main(argc, argv):
+    from ctypes import sizeof
+    structs = [userec, userdata, fileheader, boardheader, ]
+
+    for s in structs:
+        print ('sizeof(%s) == %d' % (unicode(s), sizeof(s), ))
+
     return 0
 
 
