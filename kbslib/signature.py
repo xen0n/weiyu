@@ -63,7 +63,7 @@ def main(argc, argv):
     filenames = argv[1:]
     for fname in filenames:
         signatures = read_signatures_from_file(fname)
-        print '%s: %d signatures' % (fname, len(signatures), )
+        print '%s: %d signature(s)' % (fname, len(signatures), )
         print '\n-=-=-=-=-=-=-=-=-=-=-\n'.join(signatures)
         print '-=-=-=-=-=-=-=-=-=-=-\n'
 
