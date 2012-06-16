@@ -50,6 +50,7 @@ def extract_signatures(stream):
 
 
 def read_signatures_from_file(filename):
+    # text mode, yes... hopefully no \r\n's will escape thru
     with open(filename, 'r') as fp:
         return extract_signatures(fp)
 
