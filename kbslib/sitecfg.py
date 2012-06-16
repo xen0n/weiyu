@@ -19,11 +19,21 @@
 
 from __future__ import unicode_literals, division
 
+# weiyu helper constants
+KBS_ENCODING = 'gbk'
+SIGN_LINES = 6
 
+
+# these are original KBS constants from various places...
+# remember, grep(1) is your friend
 IDLEN, NAMELEN, OLDPASSLEN, MD5PASSLEN, STRLEN = 12, 40, 14, 16, 80
 FILENAME_LEN, OWNER_LEN, ARTICLE_TITLE_LEN, BM_LEN = 20, 14, 60, 60
 MOBILE_NUMBER_LEN = 17
-MAXCLUB = 128
+
+# from the result of whole KBS tree grepping, this MAX_SIGNATURES is
+# apparently NOT used... kind of weird :-/
+MAXCLUB, MAX_SIGNATURES = 128, 20
+
 
 HAVE_IPV6 = True
 IPLEN = 46 if HAVE_IPV6 else 16

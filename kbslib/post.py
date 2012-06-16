@@ -25,7 +25,12 @@ from os.path import join as pathjoin
 from glob import iglob
 
 # Constants.
-KBS_POST_ENCODING = 'gb18030'
+if __name__ != '__main__':
+    from .sitecfg import KBS_ENCODING as KBS_POST_ENCODING
+else:
+    from sitecfg import KBS_ENCODING as KBS_POST_ENCODING
+
+
 KBS_SIGNATURE_DELIM = u'--'
 
 OUTPUT_ENCODING = 'utf-8'
