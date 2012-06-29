@@ -35,6 +35,13 @@ def unpack(typ, s):
     return cast(c_char_p(s[:]), POINTER(typ)).contents
 
 
+def pythonize(cstruct):
+    fields_iter = (field for field, typ in cstruct._fields_)
+    return dict(
+            (k, getattr(cstruct, k), )
+            for k in fields_iter
+            )
+
 # main function
 def main(argc, argv):
     return 0
