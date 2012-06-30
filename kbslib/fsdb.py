@@ -24,7 +24,7 @@ from os.path import abspath  # , normpath
 
 from ctypes import sizeof
 
-from .llops import unpack
+from .llops import unpack, pythonize
 
 
 BOARD_DIRNAME = 'boards'
@@ -71,6 +71,16 @@ class BaseFSDB(object):
     def read_record_iter(self, path, cstruct):
         for rec in self.read_raw_record_iter(path, cstruct):
             yield unpack(cstruct, rec)
+
+    def read_into_dict(self, path, cstruct, key):
+        result = {}
+
+        # XXX id must be unique, or the earlier records WILL be overwritten
+        for obj in self.read_record_iter(path, cstruct):
+            pyobj = pythonize(obj)
+            result[pyobj[key]] = pyobj
+
+        return result
 
 
 class ReadOnlyFSDB(BaseFSDB):
