@@ -42,6 +42,7 @@ def pythonize(cstruct):
             for k in fields_iter
             )
 
+
 # main function
 def main(argc, argv):
     return 0
