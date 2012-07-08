@@ -37,7 +37,7 @@ __all__ = ['request',
            ]
 
 
-def request(name, autocreate=False, klass=None, *args, **kwargs):
+def request(name, autocreate=False, nodup=True, klass=None, *args, **kwargs):
     '''
 
     Returns a registry instance specified by ``name``, optionally creates
@@ -47,12 +47,22 @@ def request(name, autocreate=False, klass=None, *args, **kwargs):
     If the auto-creation behavior is turned off (which is the default), a
     ``KeyError`` will be ``raise``\ d if the requested instance does not
     exist. If auto-creation is enabled but ``klass`` is not derived from
-    ``RegistryBase``, ``TypeError`` will be raised.
+    ``RegistryBase``, ``TypeError`` will be ``raise``\ d.
+
+    To avoid getting an existing registry when you actually want a new one,
+    a parameter ``nodup`` is added to indicate that any attempt to request
+    a pre-existing registry with ``autocreate=True`` should result in an
+    ``AttributeError`` (the same exception as a registry would ``raise``
+    in such a situation). The parameter defaults to ``True``; it has no
+    effect if ``autocreate == False``.
 
     '''
 
     # an extra layer of input type guarantee... is it needed?
     name = unicode(name)
+
+    if autocreate and nodup and name in _registries:
+        raise AttributeError("the registry '%s' already exists" % name)
 
     try:
         return _registries[name]
