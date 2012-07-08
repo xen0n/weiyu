@@ -41,15 +41,14 @@ __all__ = ['VALID_REGISTRY_TYPES',
 FunctionlikeTypes = (FunctionType, MethodType, )
 
 # enforce some type restrictions
-# also to be extended with class names
-# then converted to tuple
-VALID_REGISTRY_TYPES = []
+# also to be extended with classes
+VALID_REGISTRY_TYPES = {}
 
 
 def export_registry(cls):
     cls_name = cls.__name__
     __all__.append(cls_name)
-    VALID_REGISTRY_TYPES.append(cls_name)
+    VALID_REGISTRY_TYPES[cls_name] = cls
     return cls
 
 
@@ -265,9 +264,6 @@ class RegistryRegistry(UnicodeRegistry):
             raise ValueError("'%s': not a registry" % (repr(value), ))
 
         return value
-
-
-VALID_REGISTRY_TYPES = tuple(VALID_REGISTRY_TYPES)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
