@@ -28,10 +28,22 @@ Configuration loader
 from __future__ import unicode_literals, division
 
 from os.path import abspath
+from functools import wraps
 import abc
 import json
 
-from .provider import request, _registries
+from .classes import VALID_REGISTRY_TYPES
+from .provider import request
+
+
+def ensure_data_presence(fn):
+    @wraps(fn)
+    def _wrapped_(self, *args, **kwargs):
+        if self.data is None:
+            self.load_from_path(None)
+        return fn(*args, **kwargs)
+
+    return _wrapped_
 
 
 class BaseConfig(object):
@@ -92,16 +104,58 @@ class BaseConfig(object):
 
         return data
 
+    @ensure_data_presence
     def populate_registry(self, registry):
-        if self.data is None:
-            self.load_from_path(None)
-
         for k, v in self.data.iteritems():
             registry.register(k, v)
 
+    @ensure_data_presence
     def populate_registries(self, _registries):
-        # TODO
-        pass
+        for k, v in self.data.iteritems():
+            # k is registry name, v is a dict
+            # v's format is as follows:
+            # {'class': '<class name of registry>',
+            #  'data': {key1: val1, key2: val2, etc: etc, },
+            #  }
+            # first a little type sanity check
+            if not isinstance(k, (str, unicode, )):
+                raise ValueError(
+                        'registry name must be string; got %s (of type %s)'
+                        % (repr(k), repr(type(k)), )
+                        )
+
+            if not isinstance(v, dict):
+                raise ValueError(
+                        'pythonized config entry must be dict; got type %s'
+                        % (repr(type(v)), )
+                        )
+
+            # type(v) ok ,move on to strictly match the keys...
+            v_keys = tuple(sorted(v.iterkeys()))
+            if v_keys != ('class', 'data', ):
+                raise ValueError('malformed pythonized registry definition')
+
+            # types of class and data...
+            if not isinstance(v['class'], (str, unicode, )):
+                raise ValueError('registry class name not of string type')
+
+            # class validation
+            try:
+                cls = VALID_REGISTRY_TYPES[v['class']]
+            except KeyError:
+                raise ValueError("registry class name '%s' not valid"
+                        % (v['class'], )
+                        )
+
+            if not isinstance(v['data'], dict):
+                raise ValueError('pythonized data set must be dict')
+
+            # format check (finally...) passed, go on with actually updating
+            # NOTE: obviously registries cannot have duplicate names,
+            # here we'll rely on RegistryBase's behavior to ensure this :P
+            reg = request(k, autocreate=True, nodup=True, klass=cls)
+            for reg_k, reg_v in v['data'].iteritems():
+                reg[reg_k] = reg_v
 
 
 class JSONConfig(BaseConfig):
