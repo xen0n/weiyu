@@ -153,6 +153,14 @@ class RegistryBase(object):
     def items(self):
         return self.__registry.iteritems()
 
+    def snapshot(self):
+        '''Returns a snapshot of current internal state, obtained by calling
+        the underlying ``dict`` object's ``copy()`` method.
+
+        '''
+
+        return self.__registry.copy()
+
 
 @export_registry
 class UnicodeRegistry(RegistryBase):
