@@ -36,16 +36,6 @@ from .classes import VALID_REGISTRY_TYPES
 from .provider import request
 
 
-def ensure_data_presence(fn):
-    @wraps(fn)
-    def _wrapped_(self, *args, **kwargs):
-        if self.data is None:
-            self.load_from_path(None)
-        return fn(*args, **kwargs)
-
-    return _wrapped_
-
-
 class BaseConfig(object):
     '''Base class for prepopulated config storages.
     '''
@@ -104,13 +94,17 @@ class BaseConfig(object):
 
         return data
 
-    @ensure_data_presence
+    def ensure_data_presence(self):
+        if self.data is None:
+            self.load_from_path(None)
+
     def populate_registry(self, registry):
+        self.ensure_data_presence()
         for k, v in self.data.iteritems():
             registry.register(k, v)
 
-    @ensure_data_presence
-    def populate_registries(self, _registries):
+    def populate_central_regs(self):
+        self.ensure_data_presence()
         for k, v in self.data.iteritems():
             # k is registry name, v is a dict
             # v's format is as follows:
