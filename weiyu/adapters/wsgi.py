@@ -27,8 +27,10 @@ __all__ = [
 from cgi import escape
 
 from ..__version__ import VERSION_STR
-from ..registry.provider import request
+from ..registry.provider import request, _registries as REGS
 
+
+OUTPUT_ENC = 'utf-8'
 
 # TODO: put some REAL stuff here when enough infrastructure is in place!
 PLACEHOLDER = ('''\
@@ -169,6 +171,24 @@ div.footer p {
 %%(env)s
                     </tbody>
                 </table>
+
+                <p>
+                    Here is the weiyu registry:
+                </p>
+
+                <table class="env">
+                    <thead>
+                        <tr>
+                            <td>Reg</td>
+                            <td>Key</td>
+                            <td>Value</td>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+%%(regs)s
+                    </tbody>
+                </table>
             </div>
         </div>
 
@@ -189,31 +209,61 @@ div.footer p {
 </html>
 ''' % {
         'version': VERSION_STR,
-        }).encode('utf-8')
+        }).encode(OUTPUT_ENC)
 
 ENV_TEMPLATE = '''\
                         <tr>
                             <td>%(k)s</td>
                             <td>%(v)s</td>
                         </tr>
-'''.encode('utf-8')
+'''.encode(OUTPUT_ENC)
+
+REG_TEMPLATE = '''\
+                        <tr>
+                            <td>%(n)s</td>
+                            <td>%(k)s</td>
+                            <td>%(v)s</td>
+                        </tr>
+
+'''.encode(OUTPUT_ENC)
 
 
 def make_one_env_row(k, v):
-    htmlsafe_k = escape(k).encode('ascii', 'xmlcharrefreplace')
-    htmlsafe_v = escape(repr(v)).encode('ascii', 'xmlcharrefreplace')
+    html_k = escape(k).encode('ascii', 'xmlcharrefreplace')
+    html_v = escape(repr(v)).encode('ascii', 'xmlcharrefreplace')
 
-    return ENV_TEMPLATE % {'k': htmlsafe_k, 'v': htmlsafe_v, }
+    return ENV_TEMPLATE % {'k': html_k, 'v': html_v, }
 
 
 def make_env_entries(env):
     return b''.join(make_one_env_row(k, v) for k, v in sorted(env.items()))
 
 
+def make_reg_entries(name, reg):
+    name = name.encode(OUTPUT_ENC)
+    tmp = []
+
+    for k, v in reg.items():
+        html_k = escape(k).encode('ascii', 'xmlcharrefreplace')
+        html_v = escape(repr(v)).encode('ascii', 'xmlcharrefreplace')
+
+        tmp.append(REG_TEMPLATE % {'n': name, 'k': html_k, 'v': html_v, })
+
+    return b''.join(tmp)
+
+def make_regs_entries():
+    tmp = []
+    for name, reg in REGS.items():
+        tmp.append(make_reg_entries(name, reg))
+
+    return b'\n'.join(tmp)
+
+
 def get_response(env, conf):
     return PLACEHOLDER % {
             'env': make_env_entries(env),
-            'sitename': conf['name'],
+            'regs': make_regs_entries(),
+            'sitename': conf['name'].encode(OUTPUT_ENC),
             }
 
 
