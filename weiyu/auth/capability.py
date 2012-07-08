@@ -40,7 +40,6 @@ class Capability(object):
             cache[name] = Capability(name)
         return cache[name]
 
-
     def __init__(self, name, backend=None):
         self.name = name
         self.backend = backend
