@@ -33,17 +33,27 @@ from __future__ import unicode_literals, division
 import abc
 from types import FunctionType, MethodType
 
-__all__ = ['RegistryBase',
-           'UnicodeRegistry',
-           'FunctionKeyRegistry',
-           'FunctionValueRegistry',
-           'RegistryRegistry',
+# this is to be extended by future declarations
+__all__ = ['VALID_REGISTRY_TYPES',
            'FunctionlikeTypes',
            ]
 
 FunctionlikeTypes = (FunctionType, MethodType, )
 
+# enforce some type restrictions
+# also to be extended with class names
+# then converted to tuple
+VALID_REGISTRY_TYPES = []
 
+
+def export_registry(cls):
+    cls_name = cls.__name__
+    __all__.append(cls_name)
+    VALID_REGISTRY_TYPES.append(cls_name)
+    return cls
+
+
+@export_registry
 class RegistryBase(object):
     '''A simple registry base class with a ``dict``-like interface.
 
@@ -144,6 +154,7 @@ class RegistryBase(object):
         return self.__registry.iteritems()
 
 
+@export_registry
 class UnicodeRegistry(RegistryBase):
     '''Registry with Unicode keys.
 
@@ -174,6 +185,7 @@ class UnicodeRegistry(RegistryBase):
         return value
 
 
+@export_registry
 class FunctionKeyRegistry(RegistryBase):
     '''Registry with functions as *keys*.
 
@@ -192,6 +204,7 @@ class FunctionKeyRegistry(RegistryBase):
         return value
 
 
+@export_registry
 class FunctionValueRegistry(UnicodeRegistry):
     '''Registry for registering functions.
 
@@ -229,6 +242,7 @@ class FunctionValueRegistry(UnicodeRegistry):
         return _decorator_
 
 
+@export_registry
 class RegistryRegistry(UnicodeRegistry):
     '''Registry for registering registries.
 
@@ -243,6 +257,9 @@ class RegistryRegistry(UnicodeRegistry):
             raise ValueError("'%s': not a registry" % (repr(value), ))
 
         return value
+
+
+VALID_REGISTRY_TYPES = tuple(VALID_REGISTRY_TYPES)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
