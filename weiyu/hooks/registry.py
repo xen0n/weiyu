@@ -63,7 +63,7 @@ try:
     __builtin__.__WEIYU_IN_SPHINX_AUTODOC
     del __builtin__
 except AttributeError:
-    request('weiyu.hooks', True, HookRegistry)
+    request('weiyu.hooks', autocreate=True, klass=HookRegistry)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
