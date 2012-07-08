@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / adater / WSGI interface
+# weiyu / adapter / WSGI interface
 #
 # Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
