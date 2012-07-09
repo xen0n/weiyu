@@ -86,7 +86,7 @@ def get_response(env, conf):
     result = tmpl.render(RenderContext(
             env=env,
             regs=REGS,
-            sitename=conf['name'], #.encode(OUTPUT_ENC),
+            sitename=conf['name'],
             version=VERSION_STR,
             ))
     return result.encode(OUTPUT_ENC)

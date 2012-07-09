@@ -57,7 +57,7 @@ def mako_render_handler(name, *args, **kwargs):
     mako_params = render_reg['mako']
     if TMPL_LOOKUP_KEY not in mako_params:
         # canonicalize template dirs to absolute path
-        abspath_dirs=[abspath(i) for i in mako_params[DIRECTORIES_KEY]]
+        abspath_dirs = [abspath(i) for i in mako_params[DIRECTORIES_KEY]]
 
         # instantiate TemplateLookup singleton
         mako_params[TMPL_LOOKUP_KEY] = TemplateLookup(
