@@ -23,14 +23,10 @@ __all__ = [
             'WeiyuWSGIAdapter',
             ]
 
-
-from cgi import escape
-
-from ..__version__ import VERSION_STR
-from ..registry.provider import request, _registries as REGS
 from ..reflex.classes import BaseReflex
-from ..rendering import Hub
-from ..rendering.base import RenderContext
+from ..registry.provider import request as reg_request
+
+HEADER_ENC = 'utf-8'
 
 # This dict is pasted from Django's core/handlers/wsgi.py
 # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
@@ -78,19 +74,6 @@ STATUS_CODES_MAP = {
         505: b'HTTP VERSION NOT SUPPORTED',
         }
 
-OUTPUT_ENC = 'utf-8'
-
-
-def get_response(env, conf):
-    tmpl = Hub.get_template('mako', 'env.html')
-    result = tmpl.render(RenderContext(
-            env=env,
-            regs=REGS,
-            sitename=conf['name'],
-            version=VERSION_STR,
-            ))
-    return result.encode(OUTPUT_ENC)
-
 
 class WSGIRequest(object):
     def __init__(self, env, start_response, site_conf):
@@ -117,7 +100,7 @@ class WSGIResponse(object):
 
 class WSGIReflex(BaseReflex):
     def __init__(self, worker_func):
-        self.SITE_CONF = request('site')
+        self.SITE_CONF = reg_request('site')
         self.worker_func = worker_func
 
     def _do_accept_request(self, env, start_response):
@@ -140,7 +123,7 @@ class WSGIReflex(BaseReflex):
                 )
 
         headers = [
-                (k.encode(OUTPUT_ENC), v.encode(OUTPUT_ENC), )
+                (k.encode(HEADER_ENC), v.encode(HEADER_ENC), )
                 for k, v in response.headers.iteritems()
                 ]
 
@@ -159,15 +142,6 @@ class WeiyuWSGIAdapter(object):
 
     def __call__(self, env, start_response):
         return self.reflex.stimulate(env, start_response)
-
-
-# XXX TEST CODE, TO BE FACTORED OUT
-def env_test_worker(request):
-    return (
-            200,
-            {'Content-Type': 'text/html; charset=utf-8', },
-            iter([get_response(request.environ, request.site), ]),
-            )
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

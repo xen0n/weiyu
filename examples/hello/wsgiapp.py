@@ -23,9 +23,14 @@
 from __future__ import unicode_literals, division
 
 from weiyu.registry.loader import JSONConfig
+from weiyu.adapters.wsgi import WeiyuWSGIAdapter
 
-from weiyu.adapters.wsgi import WeiyuWSGIAdapter, env_test_worker
+from weiyu.__version__ import VERSION_STR
+from weiyu.registry.provider import request, _registries as REGS
+from weiyu.rendering import Hub
+from weiyu.rendering.base import RenderContext
 
+OUTPUT_ENC = 'utf-8'
 
 # load up registries
 conf = JSONConfig('conf.json')
@@ -33,6 +38,26 @@ conf.populate_central_regs()
 
 # trigger registration of Mako template handler
 from weiyu.rendering.makorenderer import MakoRenderable
+
+
+def get_response(env, conf):
+    tmpl = Hub.get_template('mako', 'env.html')
+    result = tmpl.render(RenderContext(
+            env=env,
+            regs=REGS,
+            sitename=conf['name'],
+            version=VERSION_STR,
+            ))
+    return result.encode(OUTPUT_ENC)
+
+
+def env_test_worker(request):
+    return (
+            200,
+            {'Content-Type': 'text/html; charset=utf-8', },
+            iter([get_response(request.environ, request.site), ]),
+            )
+
 
 application = WeiyuWSGIAdapter(env_test_worker)
 
