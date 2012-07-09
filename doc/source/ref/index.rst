@@ -2,12 +2,13 @@ Module reference
 ================
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   auth/index
-   registry/index
-   hooks/index
-   rendering/index
+    auth/index
+    registry/index
+    hooks/index
+    reflex/index
+    rendering/index
 
 
 .. vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
