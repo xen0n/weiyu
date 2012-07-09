@@ -1,0 +1,19 @@
+{
+	"site": {
+		"class": "UnicodeRegistry",
+		"no_update": true,
+		"data": {
+			"name": "weiyu hello site"
+			}
+	 	},
+	"weiyu.rendering": {
+		"class": "UnicodeRegistry",
+		"no_update": false,
+		"data": {
+			"mako": {
+				"directories": ["./templates"],
+				"module_dir": "/tmp/mako-modules"
+			}
+		}
+	}
+}
