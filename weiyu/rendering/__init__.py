@@ -17,5 +17,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals, division
+
+__all__ = [
+        'Hub',
+        ]
+
+from ..registry.classes import UnicodeRegistry
+from ..registry.provider import request
+
+
+HANDLERS_KEY = 'handlers'
+
+class RenderHub(object):
+    def __init__(self):
+        self._reg = request(
+                'weiyu.rendering',
+                autocreate=True,
+                nodup=False,
+                klass=UnicodeRegistry,
+                )
+        reg = self._reg
+        if HANDLERS_KEY not in reg:
+            reg[HANDLERS_KEY] = {}
+
+    def register_handler(self, typ):
+        def _decorator_(fn):
+            self._reg[HANDLERS_KEY].register(typ, fn)
+            return fn
+        return _decorator_
+
+    def get_template(self, name, typ):
+        typ_handler = self._reg[HANDLERS_KEY][typ]
+        return typ_handler(name)
+
+
+Hub = RenderHub()
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

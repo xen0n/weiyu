@@ -29,12 +29,18 @@ __all__ = ['JSONRenderable', ]
 
 from json import dumps
 
+from . import Hub
 from .base import Renderable
 
 
 class JSONRenderable(Renderable):
     def _do_render(self, context):
         return dumps(dict(context))
+
+@Hub.register_handler('json')
+def json_render_handler(name):
+    # template name is meaningless in JSON rendering, thus ignored.
+    return JSONRenderable()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
