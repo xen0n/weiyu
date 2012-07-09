@@ -47,7 +47,7 @@ class MakoRenderable(Renderable):
         self._template = tmpl
 
     def _do_render(self, context):
-        return self._template.render(dict(context))
+        return self._template.render(**dict(context))
 
 
 @Hub.register_handler('mako')
