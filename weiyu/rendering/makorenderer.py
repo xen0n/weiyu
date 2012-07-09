@@ -34,10 +34,10 @@ from .base import Renderable
 
 from ..registry.provider import request
 
-
 TMPL_LOOKUP_KEY = 'lookup_obj'
 DIRECTORIES_KEY = 'directories'
 MODULE_DIR_KEY = 'module_dir'
+
 
 class MakoRenderable(Renderable):
     def __init__(self, tmpl):

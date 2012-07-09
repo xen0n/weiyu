@@ -26,8 +26,8 @@ __all__ = [
 from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
 
-
 HANDLERS_KEY = 'handlers'
+
 
 class RenderHub(object):
     def __init__(self):

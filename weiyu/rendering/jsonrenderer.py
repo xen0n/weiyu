@@ -37,6 +37,7 @@ class JSONRenderable(Renderable):
     def _do_render(self, context):
         return dumps(dict(context))
 
+
 @Hub.register_handler('json')
 def json_render_handler(name):
     # template name is meaningless in JSON rendering, thus ignored.
