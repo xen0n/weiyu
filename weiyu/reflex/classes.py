@@ -18,8 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 u'''
-"Reflex arc"
-~~~~~~~~~~~~
+Reflex-like request handling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module implements the general request handling mechanism, much like
 the neurological concept *reflex arc*, hence the name. Process of requests
@@ -33,28 +33,99 @@ from __future__ import unicode_literals, division
 import abc
 
 
+class ReflexRequest(object):
+    '''Class representing a protocol-independent request.'''
+
+    pass
+
+
+class ReflexResponse(object):
+    '''Class describing a protocol-independent response.'''
+
+    pass
+
+
 class BaseReflex(object):
+    '''Abstract reflex class.
+
+    Responses are obtained by calling ``stimulate()``, which "excites" the
+    several ``_do_\*`` methods in order. Among these methods
+    ``_do_accept_request()``, ``_do_generate_response()`` and
+    ``_do_deliver_response()`` are abstract; they are to implement the bare
+    minimum of code to parse incoming requests into protocol-agnostic form,
+    to generate a response, to transform and deliver the response object,
+    thus subclasses must provide implementations.
+
+    '''
+
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def _do_accept_request(self, *args, **kwargs):
+        '''Called to convert protocol-specific request parameters into an
+        instance of a certain subclass of ``ReflexRequest``, for further
+        processing.
+
+        This method is abstract.
+
+        '''
+
         pass
 
     def _do_translate_request(self, request):
+        '''Called to perform various protocol-agnostic transformations on
+        ``request``, such as applying middleware parameters or recording
+        session information.
+
+        The default implementation does nothing: it just returns the object
+        untouched. Subclasses are free to override this.
+
+        '''
+
         return request
 
     @abc.abstractmethod
     def _do_generate_response(self, request):
+        '''Called to generate a ``ReflexResponse`` (sub)class instance with
+        the information present in ``request``.
+
+        The method is abstract by nature.
+
+        '''
+
         pass
 
     def _do_postprocess(self, response):
+        '''Called to perform protocol-agnostic transformations on
+        ``response``.
+
+        Same as with ``_do_translate_request``, the default implementation
+        is a stub which is free to be overridden.
+
+        '''
+
         return response
 
     @abc.abstractmethod
     def _do_deliver_response(self, response):
+        '''Called to actually deliver content in ``response`` in a parti-
+        cular output protocol.
+
+        This method is also abstract by nature. There is no restrictions
+        put on its return value; after the method is called the whole
+        stimulation procedure ends, and you are in total control.
+
+        '''
+
         pass
 
     def stimulate(self, *args, **kwargs):
+        '''Triggers a response upon being presented with a set of arbitrary
+        parameters. Depending on implementations of the several relaying
+        methods, the effects triggered can be just about anything.
+
+        '''
+
         raw_request = self._do_accept_request(*args, **kwargs)
         request = self._do_translate_request(raw_request)
         raw_response = self._do_generate_response(request)
