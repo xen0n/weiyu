@@ -47,9 +47,9 @@ class RenderHub(object):
             return fn
         return _decorator_
 
-    def get_template(self, typ, name):
+    def get_template(self, typ, name, *args, **kwargs):
         typ_handler = self._reg[HANDLERS_KEY][typ]
-        return typ_handler(name)
+        return typ_handler(name, *args, **kwargs)
 
 
 Hub = RenderHub()

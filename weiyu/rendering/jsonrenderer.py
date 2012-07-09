@@ -39,9 +39,9 @@ class JSONRenderable(Renderable):
 
 
 @Hub.register_handler('json')
-def json_render_handler(name):
+def json_render_handler(name, *args, **kwargs):
     # template name is meaningless in JSON rendering, thus ignored.
-    return JSONRenderable()
+    return JSONRenderable(*args, **kwargs)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

@@ -42,7 +42,8 @@ MODULE_DIR_KEY = 'module_dir'
 
 
 class MakoRenderable(Renderable):
-    def __init__(self, tmpl):
+    def __init__(self, tmpl, *args, **kwargs):
+        super(MakoRenderable, self).__init__(*args, **kwargs)
         self._template = tmpl
 
     def _do_render(self, context):
@@ -50,7 +51,7 @@ class MakoRenderable(Renderable):
 
 
 @Hub.register_handler('mako')
-def mako_render_handler(name):
+def mako_render_handler(name, *args, **kwargs):
     render_reg = request('weiyu.rendering')
     # TODO: config default value here, or proper exc handling
     mako_params = render_reg['mako']
@@ -67,7 +68,7 @@ def mako_render_handler(name):
     lookup = mako_params[TMPL_LOOKUP_KEY]
     # TODO: possibly map template names to filenames here
     tmpl = lookup.get_template(name)
-    return MakoRenderable(tmpl)
+    return MakoRenderable(tmpl, *args, **kwargs)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
