@@ -40,9 +40,8 @@ class BaseReflex(object):
     def _do_accept_request(self, *args, **kwargs):
         pass
 
-    @abc.abstractmethod
     def _do_translate_request(self, request):
-        pass
+        return request
 
     @abc.abstractmethod
     def _do_generate_response(self, request):
