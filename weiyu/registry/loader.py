@@ -109,6 +109,7 @@ class BaseConfig(object):
             # k is registry name, v is a dict
             # v's format is as follows:
             # {'class': '<class name of registry>',
+            #  'no_update': True/False,
             #  'data': {key1: val1, key2: val2, etc: etc, },
             #  }
             # first a little type sanity check
@@ -126,12 +127,16 @@ class BaseConfig(object):
 
             # type(v) ok ,move on to strictly match the keys...
             v_keys = tuple(sorted(v.iterkeys()))
-            if v_keys != ('class', 'data', ):
+            if v_keys != ('class', 'data', 'no_update', ):
                 raise ValueError('malformed pythonized registry definition')
 
             # types of class and data...
             if not isinstance(v['class'], (str, unicode, )):
                 raise ValueError('registry class name not of string type')
+
+            if not isinstance(v['no_update'], bool):
+                raise ValueError('no_update property must be boolean')
+            nodup = v['no_update']
 
             # class validation
             try:
@@ -147,7 +152,7 @@ class BaseConfig(object):
             # format check (finally...) passed, go on with actually updating
             # NOTE: obviously registries cannot have duplicate names,
             # here we'll rely on RegistryBase's behavior to ensure this :P
-            reg = request(k, autocreate=True, nodup=True, klass=cls)
+            reg = request(k, autocreate=True, nodup=nodup, klass=cls)
             for reg_k, reg_v in v['data'].iteritems():
                 reg[reg_k] = reg_v
 
