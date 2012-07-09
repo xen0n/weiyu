@@ -27,6 +27,8 @@ from __future__ import unicode_literals, division
 
 __all__ = ['MakoRenderable', ]
 
+from os.path import abspath
+
 from mako.lookup import TemplateLookup
 
 from . import Hub
@@ -53,8 +55,12 @@ def mako_render_handler(name):
     # TODO: config default value here, or proper exc handling
     mako_params = render_reg['mako']
     if TMPL_LOOKUP_KEY not in mako_params:
+        # canonicalize template dirs to absolute path
+        abspath_dirs=[abspath(i) for i in mako_params[DIRECTORIES_KEY]]
+
+        # instantiate TemplateLookup singleton
         mako_params[TMPL_LOOKUP_KEY] = TemplateLookup(
-                directories=mako_params[DIRECTORIES_KEY],
+                directories=abspath_dirs,
                 module_directory=mako_params[MODULE_DIR_KEY],
                 )
 
