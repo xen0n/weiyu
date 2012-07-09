@@ -43,7 +43,7 @@ class RenderHub(object):
 
     def register_handler(self, typ):
         def _decorator_(fn):
-            self._reg[HANDLERS_KEY].register(typ, fn)
+            self._reg[HANDLERS_KEY][typ] = fn
             return fn
         return _decorator_
 
