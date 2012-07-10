@@ -32,7 +32,7 @@ class BaseHub(object):
 
     The class is meant for usage in package-level ``__init__.py`` files::
 
-        # in one of your __init__.py file:
+        # in one of your __init__.py files:
 
         # best to only "expose" the Hub instance
         __all__ = ['Hub', ]
