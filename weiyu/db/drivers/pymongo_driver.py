@@ -34,7 +34,7 @@ _DuplicateKeyError = pymongo.errors.DuplicateKeyError
 
 from . import Hub
 from .baseclass import *
-from weiyu.helpers import PathBuilderBase, CallReflector
+from ...helpers import PathBuilderBase, CallReflector
 
 
 class CollectionPath(PathBuilderBase):
