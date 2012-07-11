@@ -44,7 +44,7 @@ class CollectionPath(PathBuilderBase):
 class PymongoDriver(DBDriverBase):
     '''``pymongo`` driver class.'''
 
-    def __init__(self, host, port, name, is_replica=False):
+    def __init__(self, host, port, is_replica=False):
         '''Constructor function.
 
         The database is specified through the parameters ``host`` and ``port``.
@@ -56,7 +56,7 @@ class PymongoDriver(DBDriverBase):
 
         super(PymongoDriver, self).__init__()
 
-        self.host, self.port, self.name = host, port, name
+        self.host, self.port = host, port
         self._conn_type = (pymongo.ReplicaSetConnection
                            if is_replica
                            else pymongo.Connection
@@ -112,9 +112,8 @@ class PymongoDriver(DBDriverBase):
 
 
 @Hub.register_handler('pymongo')
-def pymongo_handler():
-    # TODO
-    pass
+def pymongo_handler(host, port, is_replica):
+    return PymongoDriver(host, port, is_replica)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
