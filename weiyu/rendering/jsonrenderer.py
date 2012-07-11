@@ -39,7 +39,7 @@ class JSONRenderable(Renderable):
 
 
 @Hub.register_handler('json')
-def json_render_handler(name, *args, **kwargs):
+def json_render_handler(hub, name, *args, **kwargs):
     # template name is meaningless in JSON rendering, thus ignored.
     return JSONRenderable(*args, **kwargs)
 

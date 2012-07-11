@@ -112,7 +112,7 @@ class PymongoDriver(DBDriverBase):
 
 
 @Hub.register_handler('pymongo')
-def pymongo_handler(host, port, is_replica):
+def pymongo_handler(hub, host, port, is_replica):
     return PymongoDriver(host, port, is_replica)
 
 

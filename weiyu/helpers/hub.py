@@ -163,7 +163,9 @@ class BaseHub(object):
         '''
 
         handler = self.get_handler(typ)
-        return handler(*args, **kwargs)
+
+        # pass a copy of hub instance to allow some degree of "context"
+        return handler(self, *args, **kwargs)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

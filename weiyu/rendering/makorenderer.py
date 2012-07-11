@@ -51,7 +51,7 @@ class MakoRenderable(Renderable):
 
 
 @Hub.register_handler('mako')
-def mako_render_handler(name, *args, **kwargs):
+def mako_render_handler(hub, name, *args, **kwargs):
     render_reg = request('weiyu.rendering')
     # TODO: config default value here, or proper exc handling
     mako_params = render_reg['mako']
