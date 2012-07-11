@@ -23,33 +23,18 @@ __all__ = [
         'Hub',
         ]
 
+from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
-from ..registry.provider import request
-
-HANDLERS_KEY = 'handlers'
 
 
-class RenderHub(object):
-    def __init__(self):
-        self._reg = request(
-                'weiyu.rendering',
-                autocreate=True,
-                nodup=False,
-                klass=UnicodeRegistry,
-                )
-        reg = self._reg
-        if HANDLERS_KEY not in reg:
-            reg[HANDLERS_KEY] = {}
+class RenderHub(BaseHub):
+    registry_name = 'weiyu.rendering'
+    registry_class = UnicodeRegistry
+    handlers_key = 'handlers'
 
-    def register_handler(self, typ):
-        def _decorator_(fn):
-            self._reg[HANDLERS_KEY][typ] = fn
-            return fn
-        return _decorator_
-
+    # template thing
     def get_template(self, typ, name, *args, **kwargs):
-        typ_handler = self._reg[HANDLERS_KEY][typ]
-        return typ_handler(name, *args, **kwargs)
+        return self.do_handling(typ, name, *args, **kwargs)
 
 
 Hub = RenderHub()
