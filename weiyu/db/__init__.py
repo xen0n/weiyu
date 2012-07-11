@@ -25,6 +25,7 @@ __all__ = [
 
 from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
+from ..registry.provider import request
 
 
 class DatabaseHub(BaseHub):
@@ -32,11 +33,37 @@ class DatabaseHub(BaseHub):
     registry_class = UnicodeRegistry
     handlers_key = 'drivers'
 
-    def get_database(self, typ, *args, **kwargs):
-        return self.do_handling(typ, *args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(DatabaseHub, self).__init__(*args, **kwargs)
+
+        # register an empty database dict if it isn't there
+        if 'databases' not in self._reg:
+            self._reg['databases'] = {}
+
+    def get_database(self, name):
+        # only fetch resource by name
+        # NOTE: args and kwargs are removed for the moment; we'll see if
+        # they're really necessary for the "flexibility" they're supposed
+        # to provide.
+        return self.do_handling('__name', name)
 
 
 Hub = DatabaseHub()
+
+
+# reference-by-name handler
+@Hub.register_handler('__name')
+def name_resolver(hub, name):
+    dbconf = request('weiyu.db')
+    # NOTE: exception is not caught as any request for an unmentioned
+    # database SHOULD fail
+    db_cfg = dbconf['databases'][unicode(name)]
+
+    # driver type and kwargs for constructing db object
+    drv_type = db_cfg['driver']
+    drv_kwargs = db_cfg['options']
+
+    return hub.do_handling(drv_type, **drv_kwargs)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
