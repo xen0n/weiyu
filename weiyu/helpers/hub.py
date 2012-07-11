@@ -113,7 +113,7 @@ class BaseHub(object):
 
         '''
 
-        self._handlers = self._reg[cls.handlers_key]
+        self._handlers = self._reg[self.__class__.handlers_key]
 
     def register_handler(self, typ):
         '''Decorator to register a handler for type ``typ``; the decorated
