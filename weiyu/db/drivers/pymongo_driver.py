@@ -32,7 +32,7 @@ from functools import wraps
 import pymongo
 _DuplicateKeyError = pymongo.errors.DuplicateKeyError
 
-from . import Hub
+from .. import Hub
 from .baseclass import *
 from ...helpers import PathBuilderBase, CallReflector
 
