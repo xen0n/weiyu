@@ -74,16 +74,16 @@ class BaseHub(object):
     The class attributes that must be present in subclasses is described
     below:
 
-    * ``registry_name``: name of the registry used to hold the
+    :attr registry_name: name of the registry used to hold the
       type-to-handler mapping;
-    * ``registry_class``: the proper registry class to use, if the registry
+    :attr registry_class: the proper registry class to use, if the registry
       named by ``registry_name`` does not exist at the time of hub creation;
-    * ``handlers_key``: key which the type-to-handler mapping resides in.
+    :attr handlers_key: key which the type-to-handler mapping resides in.
 
     To avoid excessive attribute lookups when retrieving reference to the
     internal mapping, the mapping ``dict`` is cached. If it turns out that
     dynamically substituting the handler mapping object is necessary, you
-    need to ensure that ``refresh_handler_map`` is called right after
+    need to ensure that :meth:`refresh_handler_map` is called right after
     applying the object replacement, and before any potential call to get a
     handler. As long as you don't totally replace the mapping object (which
     is almost always the case), calling this method is NOT needed and

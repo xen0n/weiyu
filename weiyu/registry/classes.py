@@ -61,8 +61,9 @@ class RegistryBase(object):
     be validated and normalized.
 
     The class is abstract, thus *not* directly usable. You must subclass
-    and override its ``normalize_key`` and ``normalize_value``  method,
-    which are used to implement the said validation/normalization behavior.
+    and override its :meth:`normalize_key` and :meth:`normalize_value`
+    methods, which are used to implement the said validation/normalization
+    behavior.
 
     '''
 
@@ -165,7 +166,7 @@ class RegistryBase(object):
 class UnicodeRegistry(RegistryBase):
     '''Registry with Unicode keys.
 
-    As its name implies, this class is just ``RegistryBase`` with keys
+    As its name implies, this class is just :class:`RegistryBase` with keys
     all converted to ``unicode``. Values can still be of any type though.
 
     '''
@@ -215,9 +216,9 @@ class FunctionKeyRegistry(RegistryBase):
 class FunctionValueRegistry(UnicodeRegistry):
     '''Registry for registering functions.
 
-    Note that ``register``'s signature is changed to make auto-registration
-    on function definition more Pythonic, which is also the registry's
-    desired usage pattern.
+    Note that :meth:`register`'s signature is changed to make
+    auto-registration on function definition more Pythonic, which is also
+    the registry's desired usage pattern.
 
     '''
 
@@ -230,8 +231,8 @@ class FunctionValueRegistry(UnicodeRegistry):
     def register(self, name=None):
         '''Convenient decorator for registering functions.
 
-        If  ``name`` is ``None``, the function's ``func_name`` is used as
-        key. Otherwise the name specified is used.
+        If  ``name`` is ``None``, the function's ``func_name`` is used
+        as key. Otherwise the name specified is used.
 
         .. note::
             To use function names, the decorator must be used with parens
@@ -256,6 +257,9 @@ class RegistryRegistry(UnicodeRegistry):
     In order to ensure true singleton pattern, all registries should be
     acquired from the central registry. Which explains why this very class
     exists...
+
+    See also :mod:`weiyu.registry.provider`, which is the single most
+    significant "user" of this class.
 
     '''
 

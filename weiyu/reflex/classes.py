@@ -48,10 +48,10 @@ class ReflexResponse(object):
 class BaseReflex(object):
     '''Abstract reflex class.
 
-    Responses are obtained by calling ``stimulate()``, which "excites" the
-    several ``_do_\*`` methods in order. Among these methods
-    ``_do_accept_request()``, ``_do_generate_response()`` and
-    ``_do_deliver_response()`` are abstract; they are to implement the bare
+    Responses are obtained by calling :meth:`stimulate`, which "excites" the
+    several ``_do_*`` methods in order. Among these methods
+    :meth:`_do_accept_request`, :meth:`_do_generate_response` and
+    :meth:`_do_deliver_response` are abstract; they are to implement the bare
     minimum of code to parse incoming requests into protocol-agnostic form,
     to generate a response, to transform and deliver the response object,
     thus subclasses must provide implementations.
@@ -63,8 +63,8 @@ class BaseReflex(object):
     @abc.abstractmethod
     def _do_accept_request(self, *args, **kwargs):
         '''Called to convert protocol-specific request parameters into an
-        instance of a certain subclass of ``ReflexRequest``, for further
-        processing.
+        instance of a certain subclass of :class:`.ReflexRequest`, for
+        further processing.
 
         This method is abstract.
 
@@ -86,8 +86,8 @@ class BaseReflex(object):
 
     @abc.abstractmethod
     def _do_generate_response(self, request):
-        '''Called to generate a ``ReflexResponse`` (sub)class instance with
-        the information present in ``request``.
+        '''Called to generate a :class:`.ReflexResponse` (sub)class instance
+        with the information present in ``request``.
 
         The method is abstract by nature.
 
@@ -99,8 +99,8 @@ class BaseReflex(object):
         '''Called to perform protocol-agnostic transformations on
         ``response``.
 
-        Same as with ``_do_translate_request``, the default implementation
-        is a stub which is free to be overridden.
+        Same as with :meth:`_do_translate_request`, the default
+        implementation is a stub which is free to be overridden.
 
         '''
 
@@ -108,8 +108,8 @@ class BaseReflex(object):
 
     @abc.abstractmethod
     def _do_deliver_response(self, response):
-        '''Called to actually deliver content in ``response`` in a parti-
-        cular output protocol.
+        '''Called to actually deliver content in ``response`` in a
+        particular output protocol.
 
         This method is also abstract by nature. There is no restrictions
         put on its return value; after the method is called the whole

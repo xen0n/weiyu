@@ -22,10 +22,10 @@ Registry service provider
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This module is the "official" provider of registry instances, in which a
-``RegistryRegistry`` singleton lives.
+:class:`.classes.RegistryRegistry` singleton lives.
 
 To ensure true singleton-ness, all registries should be acquired from this
-module, by calling ``request`` (see below).
+module, by calling :func:`request` (see below).
 
 '''
 
@@ -45,14 +45,14 @@ def request(name, autocreate=False, nodup=True, klass=None, *args, **kwargs):
     to ``klass.__init__``), if no registry with name ``name`` exists.
 
     If the auto-creation behavior is turned off (which is the default), a
-    ``KeyError`` will be ``raise``\ d if the requested instance does not
+    :exc:`KeyError` will be ``raise``\ d if the requested instance does not
     exist. If auto-creation is enabled but ``klass`` is not derived from
-    ``RegistryBase``, ``TypeError`` will be ``raise``\ d.
+    :class:`.classes.RegistryBase`, :exc:`TypeError` will be ``raise``\ d.
 
     To avoid getting an existing registry when you actually want a new one,
     a parameter ``nodup`` is added to indicate that any attempt to request
     a pre-existing registry with ``autocreate=True`` should result in an
-    ``AttributeError`` (the same exception as a registry would ``raise``
+    :exc:`AttributeError` (the same exception as a registry would ``raise``
     in such a situation). The parameter defaults to ``True``; it has no
     effect if ``autocreate == False``.
 
