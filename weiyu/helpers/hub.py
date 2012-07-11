@@ -38,7 +38,7 @@ class BaseHub(object):
         __all__ = ['Hub', ]
 
         from weiyu.helpers.hub import BaseHub
-        from weiyu.registry.classes import UnicodeRegistry    
+        from weiyu.registry.classes import UnicodeRegistry
 
 
         class SpamEggHub(BaseHub):
@@ -110,7 +110,7 @@ class BaseHub(object):
 
         This method exists only in case the mapping needs to be pointed to
         a brand-new object; it should not be called in most cases.
-        
+
         '''
 
         self._handlers = self._reg[cls.handlers_key]
