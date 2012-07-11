@@ -63,7 +63,7 @@ def name_resolver(hub, name):
     drv_type = db_cfg['driver']
     drv_kwargs = db_cfg['options']
 
-    return hub.do_handling(drv_type, name, **drv_kwargs)
+    return hub.do_handling(drv_type, **drv_kwargs)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
