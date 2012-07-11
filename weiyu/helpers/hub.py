@@ -96,6 +96,7 @@ class BaseHub(object):
         self._reg = request(
                 cls.registry_name,
                 autocreate=True,
+                nodup=False,
                 klass=cls.registry_class,
                 )
 
