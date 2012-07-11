@@ -23,34 +23,17 @@ __all__ = [
         'Hub',
         ]
 
+from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
-from ..registry.provider import request
-
-HANDLERS_KEY = 'drivers'
 
 
-class DatabaseHub(object):
-    # TODO: refactor this and RenderHub to use common helper code
-
-    def __init__(self):
-        self._reg = request(
-                'weiyu.db',
-                autocreate=True,
-                klass=UnicodeRegistry,
-                )
-
-        if HANDLERS_KEY not in self._reg:
-            self._reg[HANDLERS_KEY] = {}
-
-    def register_handler(self, typ):
-        def _decorator_(fn):
-            self._reg[HANDLERS_KEY] = fn
-            return fn
-        return _decorator_
+class DatabaseHub(BaseHub):
+    registry_name = 'weiyu.db'
+    registry_class = UnicodeRegistry
+    handlers_key = 'drivers'
 
     def get_database(self, typ, *args, **kwargs):
-        factory_func = self._reg[HANDLERS_KEY][typ]
-        return factory_func(*args, **kwargs)
+        return self.do_handling(typ, *args, **kwargs)
 
 
 Hub = DatabaseHub()
