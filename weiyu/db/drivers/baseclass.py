@@ -40,7 +40,7 @@ def ensure_conn(fn):
         if self.connection is None:
             raise exc.NotConnectedError
         # fn is a bound method, so don't pass self around
-        return fn(*args, **kwargs)
+        return fn(self, *args, **kwargs)
     return __wrapper__
 
 
@@ -60,7 +60,7 @@ def ensure_disconn(fn):
         if self.connection is not None:
             raise exc.AlreadyConnectedError
         # fn is a bound method, so don't pass self around
-        return fn(*args, **kwargs)
+        return fn(self, *args, **kwargs)
     return __wrapper__
 
 
