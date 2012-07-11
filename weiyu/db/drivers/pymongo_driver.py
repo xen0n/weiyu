@@ -32,6 +32,7 @@ from functools import wraps
 import pymongo
 _DuplicateKeyError = pymongo.errors.DuplicateKeyError
 
+from . import Hub
 from .baseclass import *
 from weiyu.helpers import PathBuilderBase, CallReflector
 
@@ -109,6 +110,11 @@ class PymongoDriver(DBDriverBase):
 
         self.disconnect()
 
+
+@Hub.register_handler('pymongo')
+def pymongo_handler():
+    # TODO
+    pass
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
