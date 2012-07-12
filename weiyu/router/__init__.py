@@ -47,15 +47,19 @@ class RouterHub(BaseHub):
         self._routers = self._reg['routers']
         self._endpoints = self._reg['endpoints']
 
-    def endpoint(typ, name):
+    def endpoint(self, typ, name):
         '''decorator for registering routing end points.'''
 
         def _decorator_(fn):
+            if typ not in self._endpoints:
+                # this type not already registered, probably not inited yet
+                # let's give it a sensible default
+                self._endpoints[typ] = {}
             self._endpoints[typ][name] = fn
             return fn
         return _decorator_
 
-    def register_router(router):
+    def register_router(self, router):
         # keep a reference to the router
         typ = router.name
         self._router_map[typ] = router
@@ -70,7 +74,7 @@ class RouterHub(BaseHub):
         # register its dispatch method as handler, and we're done
         self.register(typ, bridge.dispatch)
 
-    def dispatch(typ, querystr, *args):
+    def dispatch(self, typ, querystr, *args):
         # typically used with args=(request, ) inside the framework
         # TODO: is it really useful to allow passing kwargs also?
         return self.do_handling(typ, querystr, *args)
