@@ -27,7 +27,7 @@ from weiyu.adapters.wsgi import WeiyuWSGIAdapter
 
 from weiyu.__version__ import VERSION_STR
 from weiyu.registry.provider import request, _registries as REGS
-from weiyu.rendering import Hub
+from weiyu.rendering import render_hub
 from weiyu.rendering.base import RenderContext
 
 OUTPUT_ENC = 'utf-8'
@@ -41,7 +41,7 @@ from weiyu.rendering.makorenderer import MakoRenderable
 
 
 def get_response(env, conf):
-    tmpl = Hub.get_template('mako', 'env.html')
+    tmpl = render_hub.get_template('mako', 'env.html')
     result = tmpl.render(RenderContext(
             env=env,
             regs=REGS,
