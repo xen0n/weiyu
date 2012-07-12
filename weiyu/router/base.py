@@ -22,6 +22,7 @@ from __future__ import unicode_literals, division
 __all__ = [
             'RouterTargetBase',
             'RouterBase',
+            'RouterBridge',
             'STATUS_REACHED',
             'STATUS_FORWARD',
             'STATUS_NOROUTE',
@@ -82,8 +83,7 @@ class RouterBase(object):
 
 
 class RouterTargetBase(object):
-    def __init__(self, name, target):
-        self.name = name
+    def __init__(self, target):
         self.target = target
 
         # for nested processing
@@ -119,6 +119,33 @@ class RouterTargetBase(object):
         raise DispatchError('Impossible check result %s, bug detected'
                 % repr((status, args, kwargs, new_qs, ))
                 )
+
+
+class RouterBridge(object):
+    def __init__(self, router):
+        self.router = router
+
+    def _lookup(self, querystr):
+        # this method is now internal, so querystring is already unicode
+        result = self.router.lookup(querystr)
+        if result[0]:
+            # hit
+            return result
+        return (False, None, None, None, )
+
+    def dispatch(self, querystr, *args):
+        querystr = unicode(querystr)
+
+        hit, target, more_args, kwargs = self._lookup(querystr)
+        if not hit:
+            raise DispatchError(
+                    '%s: no registered router accepts the query string'
+                    % repr(querystr)
+                    )
+
+        # append resolved positional args to args passed in
+        args.extend(more_args)
+        return target(*args, **kwargs)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
