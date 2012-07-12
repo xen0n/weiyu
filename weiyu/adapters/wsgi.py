@@ -126,6 +126,10 @@ class WSGIReflex(BaseReflex):
         contenttype = '%s; charset=%s' % (mime, enc, )
         hdrs.append(('Content-Type', contenttype, ))
 
+        # generate Set-Cookie from cookies
+        for cookie_line in ctx.get('cookies', []):
+            hdrs.append(('Set-Cookie', cookie_line, ))
+
         response.http_headers = hdrs
 
         return response
