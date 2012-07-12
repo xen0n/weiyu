@@ -90,11 +90,6 @@ class WSGIRequest(ReflexRequest):
         pass
 
 
-# TODO: rewrite to an adapter-agnostic form, and inherit from that
-class WSGIResponse(ReflexResponse):
-    pass
-
-
 class WSGIReflex(BaseReflex):
     def __init__(self, worker_func):
         self.SITE_CONF = reg_request('site')
@@ -104,8 +99,7 @@ class WSGIReflex(BaseReflex):
         return WSGIRequest(env, start_response, self.SITE_CONF)
 
     def _do_generate_response(self, request):
-        status, content, context = self.worker_func(request)
-        return WSGIResponse(status, content, context, request)
+        return self.worker_func(request)
 
     def _do_postprocess(self, response):
         ctx, hdrs = response.context, []
