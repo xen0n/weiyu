@@ -72,7 +72,7 @@ def hookable(name=None):
                 result = fn(*args, **kwargs)
 
             for postprocess_hook in hooks_ref[1]:
-                result = postprocess_hook(result, *args, **kwargs)
+                result = postprocess_hook(result)
 
             return result
 
