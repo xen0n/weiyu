@@ -48,7 +48,7 @@ def get_response(env, conf):
             sitename=conf['name'],
             version=VERSION_STR,
             ))
-    return result.encode(OUTPUT_ENC)
+    return result
 
 
 def env_test_worker(request):
