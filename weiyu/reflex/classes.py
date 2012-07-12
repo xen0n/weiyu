@@ -33,16 +33,17 @@ from __future__ import unicode_literals, division
 import abc
 
 
-class ReflexRequest(object):
+class ReflexRequest(dict):
     '''Class representing a protocol-independent request.'''
 
     pass
 
 
-class ReflexResponse(object):
+class ReflexResponse(dict):
     '''Class describing a protocol-independent response.'''
 
-    pass
+    def __init__(self, content):
+        self['content'] = content
 
 
 class BaseReflex(object):
