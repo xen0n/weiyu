@@ -17,5 +17,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import unicode_literals, division
+
+__all__ = [
+        'router_hub',
+        ]
+
+from ..helpers.hub import BaseHub
+from ..registry.classes import UnicodeRegistry
+
+
+class RouterHub(BaseHub):
+    registry_name = 'weiyu.router'
+    registry_class = UnicodeRegistry
+    handlers_key = 'handlers'
+
+    def __init__(self):
+        super(RouterHub, self).__init__()
+
+        if 'endpoints' not in self._reg:
+            self._reg['endpoints'] = {}
+
+
+router_hub = RouterHub()
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
