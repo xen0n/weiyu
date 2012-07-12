@@ -108,7 +108,7 @@ class WSGIReflex(BaseReflex):
         return WSGIResponse(status, content, context, request)
 
     def _do_postprocess(self, response):
-        ctx, hdrs = response.context, {}
+        ctx, hdrs = response.context, []
 
         enc = ctx.get('enc', 'utf-8')
         response.encoding = enc
@@ -123,7 +123,7 @@ class WSGIReflex(BaseReflex):
         # TODO: convert context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
         contenttype = '%s; charset=%s' % (mime, enc, )
-        hdrs['Content-Type'] = contenttype
+        hdrs.append(('Content-Type', contenttype, ))
 
         response.http_headers = hdrs
 
@@ -142,10 +142,13 @@ class WSGIReflex(BaseReflex):
                 STATUS_CODES_MAP[status_code],
                 )
 
-        headers = [
-                (k.encode(HEADER_ENC), v.encode(HEADER_ENC), )
-                for k, v in response.http_headers.iteritems()
-                ]
+        # ensure all header contents are bytes
+        headers = []
+        for k, v in response.http_headers:
+            # TODO: It's apparent that we need a smart_str helper here!!
+            bytes_k = k.encode(enc) if issubclass(type(k), unicode) else k
+            bytes_v = v.encode(enc) if issubclass(type(v), unicode) else v
+            headers.append((k, v, ))
 
         start_response(status_line, headers)
 
