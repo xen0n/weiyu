@@ -81,4 +81,31 @@ def hookable(name=None):
     return _decorator_
 
 
+def hook_before(name, append=False):
+    # TODO: document this family of registration
+    def _decorator_(fn):
+        hook_reg = request('weiyu.hooks')
+        target_list = hook_reg[name][0]
+        if append:
+            target_list.append(fn)
+        else:
+            target_list.insert(0, fn)
+
+        return fn
+    return _decorator_
+
+
+def hook_after(name, prepend=False):
+    def _decorator_(fn):
+        hook_reg = request('weiyu.hooks')
+        target_list = hook_reg[name][1]
+        if prepend:
+            target_list.insert(0, fn)
+        else:
+            target_list.append(fn)
+
+        return fn
+    return _decorator_
+
+
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
