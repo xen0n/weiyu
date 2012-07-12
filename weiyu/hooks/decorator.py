@@ -30,6 +30,8 @@ from __future__ import unicode_literals, division
 
 __all__ = [
             'hookable',
+            'hook_before',
+            'hook_after',
             ]
 
 from functools import wraps
