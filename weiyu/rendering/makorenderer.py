@@ -18,26 +18,30 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 u'''
-Mako Renderer
-~~~~~~~~~~~~~
+Mako renderer
+-------------
 
 This renderer, and the associated handler for type ``'mako'``, provides
 integration with the `Mako templating system`_. It reads configuration
 from the key ``'mako'`` in registry ``'weiyu.rendering'``.
 
+.. _Mako templating system: http://www.makotemplates.org/
 
-Configuration
--------------
+
+Configuration options
+^^^^^^^^^^^^^^^^^^^^^
 
 Path to template directories can (and must) be configured. Also optionally
 one may specify a directory for storing compiled template code.
 
-============ ================= ====================================
-Config key   Type of value     Meaning    
-============ ================= ====================================
-directories  list of strings   Template directories
-module_dir   (unicode) string  Path to store compiled template code
-============ ================= ====================================
++------------+-----------------+-------------------------------------+
+|Config key  |Type of value    |Meaning                              |
++============+=================+=====================================+
+|directories |list of strings  |Paths to template directories        |
++------------+-----------------+-------------------------------------+
+|module_dir  |(unicode) string |Path to store compiled template code |
+|            |                 |in, typically one in ``/tmp``        |
++------------+-----------------+-------------------------------------+
 
 '''
 

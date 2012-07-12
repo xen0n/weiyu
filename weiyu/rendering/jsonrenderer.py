@@ -18,8 +18,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 u'''
-JSON Renderer
-~~~~~~~~~~~~~
+JSON renderer
+-------------
+
+.. todo::
+
+    This part of documentation is yet to be written.
 
 '''
 

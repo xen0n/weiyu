@@ -1,3 +1,6 @@
+Renderers
+=========
+
 .. automodule:: weiyu.rendering.jsonrenderer
     :members:
 
