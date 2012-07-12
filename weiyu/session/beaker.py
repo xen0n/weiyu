@@ -19,19 +19,41 @@
 
 from __future__ import unicode_literals, division
 
-from beaker.session import Session
+from beaker.session import Session, SessionObject
 from . import session_hub
 
 
 class BeakerSession(object):
-    # TODO: make a base class after functionality is integrated
-    pass
+    def __init__(self, options=None):
+        self.options = options if options is not None else {}
+
+    def preprocess(self, request):
+        request.session = SessionObject(request.env, **self.options)
+
+        return None
+
+    def postprocess(self, response):
+        request = response.request
+        session = request.session
+
+        if session.accessed():
+            session.persist()
+
+            _headers = session.__dict__['_headers']
+            if _headers['set_cookie']:
+                cookie = _headers['cookie_out']
+                if cookie:
+                    # append the cookie to response
+                    new_cookies = response.ctx.get('cookies', [])
+                    new_cookies.append(cookie)
+                    response.ctx['cookies'] = new_cookies
+
+        return response
 
 
 @session_hub.register_handler('beaker')
-def beaker_session_handler(*args, **kwargs):
-    # TODO
-    return BeakerSession()
+def beaker_session_handler(options=None):
+    return BeakerSession(options)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
