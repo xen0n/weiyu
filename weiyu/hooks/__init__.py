@@ -21,7 +21,7 @@ from __future__ import unicode_literals, division
 
 
 # force registry initialization
-import .registry
+from . import registry
 del registry
 
 
