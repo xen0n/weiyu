@@ -20,7 +20,7 @@
 from __future__ import unicode_literals, division
 
 __all__ = [
-        'Hub',
+        'db_hub',
         ]
 
 from ..helpers.hub import BaseHub
@@ -48,7 +48,7 @@ class DatabaseHub(BaseHub):
         return self.do_handling('__name', name)
 
 
-Hub = DatabaseHub()
+db_hub = DatabaseHub()
 
 
 # reference-by-name handler

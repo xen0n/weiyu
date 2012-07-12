@@ -32,7 +32,7 @@ from functools import wraps
 import pymongo
 _DuplicateKeyError = pymongo.errors.DuplicateKeyError
 
-from .. import Hub
+from .. import db_hub
 from .baseclass import *
 from ...helpers import PathBuilderBase, CallReflector
 
@@ -111,7 +111,7 @@ class PymongoDriver(DBDriverBase):
         self.disconnect()
 
 
-@Hub.register_handler('pymongo')
+@db_hub.register_handler('pymongo')
 def pymongo_handler(hub, host, port, path, is_replica):
     return PymongoDriver(host, port, path, is_replica)
 
