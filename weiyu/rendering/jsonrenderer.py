@@ -33,7 +33,7 @@ __all__ = ['JSONRenderable', ]
 
 from json import dumps
 
-from . import Hub
+from . import render_hub
 from .base import Renderable
 
 
@@ -42,7 +42,7 @@ class JSONRenderable(Renderable):
         return dumps(dict(context))
 
 
-@Hub.register_handler('json')
+@render_hub.register_handler('json')
 def json_render_handler(hub, name, *args, **kwargs):
     # template name is meaningless in JSON rendering, thus ignored.
     return JSONRenderable(*args, **kwargs)

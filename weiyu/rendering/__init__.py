@@ -20,7 +20,7 @@
 from __future__ import unicode_literals, division
 
 __all__ = [
-        'Hub',
+        'render_hub',
         ]
 
 from ..helpers.hub import BaseHub
@@ -37,7 +37,7 @@ class RenderHub(BaseHub):
         return self.do_handling(typ, name, *args, **kwargs)
 
 
-Hub = RenderHub()
+render_hub = RenderHub()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

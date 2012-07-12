@@ -53,7 +53,7 @@ from os.path import abspath
 
 from mako.lookup import TemplateLookup
 
-from . import Hub
+from . import render_hub
 from .base import Renderable
 
 from ..registry.provider import request
@@ -72,7 +72,7 @@ class MakoRenderable(Renderable):
         return self._template.render(**dict(context))
 
 
-@Hub.register_handler('mako')
+@render_hub.register_handler('mako')
 def mako_render_handler(hub, name, *args, **kwargs):
     render_reg = request('weiyu.rendering')
     # TODO: config default value here, or proper exc handling
