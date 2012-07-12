@@ -19,7 +19,7 @@
 
 u'''
 Hook decorator
-~~~~~~~~~~~~~~
+--------------
 
 This module provides the mechanism to attach both pre- and post-processing
 hooks to any function, via the :func:`hookable` decorator.

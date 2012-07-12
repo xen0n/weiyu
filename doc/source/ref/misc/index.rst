@@ -4,6 +4,7 @@ Miscellaneous modules
 .. toctree::
     :maxdepth: 1
 
+    hooks
     helpers
 
 
