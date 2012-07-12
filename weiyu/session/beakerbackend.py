@@ -34,6 +34,7 @@ class BeakerSession(object):
 
     def postprocess(self, response):
         request = response.request
+        ctx = response.context
         session = request.session
 
         if session.accessed():
@@ -44,9 +45,9 @@ class BeakerSession(object):
                 cookie = _headers['cookie_out']
                 if cookie:
                     # append the cookie to response
-                    new_cookies = response.ctx.get('cookies', [])
+                    new_cookies = ctx.get('cookies', [])
                     new_cookies.append(cookie)
-                    response.ctx['cookies'] = new_cookies
+                    ctx['cookies'] = new_cookies
 
         return response
 
