@@ -108,7 +108,7 @@ class WSGIReflex(BaseReflex):
         return WSGIResponse(status, content, context, request)
 
     def _do_postprocess(self, response):
-        ctx, hdrs = response.context, []
+        ctx, hdrs = response.context, {}
 
         enc = ctx.get('enc', 'utf-8')
         response.encoding = enc
@@ -124,7 +124,7 @@ class WSGIReflex(BaseReflex):
         # TODO: convert context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
         contenttype = '%s; charset=%s' % (mime, enc, )
-        hdrs.append(('Content-Type', contenttype, ))
+        hdrs['Content-Type'] = contenttype
 
         response.http_headers = hdrs
 
