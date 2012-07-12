@@ -24,10 +24,6 @@ Hook decorator
 This module provides the mechanism to attach both pre- and post-processing
 hooks to any function, via the :func:`hookable` decorator.
 
-.. note::
-    :mod:`weiyu.hooks.registry` must be ``import``\ ed first, or the required
-    registry ``'weiyu.hooks'`` won't be in place when referenced.
-
 '''
 
 from __future__ import unicode_literals, division
@@ -40,14 +36,6 @@ from functools import wraps
 
 from ..registry.provider import request
 
-# protect this initialization against Sphinx's autodoc
-try:
-    import __builtin__
-    __builtin__.__WEIYU_IN_SPHINX_AUTODOC
-    del __builtin__
-except AttributeError:
-    HOOK_REGISTRY = request('weiyu.hooks')
-
 
 def hookable(name=None):
     '''Makes a function or method hookable by ``name``.
@@ -56,6 +44,10 @@ def hookable(name=None):
     ``@hookable()``), the function's ``func_name`` is used.
 
     '''
+
+    # move to closure scope; automatically shielded from autodoc, and since
+    # the registry is singleton, putting it anywhere should be OK
+    HOOK_REGISTRY = request('weiyu.hooks')
 
     def _decorator_(fn):
         # register a record
