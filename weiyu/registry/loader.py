@@ -26,8 +26,8 @@ a convenient way of pre-loading configuration data before performing any
 significant actions. This module serves just that purpose, providing several
 configuration formats free to choose from; of course, you are also free to
 roll your own loader by inheriting :class:`.BaseConfig` and implement the
-``_do_loads`` method. At present, only JSON format is available; more is
-expected to be added.
+``_do_loads`` method. At present, only JSON and Python pickles are
+available for use; more is expected to be added.
 
 
 Basics
@@ -92,6 +92,13 @@ from os.path import abspath
 from functools import wraps
 import abc
 import json
+
+try:
+    import cPickle as pickle
+except ImportError:
+    # at least there REALLY should be pickle, so I'm not going to catch
+    # any exception
+    import pickle
 
 from .classes import VALID_REGISTRY_TYPES
 from .provider import request
@@ -289,6 +296,13 @@ class JSONConfig(BaseConfig):
         dump = json.loads(s, *args, **kwargs)
         # TODO: some canonicalization or such
         return dump
+
+
+class PickleConfig(BaseConfig):
+    '''Python pickle config backend.'''
+
+    def _do_loads(self, s, *args, **kwargs):
+        return pickle.loads(s, *args, **kwargs)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
