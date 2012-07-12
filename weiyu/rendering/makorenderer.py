@@ -21,6 +21,24 @@ u'''
 Mako Renderer
 ~~~~~~~~~~~~~
 
+This renderer, and the associated handler for type ``'mako'``, provides
+integration with the `Mako templating system`_. It reads configuration
+from the key ``'mako'`` in registry ``'weiyu.rendering'``.
+
+
+Configuration
+-------------
+
+Path to template directories can (and must) be configured. Also optionally
+one may specify a directory for storing compiled template code.
+
+============ ================= ====================================
+Config key   Type of value     Meaning    
+============ ================= ====================================
+directories  list of strings   Template directories
+module_dir   (unicode) string  Path to store compiled template code
+============ ================= ====================================
+
 '''
 
 from __future__ import unicode_literals, division
