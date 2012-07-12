@@ -120,7 +120,6 @@ class WSGIReflex(BaseReflex):
         if issubclass(type(cont), unicode):
             response.content = cont.encode(enc, 'replace')
 
-
         # TODO: convert context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
         contenttype = '%s; charset=%s' % (mime, enc, )
@@ -129,7 +128,6 @@ class WSGIReflex(BaseReflex):
         response.http_headers = hdrs
 
         return response
-
 
     def _do_deliver_response(self, response):
         content = response.content
