@@ -23,7 +23,7 @@ __all__ = [
             'WeiyuWSGIAdapter',
             ]
 
-from ..reflex.classes import BaseReflex
+from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
 from ..registry.provider import request as reg_request
 
 HEADER_ENC = 'utf-8'
@@ -75,9 +75,10 @@ STATUS_CODES_MAP = {
         }
 
 
-class WSGIRequest(object):
+class WSGIRequest(ReflexRequest):
     def __init__(self, env, start_response, site_conf):
-        self.environ = env
+        super(WSGIRequest, self).__init__(env)
+
         self.start_response = start_response
         self.site = site_conf
 
@@ -90,12 +91,8 @@ class WSGIRequest(object):
 
 
 # TODO: rewrite to an adapter-agnostic form, and inherit from that
-class WSGIResponse(object):
-    def __init__(self, status, headers, content, request):
-        self.status = status
-        self.headers = headers
-        self.content = content
-        self.request = request
+class WSGIResponse(ReflexResponse):
+    pass
 
 
 class WSGIReflex(BaseReflex):
@@ -107,12 +104,37 @@ class WSGIReflex(BaseReflex):
         return WSGIRequest(env, start_response, self.SITE_CONF)
 
     def _do_generate_response(self, request):
-        status, headers, content = self.worker_func(request)
-        return WSGIResponse(status, headers, content, request)
+        status, content, context = self.worker_func(request)
+        return WSGIResponse(status, content, context, request)
+
+    def _do_postprocess(self, response):
+        ctx, hdrs = response.context, []
+
+        enc = ctx.get('enc', 'utf-8')
+        response.encoding = enc
+
+        mime = ctx.get('mimetype', 'text/html')
+        cont = response.content
+
+        # encode content, if it's a Unicode string
+        if issubclass(type(cont), unicode):
+            response.content = cont.encode(enc, 'replace')
+
+
+        # TODO: convert context into HTTP headers as much as possible
+        # generate Content-Type from mimetype and charset
+        contenttype = '%s; charset=%s' % (mime, enc, )
+        hdrs.append(('Content-Type', contenttype, ))
+
+        response.http_headers = hdrs
+
+        return response
+
 
     def _do_deliver_response(self, response):
         content = response.content
         status_code = response.status
+        enc = response.encoding
 
         request = response.request
         start_response = request.start_response
@@ -124,7 +146,7 @@ class WSGIReflex(BaseReflex):
 
         headers = [
                 (k.encode(HEADER_ENC), v.encode(HEADER_ENC), )
-                for k, v in response.headers.iteritems()
+                for k, v in response.http_headers.iteritems()
                 ]
 
         start_response(status_line, headers)
@@ -133,7 +155,11 @@ class WSGIReflex(BaseReflex):
             yield content
         else:
             for chunk in content:
-                yield chunk
+                if issubclass(type(chunk), unicode):
+                    # encode and send the chunk using response.encoding
+                    yield chunk.encode(enc, 'replace')
+                else:
+                    yield chunk
 
 
 class WeiyuWSGIAdapter(object):
