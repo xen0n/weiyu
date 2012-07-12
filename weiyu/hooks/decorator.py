@@ -22,10 +22,10 @@ Hook decorator
 ~~~~~~~~~~~~~~
 
 This module provides the mechanism to attach both pre- and post-processing
-hooks to any function, via the ``hookable`` decorator.
+hooks to any function, via the :func:`hookable` decorator.
 
 .. note::
-    ``weiyu.hooks.registry`` must be ``import``\ ed first, or the required
+    :mod:`weiyu.hooks.registry` must be ``import``\ ed first, or the required
     registry ``'weiyu.hooks'`` won't be in place when referenced.
 
 '''
@@ -33,7 +33,6 @@ hooks to any function, via the ``hookable`` decorator.
 from __future__ import unicode_literals, division
 
 __all__ = [
-            'PrematureStopRequest',
             'hookable',
             ]
 
@@ -48,18 +47,6 @@ try:
     del __builtin__
 except AttributeError:
     HOOK_REGISTRY = request('weiyu.hooks')
-
-
-# TODO: move this into another file
-class PrematureStopRequest(Exception):
-    '''Exception class used to prematurely end a call to hooked function.
-
-    Instantiate this class with the value you want to return.
-
-    '''
-
-    def __init__(self, retval):
-        self.retval = retval
 
 
 def hookable(name=None):
@@ -83,12 +70,13 @@ def hookable(name=None):
         def _wrapped_hookable_(*args, **kwargs):
             result = None
 
-            try:
-                for preprocess_hook in hooks_ref[0]:
-                    preprocess_hook(*args, **kwargs)
-            except PrematureStopRequest, stop_packet:
-                result = stop_packet.retval
-            else:
+            for preprocess_hook in hooks_ref[0]:
+                result = preprocess_hook(*args, **kwargs)
+
+                if result is not None:
+                    break
+
+            if result is None:
                 result = fn(*args, **kwargs)
 
             for postprocess_hook in hooks_ref[1]:
