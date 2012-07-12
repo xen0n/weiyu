@@ -54,8 +54,11 @@ def get_response(env, conf):
 def env_test_worker(request):
     return (
             200,
-            {'Content-Type': 'text/html; charset=utf-8', },
             iter([get_response(request.environ, request.site), ]),
+            {
+                'mimetype': 'text/html',
+                'enc': OUTPUT_ENC,
+            },
             )
 
 
