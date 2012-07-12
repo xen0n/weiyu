@@ -52,7 +52,7 @@ db_hub = DatabaseHub()
 
 
 # reference-by-name handler
-@Hub.register_handler('__name')
+@db_hub.register_handler('__name')
 def name_resolver(hub, name):
     dbconf = request('weiyu.db')
     # NOTE: exception is not caught as any request for an unmentioned
