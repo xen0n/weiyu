@@ -36,14 +36,18 @@ import abc
 class ReflexRequest(dict):
     '''Class representing a protocol-independent request.'''
 
-    pass
+    def __init__(self, env, *args, **kwargs):
+        self.env = env
 
 
 class ReflexResponse(dict):
     '''Class describing a protocol-independent response.'''
 
-    def __init__(self, content):
-        self['content'] = content
+    def __init__(self, status, content, context=None, request=None):
+        self.status = status
+        self.content = content
+        self.context = context or {}
+        self.request = request
 
 
 class BaseReflex(object):
