@@ -24,6 +24,8 @@ __all__ = [
             ]
 
 from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
+from ..router import router_hub
+
 from ..registry.provider import request as reg_request
 
 HEADER_ENC = 'utf-8'
@@ -86,20 +88,23 @@ class WSGIRequest(ReflexRequest):
         self.populate()
 
     def populate(self):
-        # TODO
-        pass
+        env = self.env
+        self.path = env['PATH_INFO']
+        self.remote_addr = env['REMOTE_ADDR']
+        self.method = env['REQUEST_METHOD']
+        # TODO: add more ubiquitous HTTP request headers
 
 
 class WSGIReflex(BaseReflex):
-    def __init__(self, worker_func):
+    def __init__(self):
         self.SITE_CONF = reg_request('site')
-        self.worker_func = worker_func
 
     def _do_accept_request(self, env, start_response):
         return WSGIRequest(env, start_response, self.SITE_CONF)
 
     def _do_generate_response(self, request):
-        return self.worker_func(request)
+        # TODO: Performance issue due to repeated lookups for handler?
+        return router_hub.dispatch('wsgi', request.path, request)
 
     def _do_postprocess(self, response):
         ctx, hdrs = response.context, []
@@ -162,8 +167,8 @@ class WSGIReflex(BaseReflex):
 
 
 class WeiyuWSGIAdapter(object):
-    def __init__(self, worker_func):
-        self.reflex = WSGIReflex(worker_func)
+    def __init__(self):
+        self.reflex = WSGIReflex()
 
     def __call__(self, env, start_response):
         return self.reflex.stimulate(env, start_response)
