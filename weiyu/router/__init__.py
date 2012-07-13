@@ -73,7 +73,10 @@ class RouterHub(BaseHub):
             self._endpoints[typ] = {}
 
         # register the router's dispatch method as handler, and we're done
-        self.register_handler(typ)(router.dispatch)
+        # But first construct a shim removing the hub parameter...
+        @self.register_handler(typ)
+        def _routing_shim_(hub, *args, **kwargs):
+            return router.dispatch(*args, **kwargs)
 
     def dispatch(self, typ, querystr, *args):
         # typically used with args=(request, ) inside the framework
