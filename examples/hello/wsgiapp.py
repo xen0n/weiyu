@@ -31,6 +31,9 @@ from weiyu.registry.provider import request, _registries as REGS
 from weiyu.rendering import render_hub
 from weiyu.rendering.base import RenderContext
 
+from weiyu.router import router_hub
+from weiyu.router.regexrouter import RegexRouter
+
 OUTPUT_ENC = 'utf-8'
 
 # load up registries
@@ -63,6 +66,7 @@ def get_response(env, conf):
     return result
 
 
+@router_hub.endpoint('wsgi', 'index')
 def env_test_worker(request):
     return ReflexResponse(
             200,
@@ -75,7 +79,17 @@ def env_test_worker(request):
             )
 
 
-application = WeiyuWSGIAdapter(env_test_worker)
+# initialize routing
+wsgi_router = router_hub.init_router(
+        'wsgi',
+        request('site')['routing'],
+        RegexRouter,
+        )
+router_hub.register_router(wsgi_router)
+
+
+# WSGI callable
+application = WeiyuWSGIAdapter()
 
 
 if __name__ == '__main__':

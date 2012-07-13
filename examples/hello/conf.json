@@ -3,7 +3,10 @@
 		"class": "UnicodeRegistry",
 		"no_update": true,
 		"data": {
-			"name": "weiyu hello site"
+			"name": "weiyu hello site",
+			"routing": [
+				["", "index"]
+				]
 			}
 	 	},
 	"weiyu.rendering": {
