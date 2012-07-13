@@ -37,7 +37,7 @@ class DispatchError(Exception):
 # XXX Make up clearer names for all those "target"s!
 
 class RouterBase(object):
-    def __init__(self, name, target_initializers):
+    def __init__(self, target_initializers, name=None):
         self.name = name
         self.route_table = [
                 self.__class__.target_type(*i)
