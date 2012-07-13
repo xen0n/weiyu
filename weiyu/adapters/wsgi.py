@@ -84,16 +84,6 @@ class WSGIRequest(ReflexRequest):
         self.start_response = start_response
         self.site = site_conf
 
-        # populate some useful fields using WSGI env
-        self.populate()
-
-    def populate(self):
-        env = self.env
-        self.path = env['PATH_INFO']
-        self.remote_addr = env['REMOTE_ADDR']
-        self.method = env['REQUEST_METHOD']
-        # TODO: add more ubiquitous HTTP request headers
-
 
 class WSGIReflex(BaseReflex):
     def __init__(self):
@@ -101,6 +91,35 @@ class WSGIReflex(BaseReflex):
 
     def _do_accept_request(self, env, start_response):
         return WSGIRequest(env, start_response, self.SITE_CONF)
+
+    def _do_translate_request(self, request):
+        # populate some useful fields using WSGI env
+        env = request.env
+        request.path = env['PATH_INFO']
+        request.remote_addr = env['REMOTE_ADDR']
+        method = request.method = env['REQUEST_METHOD']
+
+        length, _env_length = None, None
+        try:
+            _env_length = env['CONTENT_LENGTH']
+        except KeyError:
+            pass
+
+        if _env_length is not None and len(_env_length) > 0:
+            try:
+                length = int(_env_length)
+            except ValueError:
+                pass
+        request.content_length = length
+
+        # read the request body if content length is given
+        if length is not None:
+            request.content = env['wsgi.input'].read(length)
+        else:
+            request.content = None
+
+        # TODO: add more ubiquitous HTTP request headers
+        return request
 
     def _do_generate_response(self, request):
         # TODO: Performance issue due to repeated lookups for handler?
