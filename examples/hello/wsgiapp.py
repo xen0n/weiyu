@@ -41,6 +41,17 @@ conf.populate_central_regs()
 from weiyu.rendering.makorenderer import MakoRenderable
 
 
+# funny thing: add color representing commit revision!
+def get_git_rev_color(_re_pat=re.compile(r'Git-([0-9A-Fa-f]{6,})$')):
+    result = _re_pat.findall(VERSION_STR)
+    if result:
+        return True, '#%s' % (result[0][:6], )
+    return False, None
+
+
+HAVE_GIT_COLOR, GIT_COLOR_VAL = get_git_rev_color()
+
+
 def get_response(env, conf):
     tmpl = render_hub.get_template('mako', 'env.html')
     result = tmpl.render(RenderContext(
