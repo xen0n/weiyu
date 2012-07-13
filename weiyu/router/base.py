@@ -79,8 +79,9 @@ class RouterBase(object):
                                 )
 
         # append resolved positional args to args passed in
-        args.extend(more_args)
-        return target(*args, **kwargs)
+        extended_args = list(args)
+        extended_args.extend(more_args)
+        return target(*extended_args, **kwargs)
 
 
 class RouterTargetBase(object):
