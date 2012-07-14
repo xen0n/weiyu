@@ -193,4 +193,15 @@ class WeiyuWSGIAdapter(object):
         return self.reflex.stimulate(env, start_response)
 
 
+class WSGISession(object):
+    def __init__(self, backend):
+        self.backend = backend
+
+    def pre_hook(self, request):
+        self.backend.preprocess(request)
+
+    def post_hook(self, response):
+        return self.backend.postprocess(response)
+
+
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
