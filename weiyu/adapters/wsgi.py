@@ -108,7 +108,10 @@ class WSGIReflex(BaseReflex):
         # Note that we don't pass in "request" at this moment. The object
         # can be replaced by potential hooks, and we certainly don't want
         # a reference to be frozen in the request.
-        request.callback_info = self._do_routing(request.path)
+        # Return value is of format (fn, args, kwargs, route_data, )
+        route_result = self._do_routing(request.path)
+        request.callback_info = route_result[:-1]
+        request.route_data = route_result[-1]
 
         # Rest of request object preparation goes here...
         request.remote_addr = env['REMOTE_ADDR']
