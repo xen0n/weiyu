@@ -88,6 +88,12 @@ class WSGIRequest(ReflexRequest):
 class WSGIReflex(BaseReflex):
     def __init__(self):
         self.SITE_CONF = reg_request('site')
+        # no more repeated lookups for handler
+        # NOTE: Remember this can lead to stale value when handler got
+        # dynamically updated. This is (admittedly) a VERY rare and
+        # dangerous case that's simply NOT going to work, but the expected
+        # behavior is documented here anyway.
+        self._do_routing = router_hub.get_handler('wsgi')
 
     def _do_accept_request(self, env, start_response):
         return WSGIRequest(env, start_response, self.SITE_CONF)
@@ -96,9 +102,17 @@ class WSGIReflex(BaseReflex):
         # populate some useful fields using WSGI env
         env = request.env
         request.path = env['PATH_INFO']
+
+        # Move routing (much) earlier so we don't waste time in processing
+        # requests impossible to fulfill.
+        # Note that we don't pass in "request" at this moment. The object
+        # can be replaced by potential hooks, and we certainly don't want
+        # a reference to be frozen in the request.
+        request.callback_info = self._do_routing(request.path)
+
+        # Rest of request object preparation goes here...
         request.remote_addr = env['REMOTE_ADDR']
         method = request.method = env['REQUEST_METHOD']
-
         length, _env_length = None, None
         try:
             _env_length = env['CONTENT_LENGTH']
@@ -122,8 +136,8 @@ class WSGIReflex(BaseReflex):
         return request
 
     def _do_generate_response(self, request):
-        # TODO: Performance issue due to repeated lookups for handler?
-        return router_hub.dispatch('wsgi', request.path, request)
+        fn, args, kwargs = request.callback_info
+        return fn(request, *args, **kwargs)
 
     def _do_postprocess(self, response):
         ctx, hdrs = response.context, []
