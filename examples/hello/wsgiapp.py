@@ -22,17 +22,15 @@
 
 from __future__ import unicode_literals, division
 
+import re
+
 from weiyu.registry.loader import JSONConfig
 from weiyu.reflex.classes import ReflexResponse
-from weiyu.adapters.wsgi import WeiyuWSGIAdapter
+from weiyu.adapters.wsgi import WeiyuWSGIAdapter, WSGISession
 
 from weiyu.__version__ import VERSION_STR
 from weiyu.registry.provider import request, _registries as REGS
-from weiyu.rendering import render_hub
-from weiyu.rendering.base import RenderContext
-
-from weiyu.router import router_hub
-from weiyu.router.regexrouter import RegexRouter
+from weiyu.rendering.decorator import renderable
 
 OUTPUT_ENC = 'utf-8'
 
@@ -40,8 +38,20 @@ OUTPUT_ENC = 'utf-8'
 conf = JSONConfig('conf.json')
 conf.populate_central_regs()
 
-# trigger registration of Mako template handler
-from weiyu.rendering.makorenderer import MakoRenderable
+# DEBUG: db
+from weiyu.db.drivers.pymongo_driver import PymongoDriver
+from weiyu.db import db_hub
+
+# DEBUG: session
+from weiyu.session.beakerbackend import BeakerSession
+from weiyu.session import session_hub
+
+# DEBUG: hooks
+from weiyu.hooks.decorator import *
+
+# DEBUG: router
+from weiyu.router import router_hub
+from weiyu.router.regexrouter import RegexRouter
 
 
 # funny thing: add color representing commit revision!
@@ -55,22 +65,50 @@ def get_git_rev_color(_re_pat=re.compile(r'Git-([0-9A-Fa-f]{6,})$')):
 HAVE_GIT_COLOR, GIT_COLOR_VAL = get_git_rev_color()
 
 
-def get_response(env, conf):
-    tmpl = render_hub.get_template('mako', 'env.html')
-    result = tmpl.render(RenderContext(
+def get_response(request):
+    env, conf, session = request.env, request.site, request.session
+
+    ## DEBUG: db
+    #connstr = None
+    #dbresult = None
+    #with db_hub.get_database('test') as conn:
+    #    # dummy things
+    #    connstr = repr(conn)
+    #    cursor = conn.ops.find(conn.storage.test, {})
+    #    dbresult = ' '.join(repr(i) for i in cursor)
+
+    # DEBUG: session
+    try:
+        if 'visited' in session:
+            session['visited'] += 1
+        else:
+            session['visited'] = 1
+    finally:
+        session.save()
+
+    result = dict(
+            request=request,
             env=env,
             regs=REGS,
             sitename=conf['name'],
             version=VERSION_STR,
-            ))
+#            connstr=connstr,
+#            dbresult=repr(dbresult),
+            session=session,
+            HAVE_GIT_COLOR=HAVE_GIT_COLOR,
+            git_color=GIT_COLOR_VAL,
+            )
+
     return result
 
 
 @router_hub.endpoint('wsgi', 'index')
+@renderable('mako', 'env.html')
+@hookable('test-app')
 def env_test_worker(request):
     return ReflexResponse(
             200,
-            iter([get_response(request.env, request.site), ]),
+            get_response(request),
             {
                 'mimetype': 'text/html',
                 'enc': OUTPUT_ENC,
@@ -78,8 +116,16 @@ def env_test_worker(request):
             request,
             )
 
+    
+# DEBUG: hook & session
+session_backend = BeakerSession(request('site')['session'])
+session_obj = WSGISession(session_backend)
 
-# initialize routing
+hook_before('test-app')(session_obj.pre_hook)
+hook_after('test-app')(session_obj.post_hook)
+
+
+# DEBUG: router
 wsgi_router = router_hub.init_router(
         'wsgi',
         request('site')['routing'],
