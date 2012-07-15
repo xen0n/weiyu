@@ -94,7 +94,7 @@ class RouterHub(BaseHub):
         _str_types = (str, unicode, )
 
         result_rules = []
-        for pattern, target_spec in routing_rules:
+        for pattern, target_spec, extra_data in routing_rules:
             if isinstance(target_spec, _list_types):
                 # this is a router... recursively construct a router out
                 # of it
@@ -110,7 +110,7 @@ class RouterHub(BaseHub):
                 tgt = target_spec
 
             # add a rule
-            result_rules.append((pattern, tgt, ))
+            result_rules.append((pattern, tgt, extra_data, ))
 
         # construct a XxxRouter object with the routing rules just created
         # if toplevel router, assign it a name equal to typ

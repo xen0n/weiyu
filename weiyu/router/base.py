@@ -68,7 +68,7 @@ class RouterBase(object):
                 return result
 
         # match failure
-        return (False, None, None, None, )
+        return (False, None, None, None, None, )
 
     def dry_dispatch(self, querystr, *args):
         '''Do all things except actually invoking callback function,
@@ -77,7 +77,7 @@ class RouterBase(object):
 
         '''
 
-        hit, target, more_args, kwargs = self.lookup(querystr)
+        hit, target, more_args, kwargs, data = self.lookup(querystr)
 
         if not hit:
             raise DispatchError("query string %s: nowhere to dispatch"
@@ -88,16 +88,16 @@ class RouterBase(object):
         extended_args = list(args)
         extended_args.extend(more_args)
         
-        return target, extended_args, kwargs
+        return target, extended_args, kwargs, data
 
     def dispatch(self, querystr, *args):
-        target, extended_args, kwargs = self.dry_dispatch(querystr, *args)
-        return target(*extended_args, **kwargs)
+        target, ext_args, kwargs, data = self.dry_dispatch(querystr, *args)
+        return target(*ext_args, **kwargs)
 
 
 class RouterTargetBase(object):
-    def __init__(self, target):
-        self.target = target
+    def __init__(self, target, extra_data=None):
+        self.target, self.data = target, extra_data
 
         # for nested processing
         self.target_is_router = issubclass(type(target), RouterBase)
@@ -121,9 +121,9 @@ class RouterTargetBase(object):
         if status == STATUS_REACHED:
             # reached end, make args a tuple
             # XXX Is this necessary?
-            return (True, self.target, tuple(args), kwargs, )
+            return (True, self.target, tuple(args), kwargs, self.data, )
         elif status == STATUS_NOROUTE:
-            return (False, None, None, None, )
+            return (False, None, None, None, None, )
         elif status == STATUS_FORWARD:
             # do nested routing
             return self.target.lookup(new_qs, args, kwargs)
