@@ -132,4 +132,11 @@ class Renderable(object):
         return result
 
 
+# Interface function
+# View function renderer
+def render_view_func(view_fn, *args, **kwargs):
+    # TODO
+    pass
+
+
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
