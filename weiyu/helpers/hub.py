@@ -21,6 +21,8 @@ from __future__ import unicode_literals, division
 
 __all__ = ['BaseHub', ]
 
+from functools import partial
+
 from ..registry.provider import request
 
 
@@ -153,7 +155,10 @@ class BaseHub(object):
 
         # NOTE: Exception is intentionally propagated, a KeyError for
         # unregistered handler is nice...
-        return self._handlers[typ]
+        # Also, handlers' signatures all have a 'hub' argument as their
+        # first parameter, so we'd curry the hub itself into the resulting
+        # callable.
+        return partial(self._handlers[typ], self)
 
     def do_handling(self, typ, *args, **kwargs):
         '''Get the handler, and additionally do the work of invoking the
@@ -162,10 +167,7 @@ class BaseHub(object):
 
         '''
 
-        handler = self.get_handler(typ)
-
-        # pass a copy of hub instance to allow some degree of "context"
-        return handler(self, *args, **kwargs)
+        return self.get_handler(typ)(*args, **kwargs)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
