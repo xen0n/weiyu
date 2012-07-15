@@ -70,7 +70,13 @@ class RouterBase(object):
         # match failure
         return (False, None, None, None, )
 
-    def dispatch(self, querystr, *args):
+    def dry_dispatch(self, querystr, *args):
+        '''Do all things except actually invoking callback function,
+        returns the calculated parameters that can be used to do a real
+        dispatch.
+
+        '''
+
         hit, target, more_args, kwargs = self.lookup(querystr)
 
         if not hit:
@@ -81,6 +87,11 @@ class RouterBase(object):
         # append resolved positional args to args passed in
         extended_args = list(args)
         extended_args.extend(more_args)
+        
+        return target, extended_args, kwargs
+
+    def dispatch(self, querystr, *args):
+        target, extended_args, kwargs = self.dry_dispatch(querystr, *args)
         return target(*extended_args, **kwargs)
 
 
