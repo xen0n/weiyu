@@ -24,7 +24,7 @@ __all__ = [
         ]
 
 from . import render_hub
-from .exc import RenderError
+from .exc import RenderingError
 from .base import RenderContext
 
 
@@ -43,7 +43,7 @@ def render_view_func(renderable_fn, context, acceptable_formats):
         return tmpl.render(ctx)
 
     # TODO: maybe specialize this exception's type
-    raise RenderError('No acceptable format is supported by view')
+    raise RenderingError('No acceptable format is supported by view')
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
