@@ -33,7 +33,9 @@ class RenderHub(BaseHub):
     handlers_key = 'handlers'
 
     # template thing
-    def get_template(self, typ, name, *args, **kwargs):
+    def get_template(self, typ, name=None, *args, **kwargs):
+        # This None is added so those templateless renderers (like JSON)
+        # can be used w/o a dummy parameter
         return self.do_handling(typ, name, *args, **kwargs)
 
 
