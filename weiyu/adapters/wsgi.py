@@ -25,8 +25,10 @@ __all__ = [
 
 from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
 from ..router import router_hub
+from ..rendering.view import render_view_func
 
 from ..registry.provider import request as reg_request
+
 
 HEADER_ENC = 'utf-8'
 
@@ -143,17 +145,27 @@ class WSGIReflex(BaseReflex):
         return fn(request, *args, **kwargs)
 
     def _do_postprocess(self, response):
+        # Render the response early
+        # TODO: refactor this, especially around the 'can_render_as' thing
+        request = response.request
+        cont = render_view_func(
+                request.callback_info[0],
+                response.content,
+                request.route_data['can_render_as'],
+                )
+
         ctx, hdrs = response.context, []
 
         enc = ctx.get('enc', 'utf-8')
         response.encoding = enc
 
         mime = ctx.get('mimetype', 'text/html')
-        cont = response.content
 
         # encode content, if it's a Unicode string
         if issubclass(type(cont), unicode):
             response.content = cont.encode(enc, 'replace')
+        else:
+            response.content = cont
 
         # TODO: convert context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
