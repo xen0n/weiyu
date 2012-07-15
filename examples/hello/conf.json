@@ -5,6 +5,10 @@
 		"data": {
 			"name": "weiyu hello site",
 			"routing": [
+				["^/calc/(?P<val>\\d+)/", [
+					["text/$", "multiformat-test", {"can_render_as": ["mako"]}],
+					["json/$", "multiformat-test", {"can_render_as": ["json"]}]
+				], null],
 				["", "index", {"can_render_as": ["mako"]}]
 				],
 			"session": {

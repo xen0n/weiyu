@@ -116,7 +116,24 @@ def env_test_worker(request):
             request,
             )
 
-    
+
+@router_hub.endpoint('wsgi', 'multiformat-test')
+@renderable('mako', 'multifmt.txt')
+@renderable('json')
+def multiformat_test_view(request, val):
+    try:
+        val = int(val)
+    except ValueError:
+        val = 0
+
+    return ReflexResponse(
+            200,
+            {'value': val, 'results': [val + 2, val * 2, val ** 2, ], },
+            {'mimetype': 'text/plain', 'enc': OUTPUT_ENC, },
+            request,
+            )
+
+
 # DEBUG: hook & session
 session_backend = BeakerSession(request('site')['session'])
 session_obj = WSGISession(session_backend)
