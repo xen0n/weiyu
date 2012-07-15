@@ -40,4 +40,12 @@ class RenderHub(BaseHub):
 render_hub = RenderHub()
 
 
+# Force loading of handlers AFTER hub init
+# XXX This is extremely dangerous and can easily lead to circular imports.
+# Rewrite to some file-based __import__-invoking thing may be better.
+from . import jsonrenderer
+from . import makorenderer
+del jsonrenderer, makorenderer
+
+
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
