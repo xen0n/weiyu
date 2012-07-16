@@ -23,12 +23,12 @@ __all__ = [
             'WeiyuWSGIAdapter',
             ]
 
-from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
-from ..router import router_hub
-from ..rendering.view import render_view_func
-
 from ..registry.provider import request as reg_request
 
+from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
+from ..router import router_hub
+from ..session import session_hub
+from ..rendering.view import render_view_func
 
 HEADER_ENC = 'utf-8'
 
@@ -97,6 +97,13 @@ class WSGIReflex(BaseReflex):
         # behavior is documented here anyway.
         self._do_routing = router_hub.get_handler('wsgi')
 
+        # Initial session integration *in reflex*
+        # prior to this sessions were per-view, which is obviously a design
+        # mistake.
+        ses_conf = self.SITE_CONF['session']
+        ses_backend, ses_opts = ses_conf['backend'], ses_conf['options']
+        self.session = session_hub.do_handling(ses_backend, ses_opts)
+
     def _do_accept_request(self, env, start_response):
         return WSGIRequest(env, start_response, self.SITE_CONF)
 
@@ -138,11 +145,20 @@ class WSGIReflex(BaseReflex):
             request.content = None
 
         # TODO: add more ubiquitous HTTP request headers
+
+        # Session injection
+        self.session.preprocess(request)
+
         return request
 
     def _do_generate_response(self, request):
         fn, args, kwargs = request.callback_info
-        return fn(request, *args, **kwargs)
+        response = fn(request, *args, **kwargs)
+
+        # Session persistence is part of generation; may be moved tho
+        response = self.session.postprocess(response)
+
+        return response
 
     def _do_postprocess(self, response):
         # Render the response early
@@ -222,17 +238,6 @@ class WeiyuWSGIAdapter(object):
 
     def __call__(self, env, start_response):
         return self.reflex.stimulate(env, start_response)
-
-
-class WSGISession(object):
-    def __init__(self, backend):
-        self.backend = backend
-
-    def pre_hook(self, request):
-        self.backend.preprocess(request)
-
-    def post_hook(self, response):
-        return self.backend.postprocess(response)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
