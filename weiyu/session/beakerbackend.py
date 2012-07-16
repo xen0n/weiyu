@@ -47,7 +47,7 @@ class BeakerSession(object):
             for k, v in options.iteritems():
                 if k.startswith('session.'):
                     self.options[k[8:]] = v
-        
+
         coerce_session_params(self.options)
 
         if not self.options and options:

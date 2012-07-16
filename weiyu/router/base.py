@@ -87,7 +87,7 @@ class RouterBase(object):
         # append resolved positional args to args passed in
         extended_args = list(args)
         extended_args.extend(more_args)
-        
+
         return target, extended_args, kwargs, data
 
     def dispatch(self, querystr, *args):
