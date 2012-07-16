@@ -26,7 +26,7 @@ import re
 
 from weiyu.registry.loader import JSONConfig
 from weiyu.reflex.classes import ReflexResponse
-from weiyu.adapters.wsgi import WeiyuWSGIAdapter, WSGISession
+from weiyu.adapters.wsgi import WeiyuWSGIAdapter
 
 from weiyu.__version__ import VERSION_STR
 from weiyu.registry.provider import request, _registries as REGS
@@ -65,6 +65,15 @@ def get_git_rev_color(_re_pat=re.compile(r'Git-([0-9A-Fa-f]{6,})$')):
 HAVE_GIT_COLOR, GIT_COLOR_VAL = get_git_rev_color()
 
 
+# DEBUG: session
+def session_test(session):
+    if 'visited' in session:
+        session['visited'] += 1
+    else:
+        session['visited'] = 1
+    session.save()
+
+
 def get_response(request):
     env, conf, session = request.env, request.site, request.session
 
@@ -76,15 +85,6 @@ def get_response(request):
     #    connstr = repr(conn)
     #    cursor = conn.ops.find(conn.storage.test, {})
     #    dbresult = ' '.join(repr(i) for i in cursor)
-
-    # DEBUG: session
-    try:
-        if 'visited' in session:
-            session['visited'] += 1
-        else:
-            session['visited'] = 1
-    finally:
-        session.save()
 
     result = dict(
             request=request,
@@ -106,6 +106,8 @@ def get_response(request):
 @renderable('mako', 'env.html')
 @hookable('test-app')
 def env_test_worker(request):
+    session_test(request.session)
+
     return ReflexResponse(
             200,
             get_response(request),
@@ -121,6 +123,8 @@ def env_test_worker(request):
 @renderable('mako', 'multifmt.txt')
 @renderable('json')
 def multiformat_test_view(request, val):
+    session_test(request.session)
+
     try:
         val = int(val)
     except ValueError:
@@ -128,18 +132,22 @@ def multiformat_test_view(request, val):
 
     return ReflexResponse(
             200,
-            {'value': val, 'results': [val + 2, val * 2, val ** 2, ], },
+            {
+                'visits': request.session['visited'],
+                'value': val,
+                'results': [val + 2, val * 2, val ** 2, ],
+                },
             {'mimetype': 'text/plain', 'enc': OUTPUT_ENC, },
             request,
             )
 
 
-# DEBUG: hook & session
-session_backend = BeakerSession(request('site')['session'])
-session_obj = WSGISession(session_backend)
-
-hook_before('test-app')(session_obj.pre_hook)
-hook_after('test-app')(session_obj.post_hook)
+## DEBUG: hook & session
+#session_backend = BeakerSession(request('site')['session'])
+#session_obj = WSGISession(session_backend)
+#
+#hook_before('test-app')(session_obj.pre_hook)
+#hook_after('test-app')(session_obj.post_hook)
 
 
 # DEBUG: router
