@@ -19,7 +19,7 @@
 
 from __future__ import unicode_literals, division
 
-from os.path import exists, isdir, islink, normcase
+from os.path import exists, isdir, islink, normcase, sep
 from os.path import normpath, abspath, realpath, join as pathjoin
 from mimetypes import guess_type
 
@@ -30,12 +30,15 @@ from ..router import router_hub
 @router_hub.endpoint('wsgi', 'staticfile')
 def staticfile_view(request, path):
     # TODO: caching
-    conf = request.SITE_CONF['staticfile']
+    conf = request.site['staticfile']
     STATIC_ROOT = normcase(conf['root'])
+    #print 'path:', path
+    #print 'root:', STATIC_ROOT
 
     # XXX WARNING From here SECURITY IS VERY IMPORTANT!!
     # first do NOT let ANY '..' things pass thru by forcing a normalization
-    norm_relpath = normpath('/' + path)
+    norm_relpath = normpath('/' + path).lstrip(sep)
+    #print 'norm:', norm_relpath
 
     # concat the normalized thing and STATIC_ROOT together
     # XXX Here any potential symlink is a security hole! Production
@@ -43,6 +46,7 @@ def staticfile_view(request, path):
     # web server to do the job!
     real_path = realpath(abspath(pathjoin(STATIC_ROOT, norm_relpath)))
     real_path = normcase(real_path)
+    #print 'real:', real_path
 
     if exists(real_path) and not isdir(real_path):
         # decide mimetype solely by using filename

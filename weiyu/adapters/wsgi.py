@@ -169,12 +169,11 @@ class WSGIReflex(BaseReflex):
         # TODO: find a way to extract all the literals out
         request = response.request
         ctx, hdrs = response.context, []
-        cont = mime = None
+        render_in = cont = mime = None
         dont_render = False
 
         # is this a raw file push request?
         response.is_raw_file = ctx.get('is_raw_file', False)
-
         if response.is_raw_file and 'sendfile_fp' in response.content:
             # request to send raw file valid, suppress rendering
             dont_render = True
@@ -186,17 +185,17 @@ class WSGIReflex(BaseReflex):
             # text/html then...
             mime = ctx.get('mimetype', 'application/octet-stream')
 
-        if issubclass(type(request.route_data), dict):
-            # mapping object, see if we could get the hint...
-            render_in = request.route_data.get('render_in', None)
-
-        if render_in is None and not dont_render:
-            raise TypeError(
-                    "Rendering is not suppressed, but don't know where to "
-                    "get rendering instruction!"
-                    )
-
         if not dont_render:
+            if issubclass(type(request.route_data), dict):
+                # mapping object, see if we could get the hint...
+                render_in = request.route_data.get('render_in', None)
+
+            if render_in is None:
+                raise TypeError(
+                        "Rendering is not suppressed, but don't know "
+                        "where to get rendering instruction!"
+                        )
+
             # rendering is not suppressed, do it now
             cont = render_view_func(
                     request.callback_info[0],
