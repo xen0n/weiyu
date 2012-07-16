@@ -146,12 +146,14 @@ class WSGIReflex(BaseReflex):
 
     def _do_postprocess(self, response):
         # Render the response early
-        # TODO: refactor this, especially around the 'can_render_as' thing
+        # TODO: find a way to extract all the literals out
         request = response.request
+        render_in = request.route_data['render_in']
+
         cont = render_view_func(
                 request.callback_info[0],
                 response.content,
-                request.route_data['can_render_as'],
+                render_in,
                 )
 
         ctx, hdrs = response.context, []

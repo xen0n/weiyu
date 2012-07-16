@@ -6,10 +6,10 @@
 			"name": "weiyu hello site",
 			"routing": [
 				["^/calc/(?P<val>\\d+)/", [
-					["text/$", "multiformat-test", {"can_render_as": ["mako"]}],
-					["json/$", "multiformat-test", {"can_render_as": ["json"]}]
+					["text/$", "multiformat-test", {"render_in": "mako"}],
+					["json/$", "multiformat-test", {"render_in": "json"}]
 				], null],
-				["", "index", {"can_render_as": ["mako"]}]
+				["", "index", {"render_in": "mako"}]
 				],
 			"session": {
 				"session.type": "file",

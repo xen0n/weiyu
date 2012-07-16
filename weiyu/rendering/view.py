@@ -28,22 +28,21 @@ from .exc import RenderingError
 from .base import RenderContext
 
 
-def render_view_func(renderable_fn, context, acceptable_formats):
+def render_view_func(renderable_fn, context, typ):
     render_info = renderable_fn._weiyu_rendering_
 
-    for fmt in acceptable_formats:
-        if fmt not in render_info:
-            # this format is not supported by view, skip it
-            continue
+    if typ not in render_info:
+        # this format is not supported by view
+        # TODO: maybe specialize this exception's type
+        raise RenderingError(
+                'This format ("%s") is not supported by view' % typ
+                )
 
-        # decide to render in this format
-        ctx = RenderContext(context)
-        handler_args, handler_kwargs = render_info[fmt]
-        tmpl = render_hub.get_template(fmt, *handler_args, **handler_kwargs)
-        return tmpl.render(ctx)
+    ctx = RenderContext(context)
+    handler_args, handler_kwargs = render_info[typ]
+    tmpl = render_hub.get_template(typ, *handler_args, **handler_kwargs)
+    return tmpl.render(ctx)
 
-    # TODO: maybe specialize this exception's type
-    raise RenderingError('No acceptable format is supported by view')
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
