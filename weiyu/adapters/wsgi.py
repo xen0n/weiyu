@@ -169,6 +169,7 @@ class WSGIReflex(BaseReflex):
         # TODO: find a way to extract all the literals out
         request = response.request
         ctx, hdrs, cont = response.context, [], None
+        response.is_raw_file = False
 
         if ctx.get('suppress_rendering', False):
             # rendering is suppressed
