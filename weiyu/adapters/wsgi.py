@@ -212,12 +212,14 @@ class WSGIReflex(BaseReflex):
                 )
 
         # ensure all header contents are bytes
-        headers = []
+        # insert a Content-Length along
+        headers = [(b'Content-length', str(len(content)), )]
         for k, v in response.http_headers:
             # TODO: It's apparent that we need a smart_str helper here!!
             bytes_k = k.encode(enc) if issubclass(type(k), unicode) else k
             bytes_v = v.encode(enc) if issubclass(type(v), unicode) else v
             headers.append((bytes_k, bytes_v, ))
+
 
         start_response(status_line, headers)
 
