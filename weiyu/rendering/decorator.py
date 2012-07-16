@@ -31,6 +31,22 @@ __all__ = [
 
 
 def renderable(handler, *args, **kwargs):
+    '''Marks an object as "renderable" by a certain handler, recording the
+    render handler and associated instantiation parameter(s) in the object's
+    attribute.
+
+    :param handler: Name of the render handler.
+
+    .. warning::
+
+        The attribute used to store rendering information is currently
+        ``_weiyu_rendering_``; this is an *implementation detail*\ .
+        **Never** touch it outside the rendering engine proper as the exact
+        detail of rendering attribute can be possibly radically different
+        across versions.
+
+    '''
+
     handler = unicode(handler)
 
     def _decorator_(fn):
