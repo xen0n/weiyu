@@ -5,6 +5,9 @@
 		"data": {
 			"name": "weiyu hello site",
 			"routing": [
+				["^/static/", [
+					["^(?P<path>.*)$", "staticfile", null]
+				], null],
 				["^/calc/(?P<val>\\d+)/", [
 					["text/$", "multiformat-test", {"render_in": "mako"}],
 					["json/$", "multiformat-test", {"render_in": "json"}]
@@ -21,6 +24,9 @@
 					"session.secret": "7h1z_must_13e_s3cr37",
 					"session.timeout": 300
 					}
+				},
+			"staticfile": {
+				"root": "./static/"
 				}
 			}
 	 	},

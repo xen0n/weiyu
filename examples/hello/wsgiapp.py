@@ -53,6 +53,9 @@ from weiyu.hooks.decorator import *
 from weiyu.router import router_hub
 from weiyu.router.regexrouter import RegexRouter
 
+# DEBUG: static file
+from weiyu.utils.views import staticfile_view
+
 
 # funny thing: add color representing commit revision!
 def get_git_rev_color(_re_pat=re.compile(r'Git-([0-9A-Fa-f]{6,})$')):
