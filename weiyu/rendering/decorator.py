@@ -49,16 +49,16 @@ def renderable(handler, *args, **kwargs):
 
     handler = unicode(handler)
 
-    def _decorator_(fn):
+    def _decorator_(thing):
         try:
-            render_info = fn._weiyu_rendering_
+            render_info = thing._weiyu_rendering_
         except AttributeError:
             render_info = {}
 
         render_info[handler] = (args, kwargs, )
 
-        fn._weiyu_rendering_ = render_info
-        return fn
+        thing._weiyu_rendering_ = render_info
+        return thing
     return _decorator_
 
 
