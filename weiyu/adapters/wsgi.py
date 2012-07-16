@@ -23,6 +23,8 @@ __all__ = [
             'WeiyuWSGIAdapter',
             ]
 
+from functools import partial
+
 from ..registry.provider import request as reg_request
 
 from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
@@ -110,7 +112,9 @@ class WSGIReflex(BaseReflex):
     def _do_translate_request(self, request):
         # populate some useful fields using WSGI env
         env = request.env
-        request.path = env['PATH_INFO']
+        # decode the path bytestring
+        # TODO: improve encoding handling here
+        request.path = env['PATH_INFO'].decode('utf-8', 'replace')
 
         # Move routing (much) earlier so we don't waste time in processing
         # requests impossible to fulfill.
@@ -164,20 +168,31 @@ class WSGIReflex(BaseReflex):
         # Render the response early
         # TODO: find a way to extract all the literals out
         request = response.request
-        render_in = request.route_data['render_in']
+        ctx, hdrs, cont = response.context, [], None
 
-        cont = render_view_func(
-                request.callback_info[0],
-                response.content,
-                render_in,
-                )
+        if ctx.get('suppress_rendering', False):
+            # rendering is suppressed
+            if response.content.get('sendfile_fp', None):
+                # request to send raw file
+                response.is_raw_file = True
+                response.raw_fp = response.content['sendfile_fp']
+                response.raw_blksz = response.content.get('blocksize', None)
 
-        ctx, hdrs = response.context, []
+            # If rendering needs to be suppressed and content is not a raw
+            # file, we cannot safely assume the data stream is of type
+            # text/html then...
+            mime = ctx.get('mimetype', 'application/octet-stream')
+        else:
+            render_in = request.route_data['render_in']
+            cont = render_view_func(
+                    request.callback_info[0],
+                    response.content,
+                    render_in,
+                    )
 
-        enc = ctx.get('enc', 'utf-8')
-        response.encoding = enc
-
-        mime = ctx.get('mimetype', 'text/html')
+            enc = ctx.get('enc', 'utf-8')
+            response.encoding = enc
+            mime = ctx.get('mimetype', 'text/html')
 
         # encode content, if it's a Unicode string
         if issubclass(type(cont), unicode):
@@ -185,9 +200,13 @@ class WSGIReflex(BaseReflex):
         else:
             response.content = cont
 
-        # TODO: convert context into HTTP headers as much as possible
+        # TODO: convert more context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
-        contenttype = '%s; charset=%s' % (mime, enc, )
+        # but don't append charset if the response is a raw file
+        if response.is_raw_file:
+            contenttype = mime
+        else:
+            contenttype = '%s; charset=%s' % (mime, enc, )
         hdrs.append(('Content-Type', contenttype, ))
 
         # generate Set-Cookie from cookies
@@ -212,26 +231,56 @@ class WSGIReflex(BaseReflex):
                 )
 
         # ensure all header contents are bytes
-        # insert a Content-Length along
-        headers = [(b'Content-length', str(len(content)), )]
+        headers = []
+
+        # insert a Content-Length along if response is not raw file
+        if not response.is_raw_file:
+            headers.append((b'Content-Length', str(len(content)), ))
+
         for k, v in response.http_headers:
             # TODO: It's apparent that we need a smart_str helper here!!
             bytes_k = k.encode(enc) if issubclass(type(k), unicode) else k
             bytes_v = v.encode(enc) if issubclass(type(v), unicode) else v
             headers.append((bytes_k, bytes_v, ))
 
-
+        # Initiate the actual conversation
         start_response(status_line, headers)
 
-        if isinstance(content, (str, unicode, )):
-            yield content
+        if response.is_raw_file:
+            # push raw file using file_wrapper if provided
+            # if one is absent, use a dummy one instead
+            raw_fp, raw_blksz = response.raw_fp, response.raw_blksz
+
+            if 'wsgi.file_wrapper' in request.env:
+                file_wrapper = request.env['wsgi.file_wrapper']
+            else:
+                def dummy_file_wrapper(fp, blk_sz=None):
+                    blk_sz = blk_sz if blk_sz is not None else 4096
+                    do_read = partial(fp.read, blk_sz)
+                    chunk = do_read()
+                    while len(chunk) > 0:
+                        yield chunk
+                        chunk = do_read()
+                file_wrapper = dummy_file_wrapper
+
+            if raw_blksz is None:
+                return file_wrapper(raw_fp)
+            else:
+                return file_wrapper(raw_fp, raw_blksz)
         else:
-            for chunk in content:
-                if issubclass(type(chunk), unicode):
-                    # encode and send the chunk using response.encoding
-                    yield chunk.encode(enc, 'replace')
-                else:
-                    yield chunk
+            return _send_content(content)
+
+
+def _send_content(content):
+    if isinstance(content, (str, unicode, )):
+        yield content
+    else:
+        for chunk in content:
+            if issubclass(type(chunk), unicode):
+                # encode and send the chunk using response.encoding
+                yield chunk.encode(enc, 'replace')
+            else:
+                yield chunk
 
 
 class WeiyuWSGIAdapter(object):
