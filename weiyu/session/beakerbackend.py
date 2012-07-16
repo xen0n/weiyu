@@ -79,7 +79,7 @@ class BeakerSession(object):
 
 
 @session_hub.register_handler('beaker')
-def beaker_session_handler(options=None):
+def beaker_session_handler(hub, options=None):
     return BeakerSession(options)
 
 
