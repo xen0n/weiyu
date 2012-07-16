@@ -29,8 +29,6 @@ __all__ = [
         'renderable',
         ]
 
-from collections import OrderedDict
-
 
 def renderable(handler, *args, **kwargs):
     handler = unicode(handler)
@@ -39,7 +37,7 @@ def renderable(handler, *args, **kwargs):
         try:
             render_info = fn._weiyu_rendering_
         except AttributeError:
-            render_info = OrderedDict()
+            render_info = {}
 
         render_info[handler] = (args, kwargs, )
 
