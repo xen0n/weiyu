@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / rendering / package
+# weiyu / rendering / view renderer
 #
 # Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -20,34 +20,29 @@
 from __future__ import unicode_literals, division
 
 __all__ = [
-        'render_hub',
+        'render_view_func',
         ]
 
-from ..helpers.hub import BaseHub
-from ..registry.classes import UnicodeRegistry
+from . import render_hub
+from .exc import RenderingError
+from .base import RenderContext
 
 
-class RenderHub(BaseHub):
-    registry_name = 'weiyu.rendering'
-    registry_class = UnicodeRegistry
-    handlers_key = 'handlers'
+def render_view_func(renderable_fn, context, typ):
+    render_info = renderable_fn._weiyu_rendering_
 
-    # template thing
-    def get_template(self, typ, name=None, *args, **kwargs):
-        # This None is added so those templateless renderers (like JSON)
-        # can be used w/o a dummy parameter
-        return self.do_handling(typ, name, *args, **kwargs)
+    if typ not in render_info:
+        # this format is not supported by view
+        # TODO: maybe specialize this exception's type
+        raise RenderingError(
+                'This format ("%s") is not supported by view' % typ
+                )
 
+    ctx = RenderContext(context)
+    handler_args, handler_kwargs = render_info[typ]
+    tmpl = render_hub.get_template(typ, *handler_args, **handler_kwargs)
+    return tmpl.render(ctx)
 
-render_hub = RenderHub()
-
-
-# Force loading of handlers AFTER hub init
-# XXX This is extremely dangerous and can easily lead to circular imports.
-# Rewrite to some file-based __import__-invoking thing may be better.
-from . import jsonrenderer
-from . import makorenderer
-del jsonrenderer, makorenderer
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

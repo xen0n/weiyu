@@ -3,7 +3,31 @@
 		"class": "UnicodeRegistry",
 		"no_update": true,
 		"data": {
-			"name": "weiyu hello site"
+			"name": "weiyu hello site",
+			"routing": [
+				["^/static/", [
+					["^(?P<path>.*)$", "staticfile", null]
+				], null],
+				["^/calc/(?P<val>\\d+)/", [
+					["text/$", "multiformat-test", {"render_in": "mako"}],
+					["json/$", "multiformat-test", {"render_in": "json"}]
+				], null],
+				["", "index", {"render_in": "mako"}]
+				],
+			"session": {
+				"backend": "beaker",
+				"options": {
+					"session.type": "file",
+					"session.data_dir": "/tmp/beaker/data",
+					"session.lock_dir": "/tmp/beaker/lock",
+					"session.key": "weiyu.session",
+					"session.secret": "7h1z_must_13e_s3cr37",
+					"session.timeout": 300
+					}
+				},
+			"staticfile": {
+				"root": "./static/"
+				}
 			}
 	 	},
 	"weiyu.rendering": {
@@ -13,6 +37,23 @@
 			"mako": {
 				"directories": ["./templates"],
 				"module_dir": "/tmp/mako-modules"
+			}
+		}
+	},
+	"weiyu.db": {
+		"class": "UnicodeRegistry",
+		"no_update": false,
+		"data": {
+			"databases": {
+				"test": {
+					"driver": "pymongo",
+					"options": {
+						"host": "127.0.0.1",
+						"port": 27017,
+						"is_replica": false,
+						"path": "test"
+					}
+				}
 			}
 		}
 	}

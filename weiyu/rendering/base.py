@@ -28,9 +28,9 @@ both pre-rendering and post-rendering hooks.
 
 from __future__ import unicode_literals, division
 
-from .exc import RenderingError
-
 __all__ = ['RenderContext', 'Renderable', ]
+
+from .exc import RenderingError
 
 
 class RenderContext(dict):

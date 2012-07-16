@@ -20,12 +20,38 @@
 from __future__ import unicode_literals, division
 
 from beaker.session import Session, SessionObject
+
+# we must do option processing ourselves
+from beaker.util import coerce_session_params
+
 from . import session_hub
 
 
 class BeakerSession(object):
     def __init__(self, options=None):
-        self.options = options if options is not None else {}
+        # defaults of Beaker's SessionMiddleware
+        self.options = {
+                'invalidate_corrupt': True,
+                'type': None,
+                'data_dir': None,
+                'key': 'beaker.session.id',
+                'timeout': None,
+                'secret': None,
+                'log_file': None,
+                }
+
+        if options is not None:
+            # Simplify the filtering present in Beaker's implementation
+            # This is also required to mimic the 'Assume all keys are
+            # intended for cache if none are prefixed w/ "cache."' behavior
+            for k, v in options.iteritems():
+                if k.startswith('session.'):
+                    self.options[k[8:]] = v
+
+        coerce_session_params(self.options)
+
+        if not self.options and options:
+            self.options = options
 
     def preprocess(self, request):
         request.session = SessionObject(request.env, **self.options)
@@ -53,7 +79,7 @@ class BeakerSession(object):
 
 
 @session_hub.register_handler('beaker')
-def beaker_session_handler(options=None):
+def beaker_session_handler(hub, options=None):
     return BeakerSession(options)
 
 

@@ -40,8 +40,8 @@ def args_from_match(match, named_groups):
 class RegexRouterTarget(RouterTargetBase):
     # __slots__ = ['name', 'pattern', 'target', '_namedgrps', ]
 
-    def __init__(self, name, pattern, target):
-        super(RegexRouterTarget, self).__init__(name, target)
+    def __init__(self, pattern, target, extra_data=None):
+        super(RegexRouterTarget, self).__init__(target, extra_data)
 
         self.pattern = re.compile(unicode(pattern))
         self._namedgrps = [i - 1 for i in self.pattern.groupindex.values()]

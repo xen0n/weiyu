@@ -13,16 +13,46 @@ Dependencies
 ``weiyu`` utilizes non-relational DBMS, at present only MongoDB with the
 ``pymongo`` wrapper is supported.
 
-The system makes use of message queue, and the preferred MQ provider is
-``rabbitmq``.
+The session backend relies on ``beaker`` for on-disk persistence.
 
-TODO
-----
+`Mako templating system`_ is used in one of the renderers, be sure to
+install it for all your textual data rendering.
 
-The overall architecture is slowly being worked out at the moment, so there is
-not much activity at present.
+.. _Mako templating system: http://www.makotemplates.org/
 
-This README will be updated as planning goes.
+The system is planned to make use of message queue, and the preferred MQ
+provider is `RabbitMQ`_. `Celery`_ will be required together to provide
+task delegation.
+
+.. _RabbitMQ: http://www.rabbitmq.com/
+.. _Celery: http://celeryproject.org/
+
+
+Architecture
+------------
+
+The whole architecture is based on the concept of *reflexes*; that is,
+a highly customizable series of transformations that are applied to the
+request parameter, most of them protocol-agnostic to facilitate
+multi-protocol capability. Currently a WSGI reflex is provided: please see
+``examples/`` for the demo app (more are planned).
+
+The system uses a flexible approach to configuration: config files with
+preprocessor directives. So far JSON strings and Python pickles are
+supported, and a rudimentary implementation of the ``#include`` feature
+(\ ``$$include``\ ) is also in place. The configuration is then filled into
+*the central registry* inside which singletons live. Most parts of ``weiyu``
+can be tweaked solely using configuration: objects (classes, functions, etc)
+are assigned names in code, and configuration controls their relationship.
+This way things like changing the URLconf or modifying database location
+require nothing besides modifying configuration file and restarting server
+process. In the future, mechanisms will be added to allow hot-reloading.
+
+
+.. todo::
+
+    More about the architecture and deployment later after major parts of
+    the BBS are finished.
 
 
 .. vim:ai:et:ts=4:sw=4:sts=4:fenc=utf-8:

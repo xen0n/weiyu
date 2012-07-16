@@ -37,7 +37,7 @@ class DispatchError(Exception):
 # XXX Make up clearer names for all those "target"s!
 
 class RouterBase(object):
-    def __init__(self, name, target_initializers):
+    def __init__(self, target_initializers, name=None):
         self.name = name
         self.route_table = [
                 self.__class__.target_type(*i)
@@ -68,23 +68,36 @@ class RouterBase(object):
                 return result
 
         # match failure
-        return (False, None, None, None, )
+        return (False, None, None, None, None, )
 
-    def dispatch(self, querystr):
-        hit, target, args, kwargs = self.lookup(querystr)
+    def dry_dispatch(self, querystr, *args):
+        '''Do all things except actually invoking callback function,
+        returns the calculated parameters that can be used to do a real
+        dispatch.
+
+        '''
+
+        hit, target, more_args, kwargs, data = self.lookup(querystr)
 
         if not hit:
             raise DispatchError("query string %s: nowhere to dispatch"
                                 % repr(querystr)
                                 )
 
-        return target(*args, **kwargs)
+        # append resolved positional args to args passed in
+        extended_args = list(args)
+        extended_args.extend(more_args)
+
+        return target, extended_args, kwargs, data
+
+    def dispatch(self, querystr, *args):
+        target, ext_args, kwargs, data = self.dry_dispatch(querystr, *args)
+        return target(*ext_args, **kwargs)
 
 
 class RouterTargetBase(object):
-    def __init__(self, name, target):
-        self.name = name
-        self.target = target
+    def __init__(self, target, extra_data=None):
+        self.target, self.data = target, extra_data
 
         # for nested processing
         self.target_is_router = issubclass(type(target), RouterBase)
@@ -108,9 +121,9 @@ class RouterTargetBase(object):
         if status == STATUS_REACHED:
             # reached end, make args a tuple
             # XXX Is this necessary?
-            return (True, self.target, tuple(args), kwargs, )
+            return (True, self.target, tuple(args), kwargs, self.data, )
         elif status == STATUS_NOROUTE:
-            return (False, None, None, None, )
+            return (False, None, None, None, None, )
         elif status == STATUS_FORWARD:
             # do nested routing
             return self.target.lookup(new_qs, args, kwargs)

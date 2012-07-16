@@ -1,0 +1,11 @@
+This is a test of multi-appearance view.
+
+Value got: ${value}
+Some computation results based on that value:
+% for num in results:
+  ${num}
+% endfor
+
+BTW, you have requested this site's pages ${visits} time(s).
+
+Have a good day.

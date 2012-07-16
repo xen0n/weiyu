@@ -23,8 +23,14 @@ __all__ = [
             'WeiyuWSGIAdapter',
             ]
 
-from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
+from functools import partial
+
 from ..registry.provider import request as reg_request
+
+from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
+from ..router import router_hub
+from ..session import session_hub
+from ..rendering.view import render_view_func
 
 HEADER_ENC = 'utf-8'
 
@@ -82,41 +88,138 @@ class WSGIRequest(ReflexRequest):
         self.start_response = start_response
         self.site = site_conf
 
-        # populate some useful fields using WSGI env
-        self.populate()
-
-    def populate(self):
-        # TODO
-        pass
-
 
 class WSGIReflex(BaseReflex):
-    def __init__(self, worker_func):
+    def __init__(self):
         self.SITE_CONF = reg_request('site')
-        self.worker_func = worker_func
+        # no more repeated lookups for handler
+        # NOTE: Remember this can lead to stale value when handler got
+        # dynamically updated. This is (admittedly) a VERY rare and
+        # dangerous case that's simply NOT going to work, but the expected
+        # behavior is documented here anyway.
+        self._do_routing = router_hub.get_handler('wsgi')
+
+        # Initial session integration *in reflex*
+        # prior to this sessions were per-view, which is obviously a design
+        # mistake.
+        ses_conf = self.SITE_CONF['session']
+        ses_backend, ses_opts = ses_conf['backend'], ses_conf['options']
+        self.session = session_hub.do_handling(ses_backend, ses_opts)
 
     def _do_accept_request(self, env, start_response):
         return WSGIRequest(env, start_response, self.SITE_CONF)
 
+    def _do_translate_request(self, request):
+        # populate some useful fields using WSGI env
+        env = request.env
+        # decode the path bytestring
+        # TODO: improve encoding handling here
+        request.path = env['PATH_INFO'].decode('utf-8', 'replace')
+
+        # Move routing (much) earlier so we don't waste time in processing
+        # requests impossible to fulfill.
+        # Note that we don't pass in "request" at this moment. The object
+        # can be replaced by potential hooks, and we certainly don't want
+        # a reference to be frozen in the request.
+        # Return value is of format (fn, args, kwargs, route_data, )
+        route_result = self._do_routing(request.path)
+        request.callback_info = route_result[:-1]
+        request.route_data = route_result[-1]
+
+        # Rest of request object preparation goes here...
+        request.remote_addr = env['REMOTE_ADDR']
+        method = request.method = env['REQUEST_METHOD']
+        length, _env_length = None, None
+        try:
+            _env_length = env['CONTENT_LENGTH']
+        except KeyError:
+            pass
+
+        if _env_length is not None and len(_env_length) > 0:
+            try:
+                length = int(_env_length)
+            except ValueError:
+                pass
+        request.content_length = length
+
+        # read the request body if content length is given
+        if length is not None and request.method == 'POST':
+            request.content = env['wsgi.input'].read(length)
+        else:
+            request.content = None
+
+        # TODO: add more ubiquitous HTTP request headers
+
+        # Session injection
+        self.session.preprocess(request)
+
+        return request
+
     def _do_generate_response(self, request):
-        return self.worker_func(request)
+        fn, args, kwargs = request.callback_info
+        response = fn(request, *args, **kwargs)
+
+        # Session persistence is part of generation; may be moved tho
+        response = self.session.postprocess(response)
+
+        return response
 
     def _do_postprocess(self, response):
+        # Render the response early
+        # TODO: find a way to extract all the literals out
+        request = response.request
         ctx, hdrs = response.context, []
+        render_in = cont = mime = None
+        dont_render = False
+
+        # is this a raw file push request?
+        response.is_raw_file = ctx.get('is_raw_file', False)
+        if response.is_raw_file and 'sendfile_fp' in response.content:
+            # request to send raw file valid, suppress rendering
+            dont_render = True
+            response.raw_fp = response.content['sendfile_fp']
+            response.raw_blksz = response.content.get('blocksize', None)
+
+            # If rendering needs to be suppressed and content is not a raw
+            # file, we cannot safely assume the data stream is of type
+            # text/html then...
+            mime = ctx.get('mimetype', 'application/octet-stream')
+
+        if not dont_render:
+            if issubclass(type(request.route_data), dict):
+                # mapping object, see if we could get the hint...
+                render_in = request.route_data.get('render_in', None)
+
+            if render_in is None:
+                raise TypeError(
+                        "Rendering is not suppressed, but don't know "
+                        "where to get rendering instruction!"
+                        )
+
+            # rendering is not suppressed, do it now
+            cont = render_view_func(
+                    request.callback_info[0],
+                    response.content,
+                    render_in,
+                    )
 
         enc = ctx.get('enc', 'utf-8')
         response.encoding = enc
-
-        mime = ctx.get('mimetype', 'text/html')
-        cont = response.content
+        mime = ctx.get('mimetype', 'text/html') if mime is None else mime
 
         # encode content, if it's a Unicode string
         if issubclass(type(cont), unicode):
             response.content = cont.encode(enc, 'replace')
+        else:
+            response.content = cont
 
-        # TODO: convert context into HTTP headers as much as possible
+        # TODO: convert more context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
-        contenttype = '%s; charset=%s' % (mime, enc, )
+        # but don't append charset if the response is a raw file
+        if response.is_raw_file:
+            contenttype = mime
+        else:
+            contenttype = '%s; charset=%s' % (mime, enc, )
         hdrs.append(('Content-Type', contenttype, ))
 
         # generate Set-Cookie from cookies
@@ -142,28 +245,60 @@ class WSGIReflex(BaseReflex):
 
         # ensure all header contents are bytes
         headers = []
+
+        # insert a Content-Length along if response is not raw file
+        if not response.is_raw_file:
+            headers.append((b'Content-Length', str(len(content)), ))
+
         for k, v in response.http_headers:
             # TODO: It's apparent that we need a smart_str helper here!!
             bytes_k = k.encode(enc) if issubclass(type(k), unicode) else k
             bytes_v = v.encode(enc) if issubclass(type(v), unicode) else v
             headers.append((bytes_k, bytes_v, ))
 
+        # Initiate the actual conversation
         start_response(status_line, headers)
 
-        if isinstance(content, (str, unicode, )):
-            yield content
+        if response.is_raw_file:
+            # push raw file using file_wrapper if provided
+            # if one is absent, use a dummy one instead
+            raw_fp, raw_blksz = response.raw_fp, response.raw_blksz
+
+            if 'wsgi.file_wrapper' in request.env:
+                file_wrapper = request.env['wsgi.file_wrapper']
+            else:
+                def dummy_file_wrapper(fp, blk_sz=None):
+                    blk_sz = blk_sz if blk_sz is not None else 4096
+                    do_read = partial(fp.read, blk_sz)
+                    chunk = do_read()
+                    while len(chunk) > 0:
+                        yield chunk
+                        chunk = do_read()
+                file_wrapper = dummy_file_wrapper
+
+            if raw_blksz is None:
+                return file_wrapper(raw_fp)
+            else:
+                return file_wrapper(raw_fp, raw_blksz)
         else:
-            for chunk in content:
-                if issubclass(type(chunk), unicode):
-                    # encode and send the chunk using response.encoding
-                    yield chunk.encode(enc, 'replace')
-                else:
-                    yield chunk
+            return _send_content(content)
+
+
+def _send_content(content):
+    if isinstance(content, (str, unicode, )):
+        yield content
+    else:
+        for chunk in content:
+            if issubclass(type(chunk), unicode):
+                # encode and send the chunk using response.encoding
+                yield chunk.encode(enc, 'replace')
+            else:
+                yield chunk
 
 
 class WeiyuWSGIAdapter(object):
-    def __init__(self, worker_func):
-        self.reflex = WSGIReflex(worker_func)
+    def __init__(self):
+        self.reflex = WSGIReflex()
 
     def __call__(self, env, start_response):
         return self.reflex.stimulate(env, start_response)
