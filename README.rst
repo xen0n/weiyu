@@ -13,8 +13,19 @@ Dependencies
 ``weiyu`` utilizes non-relational DBMS, at present only MongoDB with the
 ``pymongo`` wrapper is supported.
 
-The system makes use of message queue, and the preferred MQ provider is
-``rabbitmq``.
+The session backend relies on ``beaker`` for on-disk persistence.
+
+`Mako templating system`_ is used in one of the renderers, be sure to
+install it for all your textual data rendering.
+
+.. _Mako templating system: http://www.makotemplates.org/
+
+The system is planned to make use of message queue, and the preferred MQ
+provider is `RabbitMQ`_. `Celery`_ will be required together to provide
+task delegation.
+
+.. _RabbitMQ: http://www.rabbitmq.com/
+.. _Celery: http://celeryproject.org/
 
 
 Architecture
