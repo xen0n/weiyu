@@ -170,11 +170,14 @@ class WSGIReflex(BaseReflex):
         request = response.request
         ctx, hdrs = response.context, []
         cont = mime = None
-        response.is_raw_file = dont_render = False
+        dont_render = False
 
-        if response.content.get('sendfile_fp', None):
-            # request to send raw file, suppress rendering
-            response.is_raw_file = dont_render = True
+        # is this a raw file push request?
+        response.is_raw_file = ctx.get('is_raw_file', False)
+
+        if response.is_raw_file and 'sendfile_fp' in response.content:
+            # request to send raw file valid, suppress rendering
+            dont_render = True
             response.raw_fp = response.content['sendfile_fp']
             response.raw_blksz = response.content.get('blocksize', None)
 
