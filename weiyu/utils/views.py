@@ -63,5 +63,14 @@ def staticfile_view(request, path):
                 request,
                 )
 
+    # not found, return a 404
+    # FIXME: This view is NOT renderable, this is SURE to raise exc later!
+    return ReflexResponse(
+            404,
+            {},
+            {},
+            request,
+            )
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
