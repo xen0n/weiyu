@@ -168,32 +168,42 @@ class WSGIReflex(BaseReflex):
         # Render the response early
         # TODO: find a way to extract all the literals out
         request = response.request
-        ctx, hdrs, cont = response.context, [], None
-        response.is_raw_file = False
+        ctx, hdrs = response.context, []
+        cont = mime = None
+        response.is_raw_file = dont_render = False
 
-        if ctx.get('suppress_rendering', False):
-            # rendering is suppressed
-            if response.content.get('sendfile_fp', None):
-                # request to send raw file
-                response.is_raw_file = True
-                response.raw_fp = response.content['sendfile_fp']
-                response.raw_blksz = response.content.get('blocksize', None)
+        if response.content.get('sendfile_fp', None):
+            # request to send raw file, suppress rendering
+            response.is_raw_file = dont_render = True
+            response.raw_fp = response.content['sendfile_fp']
+            response.raw_blksz = response.content.get('blocksize', None)
 
             # If rendering needs to be suppressed and content is not a raw
             # file, we cannot safely assume the data stream is of type
             # text/html then...
             mime = ctx.get('mimetype', 'application/octet-stream')
-        else:
-            render_in = request.route_data['render_in']
+
+        if issubclass(type(request.route_data), dict):
+            # mapping object, see if we could get the hint...
+            render_in = request.route_data.get('render_in', None)
+
+        if render_in is None:
+            raise TypeError(
+                    "Rendering is not suppressed, but don't know where to "
+                    "get rendering instruction!"
+                    )
+
+        if not dont_render:
+            # rendering is not suppressed, do it now
             cont = render_view_func(
                     request.callback_info[0],
                     response.content,
                     render_in,
                     )
 
-            enc = ctx.get('enc', 'utf-8')
-            response.encoding = enc
-            mime = ctx.get('mimetype', 'text/html')
+        enc = ctx.get('enc', 'utf-8')
+        response.encoding = enc
+        mime = ctx.get('mimetype', 'text/html') if mime is None else mime
 
         # encode content, if it's a Unicode string
         if issubclass(type(cont), unicode):
