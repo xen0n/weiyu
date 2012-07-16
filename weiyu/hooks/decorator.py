@@ -73,6 +73,7 @@ def hookable(name=None):
             if result is None:
                 result = fn(*args, **kwargs)
 
+            # FIXME: if a pre-hook returned early ALL post-hooks will fire!
             for postprocess_hook in hooks_ref[1]:
                 result = postprocess_hook(result)
 
@@ -84,7 +85,7 @@ def hookable(name=None):
 
 
 def hook_before(name, append=False):
-    # TODO: document this family of registration
+    # TODO: document this family of registration functions
     def _decorator_(fn):
         hook_reg = request('weiyu.hooks')
         target_list = hook_reg[name][0]
