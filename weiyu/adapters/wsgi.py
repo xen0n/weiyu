@@ -187,7 +187,7 @@ class WSGIReflex(BaseReflex):
             # mapping object, see if we could get the hint...
             render_in = request.route_data.get('render_in', None)
 
-        if render_in is None:
+        if render_in is None and not dont_render:
             raise TypeError(
                     "Rendering is not suppressed, but don't know where to "
                     "get rendering instruction!"
