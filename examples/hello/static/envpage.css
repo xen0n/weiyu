@@ -79,6 +79,7 @@ div.content td {
 div.content ul.listobject {
   border-left: 1px solid #333;
   margin: 6px 0;
+  min-height: 1em;
 }
 
 div.content ul.listobject>li>ul.listobject {
