@@ -26,7 +26,7 @@ __all__ = ['VERSION_MAJOR', 'VERSION_MINOR', 'VERSION_REV',
            ]
 
 import os.path
-from sys import getfilesystemencoding as fsenc
+from sys import getfilesystemencoding
 import re
 import weiyu as __this_pkg
 
@@ -61,8 +61,10 @@ def get_version():
 def get_vcs_revision(path=None):
     # try the handlers one by one, return the first successful
     # match of VCS info
-    # cast path into unicode
-    path = path.decode(fsenc()) if not isinstance(path, unicode) else path
+    # cast path into unicode if necessary
+    if path is not None and not isinstance(path, unicode):
+        path = path.decode(getfilesystemencoding())
+
     for handler in _VCS_HANDLERS:
         is_ok, result = handler(path)
         if is_ok:
