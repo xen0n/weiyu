@@ -26,6 +26,7 @@ __all__ = ['VERSION_MAJOR', 'VERSION_MINOR', 'VERSION_REV',
            ]
 
 import os.path
+from sys import getfilesystemencoding as fsenc
 import re
 import weiyu as __this_pkg
 
@@ -60,6 +61,8 @@ def get_version():
 def get_vcs_revision(path=None):
     # try the handlers one by one, return the first successful
     # match of VCS info
+    # cast path into unicode
+    path = path.decode(fsenc()) if not isinstance(path, unicode) else path
     for handler in _VCS_HANDLERS:
         is_ok, result = handler(path)
         if is_ok:
@@ -89,7 +92,7 @@ def get_svn_revision(path=None):
 
     try:
         with open(entries_path, 'r') as fp:
-            entries = fp.read()
+            entries = fp.read().decode('ascii', 'replace')
     except IOError:
         return (False, None, )
     else:
@@ -142,7 +145,7 @@ def get_git_commit(path=None):
     head_path = os.path.join(git_path, 'HEAD')
     try:
         with open(head_path, 'rb') as fp:
-            ref = fp.read().strip()
+            ref = fp.read().strip().decode('ascii', 'replace')
     except IOError:
         return (False, None, )
     else:
@@ -157,7 +160,7 @@ def get_git_commit(path=None):
     commit_path = os.path.normpath(os.path.join(git_path, ref_path))
     try:
         with open(commit_path, 'rb') as fp:
-            commit = fp.read().strip()
+            commit = fp.read().strip().decode('ascii', 'replace')
     except IOError:
         return (False, None, )
     else:
