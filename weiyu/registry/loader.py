@@ -169,7 +169,12 @@ class BaseConfig(object):
             # by ``self.path``
             return self.load_from_path(None)
 
-        return self.loads(fp.read(), *args, **kwargs)
+        # Unicode cleanness
+        return self.loads(
+                fp.read().decode('utf-8', 'replace'),
+                *args,
+                **kwargs,
+                )
 
     def load_from_path(self, path=None):
         '''Loads configuration from path ``path``; if ``path`` is ``None``,
