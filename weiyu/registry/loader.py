@@ -172,8 +172,7 @@ class BaseConfig(object):
         # Unicode cleanness
         return self.loads(
                 fp.read().decode('utf-8', 'replace'),
-                *args,
-                **kwargs,
+                *args, **kwargs
                 )
 
     def load_from_path(self, path=None):
