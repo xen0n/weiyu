@@ -30,6 +30,7 @@ def smartstr(s, encoding='utf-8', *args, **kwargs):
         return unicode(s, encoding, *args, **kwargs)
     return s
 
+
 def smartbytes(s, encoding='utf-8', *args, **kwargs):
     if issubclass(type(s), unicode):
         return s.encode(encoding, *args, **kwargs)
