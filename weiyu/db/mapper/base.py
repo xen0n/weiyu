@@ -24,9 +24,9 @@ from . import mapper_hub
 
 
 class Document(dict):
-    struct_name = None
+    struct_id = None
     db_name = None
-    path = None
+    collection = None
 
     def __getattr__(self, k):
         if k in self:
@@ -36,19 +36,6 @@ class Document(dict):
 
     def __setattr__(self, k, v):
         self[k] = v
-
-    def load(self, obj):
-        data = mapper_hub.decode(self.struct_name, obj)
-        for k, v in data.iteritems():
-            self[k] = v
-
-    def save(self):
-        # calculate the result document using mapper
-        result = mapper_hub.encode(self.struct_name, self)
-
-        with db_hub.get_database(self.db_name) as conn:
-            # TODO
-            pass
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
