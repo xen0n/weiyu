@@ -155,7 +155,7 @@ mapper_hub = MapperHub()
 
 
 # Mapper shim
-def _mapper_shim_(hub, op, name, obj, version):
+def _mapper_shim_(hub, op, obj, version, name):
     if op == OP_DECODE:
         return hub._do_decode(name, obj, version)
     elif op == OP_ENCODE:
