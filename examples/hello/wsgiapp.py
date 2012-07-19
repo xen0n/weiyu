@@ -38,9 +38,9 @@ OUTPUT_ENC = 'utf-8'
 conf = JSONConfig('conf.json')
 conf.populate_central_regs()
 
-# DEBUG: db
+# DEBUG: db & mapper
 from weiyu.db.drivers.pymongo_driver import PymongoDriver
-from weiyu.db import db_hub
+from weiyu.db import db_hub, mapper_hub
 
 # DEBUG: session
 from weiyu.session.beakerbackend import BeakerSession
@@ -66,6 +66,35 @@ def get_git_rev_color(_re_pat=re.compile(r'Git-([0-9A-Fa-f]{6,})$')):
 
 
 HAVE_GIT_COLOR, GIT_COLOR_VAL = get_git_rev_color()
+
+
+# DEBUG: mapper
+# Test case:
+# original data {'val': x, }
+# ver 1. {'v1': x + 2, }
+# ver 2. {'v2': x * 2, }
+_STRUCT_NAME = 'teststruct'
+mapper_hub.register_struct(_STRUCT_NAME)
+
+
+@mapper_hub.decoder_for(_STRUCT_NAME, 1)
+def decode1(obj):
+    return {'val': obj['v1'] - 2, }
+
+
+@mapper_hub.decoder_for(_STRUCT_NAME, 2)
+def decode2(obj):
+    return {'val': obj['v2'] >> 1, }
+
+
+@mapper_hub.encoder_for(_STRUCT_NAME, 1)
+def encode1(obj):
+    return {'v1': obj['val'] + 2, }
+
+
+@mapper_hub.encoder_for(_STRUCT_NAME, 2)
+def encode2(obj):
+    return {'v2': obj['val'] << 1, }
 
 
 # DEBUG: session
