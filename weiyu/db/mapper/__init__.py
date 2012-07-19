@@ -150,6 +150,9 @@ class MapperHub(BaseHub):
         return result
 
 
+mapper_hub = MapperHub()
+
+
 # Mapper shim
 def _mapper_shim_(hub, op, name, obj, version):
     if op == OP_DECODE:
