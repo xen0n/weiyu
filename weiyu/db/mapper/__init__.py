@@ -113,7 +113,7 @@ class MapperHub(BaseHub):
             use_version = version
         else:
             try:
-                obj_version = obj[VERSION_FIELD]
+                use_version = obj[VERSION_FIELD]
             except KeyError:
                 raise ValueError(
                         'object %s has no version field' % (repr(obj), )
