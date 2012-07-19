@@ -53,8 +53,8 @@ class MapperHub(BaseHub):
             # [{ver1: encoder1, ver2: encoder2, ...}, max_version]
             self._encoders[name] = [{}, -1]
 
-        # curry struct id into our mapper shim
-        self.register_handler(name, partial(_mapper_shim_, name=name))
+        # curry struct id into our mapper shim, then register it
+        self.register_handler(name)(partial(_mapper_shim_, name=name))
 
     def decode(self, name, obj, version=None):
         return self.do_handling(name, OP_DECODE, obj, version)
