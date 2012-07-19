@@ -31,7 +31,8 @@ from ...registry.classes import UnicodeRegistry
 OP_DECODE, OP_ENCODE = range(2)
 DECODERS_KEY, ENCODERS_KEY = 'decoders', 'encoders'
 
-VERSION_FIELD = 'v'
+# don't conflict w/ single-letter props to reduce number of surprises...
+VERSION_FIELD = '_V'
 
 
 class MapperHub(BaseHub):
