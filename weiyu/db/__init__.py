@@ -21,11 +21,15 @@ from __future__ import unicode_literals, division
 
 __all__ = [
         'db_hub',
+        'mapper_hub',
         ]
 
 from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
+
+# expose non-relational mapper here
+from .mapper import mapper_hub
 
 
 class DatabaseHub(BaseHub):
