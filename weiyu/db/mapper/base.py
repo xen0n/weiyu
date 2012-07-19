@@ -20,18 +20,33 @@
 from __future__ import unicode_literals, division
 
 from .. import db_hub
+from . import mapper_hub
 
 
 class Document(dict):
-    _fields_ = None
+    struct_name = None
+    db_name = None
     path = None
 
-    def save(self):
-        # calculate the result document
-        for field_name, field in self._fields_:
-            value = self[field_name]
+    def __getattr__(self, k):
+        if k in self:
+            # XXX This can override member methods!!
+            return self[k]
+        return super(Document, self).__getattr__(k)
 
-        with db_hub.get_database(self.database) as conn:
+    def __setattr__(self, k, v):
+        self[k] = v
+
+    def load(self, obj):
+        data = mapper_hub.decode(self.struct_name, obj)
+        for k, v in data.iteritems():
+            self[k] = v
+
+    def save(self):
+        # calculate the result document using mapper
+        result = mapper_hub.encode(self.struct_name, self)
+
+        with db_hub.get_database(self.db_name) as conn:
             # TODO
             pass
 
