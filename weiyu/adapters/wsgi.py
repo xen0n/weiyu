@@ -25,6 +25,8 @@ __all__ = [
 
 from functools import partial
 
+from ..helpers.misc import smartstr, smartbytes
+
 from ..registry.provider import request as reg_request
 
 from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
@@ -114,7 +116,7 @@ class WSGIReflex(BaseReflex):
         env = request.env
         # decode the path bytestring
         # TODO: improve encoding handling here
-        request.path = env['PATH_INFO'].decode('utf-8', 'replace')
+        request.path = smartstr(env['PATH_INFO'], 'utf-8', 'replace')
 
         # Move routing (much) earlier so we don't waste time in processing
         # requests impossible to fulfill.
@@ -127,11 +129,11 @@ class WSGIReflex(BaseReflex):
         request.route_data = route_result[-1]
 
         # Rest of request object preparation goes here...
-        request.remote_addr = env['REMOTE_ADDR']
-        method = request.method = env['REQUEST_METHOD']
+        request.remote_addr = smartstr(env['REMOTE_ADDR'])
+        method = request.method = smartstr(env['REQUEST_METHOD'])
         length, _env_length = None, None
         try:
-            _env_length = env['CONTENT_LENGTH']
+            _env_length = smartstr(env['CONTENT_LENGTH'], 'ascii', 'ignore')
         except KeyError:
             pass
 
@@ -207,11 +209,8 @@ class WSGIReflex(BaseReflex):
         response.encoding = enc
         mime = ctx.get('mimetype', 'text/html') if mime is None else mime
 
-        # encode content, if it's a Unicode string
-        if issubclass(type(cont), unicode):
-            response.content = cont.encode(enc, 'replace')
-        else:
-            response.content = cont
+        # encode content, if it's a Unicode thing
+        response.content = smartbytes(cont, enc, 'replace')
 
         # TODO: convert more context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
@@ -220,11 +219,11 @@ class WSGIReflex(BaseReflex):
             contenttype = mime
         else:
             contenttype = '%s; charset=%s' % (mime, enc, )
-        hdrs.append(('Content-Type', contenttype, ))
+        hdrs.append((b'Content-Type', contenttype, ))
 
         # generate Set-Cookie from cookies
         for cookie_line in ctx.get('cookies', []):
-            hdrs.append(('Set-Cookie', cookie_line, ))
+            hdrs.append((b'Set-Cookie', cookie_line, ))
 
         response.http_headers = hdrs
 
@@ -251,10 +250,7 @@ class WSGIReflex(BaseReflex):
             headers.append((b'Content-Length', str(len(content)), ))
 
         for k, v in response.http_headers:
-            # TODO: It's apparent that we need a smart_str helper here!!
-            bytes_k = k.encode(enc) if issubclass(type(k), unicode) else k
-            bytes_v = v.encode(enc) if issubclass(type(v), unicode) else v
-            headers.append((bytes_k, bytes_v, ))
+            headers.append((smartbytes(k, enc), smartbytes(v, enc), ))
 
         # Initiate the actual conversation
         start_response(status_line, headers)
@@ -281,19 +277,16 @@ class WSGIReflex(BaseReflex):
             else:
                 return file_wrapper(raw_fp, raw_blksz)
         else:
-            return _send_content(content)
+            return _send_content(content, enc)
 
 
-def _send_content(content):
+def _send_content(content, enc):
     if isinstance(content, (str, unicode, )):
-        yield content
+        yield smartbytes(content, enc, 'replace')
     else:
         for chunk in content:
-            if issubclass(type(chunk), unicode):
-                # encode and send the chunk using response.encoding
-                yield chunk.encode(enc, 'replace')
-            else:
-                yield chunk
+            # encode and send the chunk using response.encoding
+            yield smartbytes(chunk, enc, 'replace')
 
 
 class WeiyuWSGIAdapter(object):
