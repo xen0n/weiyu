@@ -63,7 +63,7 @@ class MapperHub(BaseHub):
     def encode(self, name, obj, version=None):
         return self.do_handling(name, OP_ENCODE, obj, version)
 
-    def register_decoder(self, name, version):
+    def decoder_for(self, name, version):
         # you aren't registering negative versions, huh?
         assert version >= 0
 
@@ -83,7 +83,7 @@ class MapperHub(BaseHub):
             return fn
         return _decorator_
 
-    def register_encoder(self, name, version):
+    def encoder_for(self, name, version):
         assert version >= 0
 
         def _decorator_(fn):
