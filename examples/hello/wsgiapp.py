@@ -174,6 +174,27 @@ def multiformat_test_view(request, val):
             )
 
 
+# a simple Ajax servicing routine
+@router_hub.endpoint('wsgi', 'ajax-doubler')
+@renderable('json')
+def ajax_doubler(request, number):
+    num = None
+    try:
+        num = int(number)
+    except ValueError:
+        pass
+
+    if num is not None:
+        num *= 2
+
+    return ReflexResponse(
+            200,
+            {'result': num, },
+            {'mimetype': 'application/json', },
+            request,
+            )
+
+
 ## DEBUG: hook & session
 #session_backend = BeakerSession(request('site')['session'])
 #session_obj = WSGISession(session_backend)
