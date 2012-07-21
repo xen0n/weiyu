@@ -21,32 +21,32 @@ u'''
 Capability
 ----------
 
-This module provides a ``Capability`` class, whose objects *really* should be
-acquired by calling the static factory method ``Capability.get``.
-
 '''
 
 from __future__ import unicode_literals, division
 
+from ..db.mapper import mapper_hub
+
+
+STRUCT_AUTH_CAP = 'weiyu.auth.cap'
+
+
+@mapper_hub.decoder_for(STRUCT_AUTH_CAP, 1)
+def cap_decoder_v1(obj):
+    pass
+
+
+@mapper_hub.encoder_for(STRUCT_AUTH_CAP, 1)
+def cap_encoder_v1(obj):
+    pass
+
 
 class Capability(object):
-    objects_cache = {}
-
-    @staticmethod
-    def get(name):
-        name = unicode(name)
-        cache = Capability.objects_cache
-        if name not in cache:
-            cache[name] = Capability(name)
-        return cache[name]
-
     def __init__(self, name, backend=None):
-        self.name = name
-        self.backend = backend
+        self.name, self.backend = name, backend
 
     def list_users(self):
-        # TODO: do backend reverse query
-        pass
+        return self.backend.
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
