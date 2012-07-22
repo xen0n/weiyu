@@ -57,6 +57,14 @@ class MapperHub(BaseHub):
         # curry struct id into our mapper shim, then register it
         self.register_handler(name)(partial(_mapper_shim_, name=name))
 
+    def get_version(self, obj):
+        try:
+            return obj[VERSION_FIELD]
+        except KeyError:
+            raise TypeError(
+                        'object %s has no version field' % (repr(obj), )
+                        )
+
     def decode(self, name, obj, version=None):
         return self.do_handling(name, OP_DECODE, obj, version)
 
@@ -106,43 +114,35 @@ class MapperHub(BaseHub):
             return fn
         return _decorator_
 
-    def _do_decode(self, name, obj, version):
+    def _do_decode(self, name, obj, ver):
         decoders = self._decoders[name]
 
-        if version is not None:
-            use_version = version
-        else:
-            try:
-                use_version = obj[VERSION_FIELD]
-            except KeyError:
-                raise ValueError(
-                        'object %s has no version field' % (repr(obj), )
-                        )
+        use_ver = ver if ver is not None else self.get_version(obj)
 
         try:
-            decoder = decoders[use_version]
+            decoder = decoders[use_ver]
         except KeyError:
             raise TypeError(
                     "no decoder for struct id '%s' version %s" % (
                         name,
-                        unicode(use_version),
+                        unicode(use_ver),
                         )
                     )
 
         return decoder(obj)
 
-    def _do_encode(self, name, obj, version):
+    def _do_encode(self, name, obj, ver):
         # Always encode in the latest version unless explicitly specified
         encoders, maxver = self._encoders[name]
-        use_version = maxver if version is None else version
+        use_ver = maxver if ver is None else ver
 
         try:
-            encoder = encoders[use_version]
+            encoder = encoders[use_ver]
         except KeyError:
             raise TypeError(
                     "no encoder for struct id '%s' version %s" % (
                         name,
-                        unicode(use_version),
+                        unicode(use_ver),
                         )
                     )
 
@@ -155,11 +155,11 @@ mapper_hub = MapperHub()
 
 
 # Mapper shim
-def _mapper_shim_(hub, op, obj, version, name):
+def _mapper_shim_(hub, op, obj, ver, name):
     if op == OP_DECODE:
-        return hub._do_decode(name, obj, version)
+        return hub._do_decode(name, obj, ver)
     elif op == OP_ENCODE:
-        return hub._do_encode(name, obj, version)
+        return hub._do_encode(name, obj, ver)
     raise RuntimeError('Impossible codepath!')
 
 
