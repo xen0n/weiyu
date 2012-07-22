@@ -25,6 +25,8 @@ import weiyutest
 
 
 def main(argv):
+    from weiyutest import test_auth
+
     return 0
 
 
