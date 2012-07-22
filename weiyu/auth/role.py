@@ -19,8 +19,27 @@
 
 from __future__ import unicode_literals, division
 
+from ..db.mapper import mapper_hub
 
-class AuthRole(object):
+
+STRUCT_AUTH_ROLE = 'weiyu.auth.role'
+
+CAPS_KEY = 'c'
+
+
+@mapper_hub.decoder_for(STRUCT_AUTH_ROLE, 1)
+def role_decoder_v1(obj):
+    caps = obj[CAPS_KEY]
+    return Role(obj)
+
+
+@mapper_hub.encoder_for(STRUCT_AUTH_ROLE, 1)
+def role_encoder_v1(obj):
+    caps = obj.capabilities
+    return {CAPS_KEY: caps, }
+
+
+class Role(object):
     '''This class describes a *role* that owns 0 or more *capabilities*.
 
     The concept "role" is similar to "group", but differs in that one user
