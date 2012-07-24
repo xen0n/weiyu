@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / test suite / weiyu.auth
+# weiyu / test suite / weiyu.auth.user
 #
 # Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -21,44 +21,9 @@ from __future__ import unicode_literals, division
 
 import unittest
 
-from weiyu.auth import passwd
-
 # ``user`` is actually a deprecated module that went away in Python 3.0, and
 # is not depended upon by any part of weiyu. so using that name is ok
 from weiyu.auth import user
-
-
-class TestAuthPasswd(unittest.TestCase):
-    def setUp(self):
-        self.userid = 'testuser123'
-        self.passwd = '*JE&%5e^&YU4w%ftWRtfSEfAEt%$&Ww47%6w56T#Wtq345q2'
-        self.psw_packet = {'userid': self.userid, 'passwd': self.passwd, }
-
-        self.stored_hashes = {
-                'kbs': b'\xdb6\xe2\xd2ev\xcc\xc8\xe3b9\xe8\xb7g\xa0\xde',
-                }
-
-    def test_kbs_hash(self):
-        self.assertEqual(
-                passwd.kbs_encode(self.psw_packet),
-                {'p': self.stored_hashes['kbs'], },
-                )
-
-    def test_hash_decode_stub(self):
-        self.assertRaises(
-                TypeError,
-                passwd.hash_decode_stub,
-                {'_V': 1, 'p': self.stored_hashes['kbs'], },
-                )
-
-    def test_chkpasswd(self):
-        self.assertTrue(
-                passwd._do_chkpasswd(
-                    self.userid,
-                    self.passwd,
-                    {'_V': 1, 'p': self.stored_hashes['kbs'], },
-                    )
-                )
 
 
 class TestAuthUser(unittest.TestCase):
@@ -103,9 +68,8 @@ class TestAuthUser(unittest.TestCase):
             self.assertEqual(user_obj[prop], ref[prop])
 
 
-for testcase in [TestAuthPasswd, TestAuthUser, ]:
-    suite = unittest.TestLoader().loadTestsFromTestCase(testcase)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+suite = unittest.TestLoader().loadTestsFromTestCase(TestAuthUser)
+unittest.TextTestRunner(verbosity=2).run(suite)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

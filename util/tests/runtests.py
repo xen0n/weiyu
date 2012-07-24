@@ -25,7 +25,7 @@ import weiyutest
 
 
 def main(argv):
-    from weiyutest import test_auth
+    from weiyutest import test_auth_passwd, test_auth_user
 
     return 0
 
