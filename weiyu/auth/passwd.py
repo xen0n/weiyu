@@ -23,18 +23,18 @@ from hashlib import md5
 
 from ..db.mapper import mapper_hub
 
-PASSWD_HASH_TYP = 'psw-hash'
+STRUCT_AUTH_PASSWD = 'psw-hash'
 KBS_HASH = 1
 KBS_PASSMAGIC = r'wwj&kcn4SMTHBBS MD5 p9w2d gen2rat8, //grin~~, 2001/5/7'
 
-mapper_hub.register_struct(PASSWD_HASH_TYP)
+mapper_hub.register_struct(STRUCT_AUTH_PASSWD)
 
 
 # Check routine
 def _do_chkpasswd(userid, passwd, stored_hash):
     hash_ver = mapper_hub.get_version(stored_hash)
     hashed_input = mapper_hub.encode(
-            PASSWD_HASH_TYP,
+            STRUCT_AUTH_PASSWD,
             {'userid': userid, 'passwd': passwd, },
             hash_ver,
             )
@@ -43,7 +43,7 @@ def _do_chkpasswd(userid, passwd, stored_hash):
 
 
 # Hashers
-@mapper_hub.encoder_for(PASSWD_HASH_TYP, KBS_HASH)
+@mapper_hub.encoder_for(STRUCT_AUTH_PASSWD, KBS_HASH)
 def kbs_encode(obj, passmagic=KBS_PASSMAGIC):
     # obj is {u'userid': userid, u'passwd': plaintext_password, }
     userid, passwd = obj['userid'], obj['passwd']
@@ -58,7 +58,7 @@ def hash_decode_stub(obj):
     raise TypeError('Password hashes are not (trivially) reversible!')
 
 
-mapper_hub.decoder_for(PASSWD_HASH_TYP, KBS_HASH)(hash_decode_stub)
+mapper_hub.decoder_for(STRUCT_AUTH_PASSWD, KBS_HASH)(hash_decode_stub)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
