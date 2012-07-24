@@ -21,13 +21,20 @@ from __future__ import unicode_literals, division
 
 import sys
 
+import unittest
 import weiyutest
 
 
 def main(argv):
-    from weiyutest import test_auth_passwd, test_auth_user
+    suite = unittest.TestLoader().loadTestsFromNames(
+            [
+                'weiyutest.test_auth_passwd',
+                'weiyutest.test_auth_user',
+                ],
+            )
+    result = unittest.TextTestRunner(verbosity=2).run(suite)
 
-    return 0
+    return 0 if result.wasSuccessful else 1
 
 
 if __name__ == '__main__':

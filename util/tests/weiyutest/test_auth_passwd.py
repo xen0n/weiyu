@@ -57,8 +57,4 @@ class TestAuthPasswd(unittest.TestCase):
                 )
 
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestAuthPasswd)
-unittest.TextTestRunner(verbosity=2).run(suite)
-
-
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

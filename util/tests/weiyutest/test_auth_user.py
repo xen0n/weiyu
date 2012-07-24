@@ -68,8 +68,4 @@ class TestAuthUser(unittest.TestCase):
             self.assertEqual(user_obj[prop], ref[prop])
 
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestAuthUser)
-unittest.TextTestRunner(verbosity=2).run(suite)
-
-
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
