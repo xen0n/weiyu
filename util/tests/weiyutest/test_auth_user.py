@@ -62,5 +62,8 @@ class TestAuthUser(unittest.TestCase):
         for prop in ['u', 'e', 'p', 'r', ]:
             self.assertEqual(user_obj[prop], ref[prop])
 
+    def test_user_chkpasswd(self):
+        self.assertTrue(self.ref_user.chkpasswd(cfg.passwd))
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
