@@ -23,7 +23,7 @@ from hashlib import md5
 
 from ..db.mapper import mapper_hub
 
-STRUCT_AUTH_PASSWD = 'psw-hash'
+STRUCT_AUTH_PASSWD = 'weiyu.auth.passwd.hash'
 KBS_HASH = 1
 KBS_PASSMAGIC = r'wwj&kcn4SMTHBBS MD5 p9w2d gen2rat8, //grin~~, 2001/5/7'
 
