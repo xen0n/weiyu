@@ -20,6 +20,7 @@
 from __future__ import unicode_literals, division
 
 from ..db.mapper import mapper_hub
+from .passwd import _do_chkpasswd
 
 STRUCT_AUTH_USER = 'weiyu.auth.user'
 
@@ -55,6 +56,11 @@ class User(object):
         self.email = email
         self.passwd = passwd
         self.roles = roles
+
+    def chkpasswd(self, plain_passwd):
+        # unify to Unicode
+        passwd_str = unicode(plain_passwd, 'utf-8')
+        return _do_chkpasswd(self.uid, passwd_str, self.passwd)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
