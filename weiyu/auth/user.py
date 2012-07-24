@@ -59,8 +59,10 @@ class User(object):
 
     def chkpasswd(self, plain_passwd):
         # unify to Unicode
-        passwd_str = unicode(plain_passwd, 'utf-8')
-        return _do_chkpasswd(self.uid, passwd_str, self.passwd)
+        if not isinstance(plain_passwd, unicode):
+            plain_passwd = unicode(plain_passwd, 'utf-8')
+
+        return _do_chkpasswd(self.uid, plain_passwd, self.passwd)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
