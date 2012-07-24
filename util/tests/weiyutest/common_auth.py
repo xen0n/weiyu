@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / test suite / weiyu.auth.passwd
+# weiyu / test suite / common data for weiyu.auth
 #
 # Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -19,33 +19,26 @@
 
 from __future__ import unicode_literals, division
 
-import unittest
+PASSWD_VERSIONS = (
+        (1, 'kbs', ),
+        )
 
-from weiyu.auth import passwd
-from .common_auth import AuthTestConfig as cfg
 
-class TestAuthPasswd(unittest.TestCase):
-    def test_kbs_hash(self):
-        self.assertEqual(
-                passwd.kbs_encode(cfg.psw_packet),
-                {'p': cfg.stored_hashes['kbs'], },
-                )
+class AuthTestConfig(object):
+    userid = 'testuser123'
+    email = 'test@example.com'
+    passwd = '*JE&%5e^&YU4w%ftWRtfSEfAEt%$&Ww47%6w56T#Wtq345q2'
+    roles = ['role1', 'role2', ]
 
-    def test_hash_decode_stub(self):
-        self.assertRaises(
-                TypeError,
-                passwd.hash_decode_stub,
-                cfg.psw_objs[1],
-                )
+    psw_packet = {'userid': userid, 'passwd': passwd, }
+    stored_hashes = {
+        'kbs': b'\xdb6\xe2\xd2ev\xcc\xc8\xe3b9\xe8\xb7g\xa0\xde',
+        }
 
-    def test_chkpasswd(self):
-        self.assertTrue(
-                passwd._do_chkpasswd(
-                    cfg.userid,
-                    cfg.passwd,
-                    cfg.psw_objs[1],
-                    )
-                )
+    psw_objs = {}
+    for _ver, _name in PASSWD_VERSIONS:
+        psw_objs[_ver] = {'_V': _ver, 'p': stored_hashes[_name], }
+    del _ver, _name
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

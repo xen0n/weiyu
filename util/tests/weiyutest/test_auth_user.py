@@ -24,30 +24,25 @@ import unittest
 # ``user`` is actually a deprecated module that went away in Python 3.0, and
 # is not depended upon by any part of weiyu. so using that name is ok
 from weiyu.auth import user
-
+from .common_auth import AuthTestConfig as cfg
 
 class TestAuthUser(unittest.TestCase):
     def setUp(self):
-        self.test_uid = 'testuser'
-        self.test_email = 'test@example.com'
-        self.test_pswd = {'_V': 1, 'p': 'non-sense-things', }
-        self.test_roles = ['role1', 'role2', ]
-
         self.user_objs = {
                 1: {
                     '_V': 1,
-                    'u': self.test_uid,
-                    'e': self.test_email,
-                    'p': self.test_pswd,
-                    'r': self.test_roles,
+                    'u': cfg.userid,
+                    'e': cfg.email,
+                    'p': cfg.psw_objs[1],
+                    'r': cfg.roles,
                     },
                 }
 
         self.ref_user = user.User(
-                uid=self.test_uid,
-                email=self.test_email,
-                passwd=self.test_pswd,
-                roles=self.test_roles,
+                uid=cfg.userid,
+                email=cfg.email,
+                passwd=cfg.psw_objs[1],
+                roles=cfg.roles,
                 )
 
     def test_user_decode_v1(self):
