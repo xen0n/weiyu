@@ -23,6 +23,10 @@ import unittest
 
 from weiyu.auth import passwd
 
+# ``user`` is actually a deprecated module that went away in Python 3.0, and
+# is not depended upon by any part of weiyu. so using that name is ok
+from weiyu.auth import user
+
 
 class TestAuthPasswd(unittest.TestCase):
     def setUp(self):
@@ -57,8 +61,51 @@ class TestAuthPasswd(unittest.TestCase):
                 )
 
 
-suite = unittest.TestLoader().loadTestsFromTestCase(TestAuthPasswd)
-unittest.TextTestRunner(verbosity=2).run(suite)
+class TestAuthUser(unittest.TestCase):
+    def setUp(self):
+        self.test_uid = 'testuser'
+        self.test_email = 'test@example.com'
+        self.test_pswd = {'_V': 1, 'p': 'non-sense-things', }
+        self.test_roles = ['role1', 'role2', ]
+
+        self.user_objs = {
+                1: {
+                    '_V': 1,
+                    'u': self.test_uid,
+                    'e': self.test_email,
+                    'p': self.test_pswd,
+                    'r': self.test_roles,
+                    },
+                }
+
+        self.ref_user = user.User(
+                uid=self.test_uid,
+                email=self.test_email,
+                passwd=self.test_pswd,
+                roles=self.test_roles,
+                )
+
+    def test_user_decode_v1(self):
+        user_obj = self.user_objs[1]
+        usr = user.user_decoder_v1(user_obj)
+        ref = self.ref_user
+
+        self.assertEqual(usr.uid, ref.uid)
+        self.assertEqual(usr.email, ref.email)
+        self.assertEqual(usr.passwd, ref.passwd)
+        self.assertEqual(usr.roles, ref.roles)
+
+    def test_user_encode_v1(self):
+        user_obj = user.user_encoder_v1(self.ref_user)
+        ref = self.user_objs[1]
+
+        for prop in ['u', 'e', 'p', 'r', ]:
+            self.assertEqual(user_obj[prop], ref[prop])
+
+
+for testcase in [TestAuthPasswd, TestAuthUser, ]:
+    suite = unittest.TestLoader().loadTestsFromTestCase(testcase)
+    unittest.TextTestRunner(verbosity=2).run(suite)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
