@@ -29,7 +29,7 @@ from ...registry.classes import UnicodeRegistry
 
 
 OP_DECODE, OP_ENCODE = range(2)
-DECODERS_KEY, ENCODERS_KEY = 'decoders', 'encoders'
+DECODERS_KEY, ENCODERS_KEY, STORAGE_KEY = 'decoders', 'encoders', 'storage'
 
 # don't conflict w/ single-letter props to reduce number of surprises...
 VERSION_FIELD = '_V'
@@ -45,6 +45,9 @@ class MapperHub(BaseHub):
 
         self._decoders = self._reg[DECODERS_KEY] = {}
         self._encoders = self._reg[ENCODERS_KEY] = {}
+
+        if STORAGE_KEY not in self._reg:
+            self._storage = self._reg[STORAGE_KEY] = {}
 
     def register_struct(self, name):
         if name not in self._decoders:
