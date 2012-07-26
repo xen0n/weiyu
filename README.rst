@@ -1,19 +1,27 @@
 weiyu
 =====
 
-**weiyu** (**微雨** as in 落花人獨立，微雨燕雙飛/落花人独立，微雨燕双飞), is an experimental modern
-BBS mainly written in Python. It is meant to replace the aging KBS BBS backend
-used by the `JNRain`_ forum.
+**weiyu** (**微雨** as in 落花人獨立，微雨燕雙飛/落花人独立，微雨燕双飞), is
+an experimental modern BBS mainly written in `Python`. It is meant to replace
+the aging `KBS BBS`_ backend used by the `JNRain`_ forum.
 
+.. _Python: http://python.org/
+.. _KBS BBS: http://dev.kcn.cn/
 .. _JNRain: http://bbs.jnrain.com/
 
 Dependencies
 ------------
 
-``weiyu`` utilizes non-relational DBMS, at present only MongoDB with the
-``pymongo`` wrapper is supported.
+``weiyu`` utilizes non-relational DBMS, at present only `MongoDB`_ with the
+`pymongo`_ wrapper is supported.
 
-The session backend relies on ``beaker`` for on-disk persistence.
+.. _MongoDB: http://www.mongodb.org/
+.. _pymongo: http://api.mongodb.org/python/current/
+
+
+The only session backend implemented so far is a wrapper around `Beaker`_.
+
+.. _Beaker: http://beaker.groovie.org/
 
 `Mako templating system`_ is used in one of the renderers, be sure to
 install it for all your textual data rendering.
@@ -22,7 +30,7 @@ install it for all your textual data rendering.
 
 The system is planned to make use of message queue, and the preferred MQ
 provider is `RabbitMQ`_. `Celery`_ will be required together to provide
-task delegation.
+task delegation in a future version.
 
 .. _RabbitMQ: http://www.rabbitmq.com/
 .. _Celery: http://celeryproject.org/
