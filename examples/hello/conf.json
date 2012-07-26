@@ -57,5 +57,17 @@
 				}
 			}
 		}
+	},
+	"weiyu.db.mapper": {
+		"class": "UnicodeRegistry",
+		"no_update": false,
+		"data": {
+			"storage": {
+				"weiyu.auth.user": {
+					"db": "test",
+					"collection": "users"
+				}
+			}
+		}
 	}
 }
