@@ -24,6 +24,7 @@ __all__ = [
         ]
 
 from functools import partial
+from .. import db_hub
 from ...helpers.hub import BaseHub
 from ...registry.classes import UnicodeRegistry
 
@@ -73,6 +74,23 @@ class MapperHub(BaseHub):
 
     def encode(self, name, obj, version=None):
         return self.do_handling(name, OP_ENCODE, obj, version)
+
+    def get_storage_conf(self, name):
+        try:
+            return self._storage[name]
+        except KeyError:
+            raise TypeError(
+            "struct id '%s' does not have storage configured" % name
+            )
+
+    def get_storage(self, name):
+        storage_conf = self.get_storage_conf(name)
+        db_name, coll = storage_conf['db'], storage_conf['collection']
+
+        conn = db_hub.get_database(name)
+        path = getattr(conn.storage, coll)
+
+        return conn, path
 
     def decoder_for(self, name, version):
         # you aren't registering negative versions, huh?
