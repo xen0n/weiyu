@@ -2,7 +2,7 @@ weiyu
 =====
 
 **weiyu** (**微雨** as in 落花人獨立，微雨燕雙飛/落花人独立，微雨燕双飞), is
-an experimental modern BBS mainly written in `Python`. It is meant to replace
+an experimental modern BBS mainly written in `Python`_. It is meant to replace
 the aging `KBS BBS`_ backend used by the `JNRain`_ forum.
 
 .. _Python: http://python.org/
