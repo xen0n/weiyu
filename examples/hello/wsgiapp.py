@@ -41,6 +41,7 @@ conf.populate_central_regs()
 # DEBUG: db & mapper
 from weiyu.db.drivers.pymongo_driver import PymongoDriver
 from weiyu.db import db_hub, mapper_hub
+from weiyu.db.mapper.base import Document
 
 # DEBUG: session
 from weiyu.session.beakerbackend import BeakerSession
@@ -77,14 +78,18 @@ _STRUCT_NAME = 'teststruct'
 mapper_hub.register_struct(_STRUCT_NAME)
 
 
+class TestStruct(Document):
+    struct_id = _STRUCT_NAME
+
+
 @mapper_hub.decoder_for(_STRUCT_NAME, 1)
 def decode1(obj):
-    return {'val': obj['v1'] - 2, }
+    return TestStruct(val=obj['v1'] - 2, )
 
 
 @mapper_hub.decoder_for(_STRUCT_NAME, 2)
 def decode2(obj):
-    return {'val': obj['v2'] >> 1, }
+    return TestStruct(val=obj['v2'] >> 1, )
 
 
 @mapper_hub.encoder_for(_STRUCT_NAME, 1)
