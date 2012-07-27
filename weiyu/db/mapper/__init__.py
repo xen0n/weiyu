@@ -92,7 +92,7 @@ class MapperHub(BaseHub):
         storage_conf = self.get_storage_conf(name)
         db_name, coll = storage_conf['db'], storage_conf['collection']
 
-        conn = db_hub.get_database(name)
+        conn = db_hub.get_database(db_name)
         path = getattr(conn.storage, coll)
 
         return conn, path
