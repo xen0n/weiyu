@@ -35,7 +35,7 @@ class Document(dict):
             return
 
         # encode self into final form
-        obj = mapper_hub.encode(self.struct_name, self, version)
+        obj = mapper_hub.encode(self.struct_id, self, version)
 
         # get a working database connection
         conn, path = mapper_hub.get_storage(self.struct_id)
