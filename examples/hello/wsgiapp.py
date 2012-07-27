@@ -114,23 +114,12 @@ def session_test(session):
 def get_response(request):
     env, conf, session = request.env, request.site, request.session
 
-    ## DEBUG: db
-    #connstr = None
-    #dbresult = None
-    #with db_hub.get_database('test') as conn:
-    #    # dummy things
-    #    connstr = repr(conn)
-    #    cursor = conn.ops.find(conn.storage.test, {})
-    #    dbresult = ' '.join(repr(i) for i in cursor)
-
     result = dict(
             request=request,
             env=env,
             regs=REGS,
             sitename=conf['name'],
             version=VERSION_STR,
-#            connstr=connstr,
-#            dbresult=repr(dbresult),
             session=session,
             HAVE_GIT_COLOR=HAVE_GIT_COLOR,
             git_color=GIT_COLOR_VAL,
