@@ -24,18 +24,24 @@ from . import mapper_hub
 
 
 class Document(dict):
+    # only struct id is needed here, database association is done in
+    # configuration file
     struct_id = None
-    db_name = None
-    collection = None
 
-    def __getattr__(self, k):
-        if k in self:
-            # XXX This can override member methods!!
-            return self[k]
-        return super(Document, self).__getattr__(k)
+    def insert(self, version=None):
+        # Only continue if the class is configured to associate with a
+        # struct id
+        if self.struct_id is None:
+            return
 
-    def __setattr__(self, k, v):
-        self[k] = v
+        # encode self into final form
+        obj = mapper_hub.encode(self.struct_id, self, version)
+
+        # get a working database connection
+        conn, path = mapper_hub.get_storage(self.struct_id)
+
+        with conn:
+            conn.ops.insert(path, obj)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

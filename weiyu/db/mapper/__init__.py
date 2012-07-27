@@ -24,12 +24,13 @@ __all__ = [
         ]
 
 from functools import partial
+from .. import db_hub
 from ...helpers.hub import BaseHub
 from ...registry.classes import UnicodeRegistry
 
 
 OP_DECODE, OP_ENCODE = range(2)
-DECODERS_KEY, ENCODERS_KEY = 'decoders', 'encoders'
+DECODERS_KEY, ENCODERS_KEY, STORAGE_KEY = 'decoders', 'encoders', 'storage'
 
 # don't conflict w/ single-letter props to reduce number of surprises...
 VERSION_FIELD = '_V'
@@ -45,6 +46,14 @@ class MapperHub(BaseHub):
 
         self._decoders = self._reg[DECODERS_KEY] = {}
         self._encoders = self._reg[ENCODERS_KEY] = {}
+
+        if STORAGE_KEY not in self._reg:
+            self._reg[STORAGE_KEY] = {}
+
+        # this must be done separately, or the attribute won't be bound
+        # if storage association is done before mapper_hub get the chance
+        # to init
+        self._storage = self._reg[STORAGE_KEY]
 
     def register_struct(self, name):
         if name not in self._decoders:
@@ -70,6 +79,23 @@ class MapperHub(BaseHub):
 
     def encode(self, name, obj, version=None):
         return self.do_handling(name, OP_ENCODE, obj, version)
+
+    def get_storage_conf(self, name):
+        try:
+            return self._storage[name]
+        except KeyError:
+            raise TypeError(
+            "struct id '%s' does not have storage configured" % name
+            )
+
+    def get_storage(self, name):
+        storage_conf = self.get_storage_conf(name)
+        db_name, coll = storage_conf['db'], storage_conf['collection']
+
+        conn = db_hub.get_database(db_name)
+        path = getattr(conn.storage, coll)
+
+        return conn, path
 
     def decoder_for(self, name, version):
         # you aren't registering negative versions, huh?

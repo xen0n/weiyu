@@ -28,9 +28,6 @@ from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
 
-# expose non-relational mapper here
-from .mapper import mapper_hub
-
 
 class DatabaseHub(BaseHub):
     registry_name = 'weiyu.db'
@@ -68,6 +65,10 @@ def name_resolver(hub, name):
     drv_kwargs = db_cfg['options']
 
     return hub.do_handling(drv_type, **drv_kwargs)
+
+
+# expose document mapper here to prevent circular dependency
+from .mapper import mapper_hub
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

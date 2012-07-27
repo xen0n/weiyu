@@ -57,6 +57,10 @@ class PymongoDriver(DBDriverBase):
         super(PymongoDriver, self).__init__()
 
         self.host, self.port, self.path = host, port, path
+
+        # this path object can be created anytime without side effects
+        self.storage = CollectionPath()
+
         self._conn_type = (pymongo.ReplicaSetConnection
                            if is_replica
                            else pymongo.Connection
@@ -72,7 +76,6 @@ class PymongoDriver(DBDriverBase):
 
         # XXX Atomicity needs to be guaranteed!!
         self.connection = self._conn_type(self.host, self.port)
-        self.storage = CollectionPath()
         self.ops = CallReflector(
                 self.connection.__getattr__(self.path),
                 CollectionPath,

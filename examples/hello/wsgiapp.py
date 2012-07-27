@@ -41,6 +41,7 @@ conf.populate_central_regs()
 # DEBUG: db & mapper
 from weiyu.db.drivers.pymongo_driver import PymongoDriver
 from weiyu.db import db_hub, mapper_hub
+from weiyu.db.mapper.base import Document
 
 # DEBUG: session
 from weiyu.session.beakerbackend import BeakerSession
@@ -77,14 +78,18 @@ _STRUCT_NAME = 'teststruct'
 mapper_hub.register_struct(_STRUCT_NAME)
 
 
+class TestStruct(Document):
+    struct_id = _STRUCT_NAME
+
+
 @mapper_hub.decoder_for(_STRUCT_NAME, 1)
 def decode1(obj):
-    return {'val': obj['v1'] - 2, }
+    return TestStruct(val=obj['v1'] - 2, )
 
 
 @mapper_hub.decoder_for(_STRUCT_NAME, 2)
 def decode2(obj):
-    return {'val': obj['v2'] >> 1, }
+    return TestStruct(val=obj['v2'] >> 1, )
 
 
 @mapper_hub.encoder_for(_STRUCT_NAME, 1)
@@ -109,23 +114,12 @@ def session_test(session):
 def get_response(request):
     env, conf, session = request.env, request.site, request.session
 
-    ## DEBUG: db
-    #connstr = None
-    #dbresult = None
-    #with db_hub.get_database('test') as conn:
-    #    # dummy things
-    #    connstr = repr(conn)
-    #    cursor = conn.ops.find(conn.storage.test, {})
-    #    dbresult = ' '.join(repr(i) for i in cursor)
-
     result = dict(
             request=request,
             env=env,
             regs=REGS,
             sitename=conf['name'],
             version=VERSION_STR,
-#            connstr=connstr,
-#            dbresult=repr(dbresult),
             session=session,
             HAVE_GIT_COLOR=HAVE_GIT_COLOR,
             git_color=GIT_COLOR_VAL,
