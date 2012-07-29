@@ -63,9 +63,9 @@
 		"no_update": false,
 		"data": {
 			"storage": {
-				"weiyu.auth.user": {
+				"teststruct": {
 					"db": "test",
-					"collection": "users"
+					"collection": "test"
 				}
 			}
 		}

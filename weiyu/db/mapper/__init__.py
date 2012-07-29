@@ -48,7 +48,12 @@ class MapperHub(BaseHub):
         self._encoders = self._reg[ENCODERS_KEY] = {}
 
         if STORAGE_KEY not in self._reg:
-            self._storage = self._reg[STORAGE_KEY] = {}
+            self._reg[STORAGE_KEY] = {}
+
+        # this must be done separately, or the attribute won't be bound
+        # if storage association is done before mapper_hub get the chance
+        # to init
+        self._storage = self._reg[STORAGE_KEY]
 
     def register_struct(self, name):
         if name not in self._decoders:
@@ -87,7 +92,7 @@ class MapperHub(BaseHub):
         storage_conf = self.get_storage_conf(name)
         db_name, coll = storage_conf['db'], storage_conf['collection']
 
-        conn = db_hub.get_database(name)
+        conn = db_hub.get_database(db_name)
         path = getattr(conn.storage, coll)
 
         return conn, path
