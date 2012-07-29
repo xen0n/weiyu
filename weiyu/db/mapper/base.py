@@ -65,8 +65,7 @@ class Document(dict):
                     path,
                     {'_id': assoc_id, },
                     obj,
-                    *args,
-                    **kwargs,
+                    *args, **kwargs
                     )
 
 
