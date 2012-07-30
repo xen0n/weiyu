@@ -60,8 +60,7 @@ class User(object):
 
     def chkpasswd(self, plain_passwd):
         # unify to Unicode
-        if not isinstance(plain_passwd, unicode):
-            plain_passwd = unicode(plain_passwd, 'utf-8')
+        plain_passwd = smartstr(plain_passwd)
 
         return _do_chkpasswd(self.uid, plain_passwd, self.passwd)
 
@@ -70,6 +69,8 @@ class User(object):
             # old password is wrong
             return False
 
+        # new_passwd must be passed in as unicode
+        new_passwd = smartstr(new_passwd)
         self.passwd = mapper_hub.encode(
                 STRUCT_AUTH_PASSWD,
                 {
