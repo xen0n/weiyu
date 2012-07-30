@@ -65,5 +65,20 @@ class TestAuthUser(unittest.TestCase):
     def test_user_chkpasswd(self):
         self.assertTrue(self.ref_user.chkpasswd(cfg.passwd))
 
+    def test_user_setpasswd(self):
+        ref_user = self.ref_user
+
+        # first change to new_passwd
+        # because of possible salting, do not check passwd hash objects'
+        # equality
+        self.assertTrue(ref_user.setpasswd(cfg.passwd, cfg.new_passwd))
+        self.assertFalse(ref_user.chkpasswd(cfg.passwd))
+        self.assertTrue(ref_user.chkpasswd(cfg.new_passwd))
+
+        # then switch back to preserve global state
+        self.assertTrue(ref_user.setpasswd(cfg.new_passwd, cfg.passwd))
+        self.assertTrue(ref_user.chkpasswd(cfg.passwd))
+        self.assertFalse(ref_user.chkpasswd(cfg.new_passwd))
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

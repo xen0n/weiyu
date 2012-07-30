@@ -20,7 +20,7 @@
 from __future__ import unicode_literals, division
 
 from ..db.mapper import mapper_hub
-from .passwd import _do_chkpasswd
+from .passwd import STRUCT_AUTH_PASSWD, _do_chkpasswd
 
 STRUCT_AUTH_USER = 'weiyu.auth.user'
 
@@ -63,6 +63,22 @@ class User(object):
             plain_passwd = unicode(plain_passwd, 'utf-8')
 
         return _do_chkpasswd(self.uid, plain_passwd, self.passwd)
+
+    def setpasswd(self, old_passwd, new_passwd):
+        if not self.chkpasswd(old_passwd):
+            # old password is wrong
+            return False
+
+        self.passwd = mapper_hub.encode(
+                STRUCT_AUTH_PASSWD,
+                {
+                    'userid': self.uid,
+                    'passwd': new_passwd,
+                    },
+                )
+        
+        # TODO: invalidate sessions?
+        return True
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
