@@ -19,6 +19,7 @@
 
 from __future__ import unicode_literals, division
 
+from ..helpers.misc import smartstr
 from ..db.mapper import mapper_hub
 from .passwd import STRUCT_AUTH_PASSWD, _do_chkpasswd
 
@@ -79,6 +80,11 @@ class User(object):
         
         # TODO: invalidate sessions?
         return True
+
+    def has_role(self, role):
+        role = smartstr(role)
+
+        return role in self.roles
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

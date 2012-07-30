@@ -80,5 +80,11 @@ class TestAuthUser(unittest.TestCase):
         self.assertTrue(ref_user.chkpasswd(cfg.passwd))
         self.assertFalse(ref_user.chkpasswd(cfg.new_passwd))
 
+    def test_user_has_role(self):
+        ref_user = self.ref_user
+
+        self.assertTrue(ref_user.has_role('role1'))
+        self.assertFalse(ref_user.has_role('doesnotexist'))
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
