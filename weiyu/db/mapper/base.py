@@ -50,13 +50,16 @@ class Document(dict):
         conn, path = mapper_hub.get_storage(struct_id)
 
         with conn:
-            conn.ops.insert(path, obj)
+            # get the new id and associate self with that object
+            _id = conn.ops.insert(path, obj)
+
+        self.__assoc_id = _id
 
     def update(self, version=None, *args, **kwargs):
         assert self.struct_id is not None
         assert self.__assoc_id is not None
         assoc_id, struct_id = self.__assoc_id, self.struct_id
-        
+
         obj = mapper_hub.encode(struct_id, self, version)
         conn, path = mapper_hub.get_storage(struct_id)
 
@@ -67,7 +70,6 @@ class Document(dict):
                     obj,
                     *args, **kwargs
                     )
-
 
     def remove(self):
         assert self.struct_id is not None
@@ -101,6 +103,16 @@ class Document(dict):
             decoder = partial(mapper_hub.decode, struct_id)
             for document in cursor:
                 yield decoder(document)
+
+    def findall(self, *args, **kwargs):
+        '''Shortcut for retrieving all objects in the configured collection.
+
+        Calling this method is equivalent to doing ``doc.find({})``, but the
+        method name is a bit more intuitive.
+
+        '''
+
+        return self.find({})
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
