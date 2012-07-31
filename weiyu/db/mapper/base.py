@@ -50,7 +50,10 @@ class Document(dict):
         conn, path = mapper_hub.get_storage(struct_id)
 
         with conn:
-            conn.ops.insert(path, obj)
+            # get the new id and associate self with that object
+            _id = conn.ops.insert(path, obj)
+
+        self.__assoc_id = _id
 
     def update(self, version=None, *args, **kwargs):
         assert self.struct_id is not None
