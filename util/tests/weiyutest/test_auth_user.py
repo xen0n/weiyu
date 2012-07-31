@@ -50,10 +50,10 @@ class TestAuthUser(unittest.TestCase):
         usr = user.user_decoder_v1(user_obj)
         ref = self.ref_user
 
-        self.assertEqual(usr.uid, ref.uid)
-        self.assertEqual(usr.email, ref.email)
-        self.assertEqual(usr.passwd, ref.passwd)
-        self.assertEqual(usr.roles, ref.roles)
+        self.assertEqual(usr['uid'], ref['uid'])
+        self.assertEqual(usr['email'], ref['email'])
+        self.assertEqual(usr['passwd'], ref['passwd'])
+        self.assertEqual(usr['roles'], ref['roles'])
 
     def test_user_encode_v1(self):
         user_obj = user.user_encoder_v1(self.ref_user)
