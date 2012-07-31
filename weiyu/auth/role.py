@@ -20,26 +20,37 @@
 from __future__ import unicode_literals, division
 
 from ..db.mapper import mapper_hub
-
+from ..db.mapper.base import Document
 
 STRUCT_AUTH_ROLE = 'weiyu.auth.role'
-
-CAPS_KEY = 'c'
 
 
 @mapper_hub.decoder_for(STRUCT_AUTH_ROLE, 1)
 def role_decoder_v1(obj):
-    caps = obj[CAPS_KEY]
-    return Role(obj)
+    # {
+    #   'n': name, 'd': description,
+    #   'c': [cap1, cap2, etc, ], 'x': [deny1, deny2, etc, ],
+    # }
+    name, desc, caps, deny = obj['n'], obj['d'], obj['c'], obj['x']
+    return Role(
+            name=name,
+            desc=desc,
+            caps=caps,
+            deny=deny,
+            )
 
 
 @mapper_hub.encoder_for(STRUCT_AUTH_ROLE, 1)
 def role_encoder_v1(obj):
-    caps = obj.capabilities
-    return {CAPS_KEY: caps, }
+    return {
+            'n': obj['name'],
+            'd': obj['desc'],
+            'c': obj['caps'],
+            'x': obj['deny'],
+            }
 
 
-class Role(object):
+class Role(Document):
     '''This class describes a *role* that owns 0 or more *capabilities*.
 
     The concept "role" is similar to "group", but differs in that one user
@@ -49,13 +60,7 @@ class Role(object):
 
     '''
 
-    def __init__(self, backend):
-        self.backend = backend
-
-    def has_caps(self, caps):
-        # TODO: self.backend.check, also to use Django's Q object-like
-        # helpers I hope...
-        pass
+    struct_id = STRUCT_AUTH_ROLE
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
