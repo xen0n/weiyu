@@ -78,7 +78,7 @@ class User(Document):
                     'passwd': new_passwd,
                     },
                 )
-        
+
         # TODO: invalidate sessions?
         return True
 
