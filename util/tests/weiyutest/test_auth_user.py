@@ -26,6 +26,7 @@ import unittest
 from weiyu.auth import user
 from .common_auth import AuthTestConfig as cfg
 
+
 class TestAuthUser(unittest.TestCase):
     def setUp(self):
         self.user_objs = {
