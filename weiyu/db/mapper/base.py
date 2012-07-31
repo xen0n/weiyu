@@ -105,5 +105,15 @@ class Document(dict):
             for document in cursor:
                 yield decoder(document)
 
+    def findall(self, *args, **kwargs):
+        '''Shortcut for retrieving all objects in the configured collection.
+
+        Calling this method is equivalent to doing ``doc.find({})``, but the
+        method name is a bit more intuitive.
+
+        '''
+
+        return self.find({})
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
