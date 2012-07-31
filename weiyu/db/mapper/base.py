@@ -59,7 +59,7 @@ class Document(dict):
         assert self.struct_id is not None
         assert self.__assoc_id is not None
         assoc_id, struct_id = self.__assoc_id, self.struct_id
-        
+
         obj = mapper_hub.encode(struct_id, self, version)
         conn, path = mapper_hub.get_storage(struct_id)
 
@@ -70,7 +70,6 @@ class Document(dict):
                     obj,
                     *args, **kwargs
                     )
-
 
     def remove(self):
         assert self.struct_id is not None
