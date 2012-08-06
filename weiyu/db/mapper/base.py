@@ -20,6 +20,7 @@
 from __future__ import unicode_literals, division
 
 from functools import partial
+from threading import Lock
 
 from .. import db_hub
 from . import mapper_hub
@@ -35,6 +36,7 @@ class Document(dict):
 
         # TODO: remove this MongoDB-specific hack
         self.__assoc_id = self['_id'] if '_id' in self else None
+        self.__dblock = Lock()
 
     def insert(self, version=None, *args, **kwargs):
         # Only continue if the class is configured to associate with a
@@ -49,9 +51,12 @@ class Document(dict):
         # get a working database connection
         conn, path = mapper_hub.get_storage(struct_id)
 
-        with conn:
-            # get the new id and associate self with that object
-            _id = conn.ops.insert(path, obj)
+        # Thread-safe but NOT process-safe: serialize operations on docs
+        # with same struct_id
+        with self.__lock:
+            with conn:
+                # get the new id and associate self with that object
+                _id = conn.ops.insert(path, obj)
 
         self.__assoc_id = _id
 
@@ -63,13 +68,19 @@ class Document(dict):
         obj = mapper_hub.encode(struct_id, self, version)
         conn, path = mapper_hub.get_storage(struct_id)
 
-        with conn:
-            conn.ops.update(
-                    path,
-                    {'_id': assoc_id, },
-                    obj,
-                    *args, **kwargs
-                    )
+        with self.__lock:
+            with conn:
+                # XXX Naive implementation: this does not perform "smart"
+                # operations such as $inc or $set, only replacing the doc
+                # as a whole. Future improvements may allow specifying
+                # the exact operation to be carried out by calling special
+                # methods of Document instance.
+                conn.ops.update(
+                        path,
+                        {'_id': assoc_id, },
+                        obj,
+                        *args, **kwargs
+                        )
 
     def remove(self):
         assert self.struct_id is not None
@@ -78,8 +89,9 @@ class Document(dict):
 
         conn, path = mapper_hub.get_storage(struct_id)
 
-        with conn:
-            conn.ops.remove(path, {'_id': assoc_id, }, )
+        with self.__lock:
+            with conn:
+                conn.ops.remove(path, {'_id': assoc_id, }, )
 
     # TODO: maybe a metaclass for inserting this into class namespace is OK
     def find(self, criteria=None, version=None, *args, **kwargs):
@@ -92,6 +104,8 @@ class Document(dict):
 
         conn, path = mapper_hub.get_storage(struct_id)
 
+        # Reading operation needn't be serialized; or the lock won't be
+        # released very early.
         with conn:
             cursor = conn.ops.find(path, criteria, *args, **kwargs)
 
