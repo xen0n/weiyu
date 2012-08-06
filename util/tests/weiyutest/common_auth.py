@@ -28,16 +28,21 @@ class AuthTestConfig(object):
     userid = 'testuser123'
     email = 'test@example.com'
     passwd = '*JE&%5e^&YU4w%ftWRtfSEfAEt%$&Ww47%6w56T#Wtq345q2'
+    new_passwd = r"-+|0\\!n.eOO!>UFg lO`J3_/1p)kLB'"
     roles = ['role1', 'role2', ]
 
     psw_packet = {'userid': userid, 'passwd': passwd, }
     stored_hashes = {
         'kbs': b'\xdb6\xe2\xd2ev\xcc\xc8\xe3b9\xe8\xb7g\xa0\xde',
         }
+    new_stored_hashes = {
+        'kbs': b'V\xa5+\xf0\xa7\x9a$q9\xfb\xa2_\x87Q\xa1^',
+        }
 
-    psw_objs = {}
+    psw_objs, new_psw_objs = {}, {}
     for _ver, _name in PASSWD_VERSIONS:
         psw_objs[_ver] = {'_V': _ver, 'p': stored_hashes[_name], }
+        new_psw_objs[_ver] = {'_V': _ver, 'p': new_stored_hashes[_name], }
     del _ver, _name
 
 

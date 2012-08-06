@@ -24,6 +24,7 @@ import unittest
 from weiyu.auth import passwd
 from .common_auth import AuthTestConfig as cfg
 
+
 class TestAuthPasswd(unittest.TestCase):
     def test_kbs_hash(self):
         self.assertEqual(

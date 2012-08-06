@@ -19,8 +19,10 @@
 
 from __future__ import unicode_literals, division
 
+from ..helpers.misc import smartstr
 from ..db.mapper import mapper_hub
-from .passwd import _do_chkpasswd
+from ..db.mapper.base import Document
+from .passwd import STRUCT_AUTH_PASSWD, _do_chkpasswd
 
 STRUCT_AUTH_USER = 'weiyu.auth.user'
 
@@ -31,8 +33,11 @@ mapper_hub.register_struct(STRUCT_AUTH_USER)
 def user_decoder_v1(obj):
     # {u: uid, e: email, p: passwd object, r: roles, ...}
     # Note that passwd hashes are directly stored without any processing
+    _id = obj.get('_id', None)
     uid, email, pswd_obj, roles = obj['u'], obj['e'], obj['p'], obj['r']
+
     return User(
+            _id=_id,
             uid=uid,
             email=email,
             passwd=pswd_obj,
@@ -43,26 +48,44 @@ def user_decoder_v1(obj):
 @mapper_hub.encoder_for(STRUCT_AUTH_USER, 1)
 def user_encoder_v1(obj):
     return {
-            'u': obj.uid,
-            'e': obj.email,
-            'p': obj.passwd,
-            'r': obj.roles,
+            'u': obj['uid'],
+            'e': obj['email'],
+            'p': obj['passwd'],
+            'r': obj['roles'],
             }
 
 
-class User(object):
-    def __init__(self, uid, email, passwd, roles):
-        self.uid = uid
-        self.email = email
-        self.passwd = passwd
-        self.roles = roles
+class User(Document):
+    struct_id = STRUCT_AUTH_USER
 
     def chkpasswd(self, plain_passwd):
         # unify to Unicode
-        if not isinstance(plain_passwd, unicode):
-            plain_passwd = unicode(plain_passwd, 'utf-8')
+        plain_passwd = smartstr(plain_passwd)
 
-        return _do_chkpasswd(self.uid, plain_passwd, self.passwd)
+        return _do_chkpasswd(self['uid'], plain_passwd, self['passwd'])
+
+    def setpasswd(self, old_passwd, new_passwd):
+        if not self.chkpasswd(old_passwd):
+            # old password is wrong
+            return False
+
+        # new_passwd must be passed in as unicode
+        new_passwd = smartstr(new_passwd)
+        self['passwd'] = mapper_hub.encode(
+                STRUCT_AUTH_PASSWD,
+                {
+                    'userid': self['uid'],
+                    'passwd': new_passwd,
+                    },
+                )
+
+        # TODO: invalidate sessions?
+        return True
+
+    def has_role(self, role):
+        role = smartstr(role)
+
+        return role in self['roles']
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
