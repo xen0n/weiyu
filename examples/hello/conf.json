@@ -13,6 +13,7 @@
 					["json/$", "multiformat-test", {"render_in": "json"}]
 				], null],
 				["^/ajax/doubler/(?P<number>\\d+)/json/$", "ajax-doubler", {"render_in": "json"}],
+				["^/ajax/dbtest/json/$", "ajax-dbtest", {"render_in": "json"}],
 				["", "index", {"render_in": "mako"}]
 				],
 			"session": {
