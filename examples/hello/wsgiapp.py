@@ -203,13 +203,11 @@ def ajax_doubler(request, number):
 @router_hub.endpoint('wsgi', 'ajax-dbtest')
 @renderable('json')
 def ajax_dbtest(request):
-    with db_hub.get_database('test') as conn:
-        cursor = conn.ops.find(conn.storage.test, {})
-        result = list(cursor)
+    result = TestStruct().findall()
 
     return ReflexResponse(
             200,
-            {'result': result, },
+            {'result': list(result), },
             {'mimetype': 'application/json', },
             request,
             )
