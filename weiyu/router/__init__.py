@@ -157,4 +157,10 @@ class RouterHub(BaseHub):
 router_hub = RouterHub()
 
 
+# force registering of router classes
+from .regexrouter import RegexRouter as __r
+from .exactrouter import ExactRouter as __r
+del __r
+
+
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
