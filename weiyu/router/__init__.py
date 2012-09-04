@@ -132,7 +132,7 @@ class RouterHub(BaseHub):
             if isinstance(target_spec, _list_types):
                 # this is a router... recursively construct a router out
                 # of it
-                tgt = self._do_init_router(typ, target_spec, cls, lvl + 1)
+                tgt = self._do_init_router(typ, target_spec, lvl + 1)
             elif isinstance(target_spec, _str_types):
                 # target is endpoint... check against endpoint registry
                 # this is where typ is used
