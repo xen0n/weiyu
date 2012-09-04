@@ -26,6 +26,7 @@ __all__ = [
 
 import re
 
+from . import router_hub
 from .base import *
 
 
@@ -75,6 +76,7 @@ class RegexRouterTarget(RouterTargetBase):
         return (STATUS_FORWARD, args, kwargs, new_qs, )
 
 
+@router_hub.register_router_class('regex')
 class RegexRouter(RouterBase):
     target_type = RegexRouterTarget
 

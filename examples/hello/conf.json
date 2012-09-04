@@ -5,10 +5,13 @@
 		"data": {
 			"name": "weiyu hello site",
 			"routing": [
+				"regex",
 				["^/static/", [
+					"regex",
 					["^(?P<path>.*)$", "staticfile", null]
 				], null],
 				["^/calc/(?P<val>\\d+)/", [
+					"regex",
 					["text/$", "multiformat-test", {"render_in": "mako"}],
 					["json/$", "multiformat-test", {"render_in": "json"}]
 				], null],
