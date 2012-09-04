@@ -5,18 +5,27 @@
 		"data": {
 			"name": "weiyu hello site",
 			"routing": [
-				"regex",
-				["^/static/", [
+				"exact",
+				["/static/", [
 					"regex",
 					["^(?P<path>.*)$", "staticfile", null]
 				], null],
-				["^/calc/(?P<val>\\d+)/", [
+				["/calc/(", [
 					"regex",
-					["text/$", "multiformat-test", {"render_in": "mako"}],
-					["json/$", "multiformat-test", {"render_in": "json"}]
+					["?P<val>\\d+)/", [
+						"regex",
+						["text/$", "multiformat-test", {"render_in": "mako"}],
+						["json/$", "multiformat-test", {"render_in": "json"}]
+						], null]
 				], null],
-				["^/ajax/doubler/(?P<number>\\d+)/json/$", "ajax-doubler", {"render_in": "json"}],
-				["^/ajax/dbtest/json/$", "ajax-dbtest", {"render_in": "json"}],
+				["/ajax/", [
+					"exact",
+					["doubler/", [
+						"regex",
+						["(?P<number>\\d+)/json/$", "ajax-doubler", {"render_in": "json"}]
+					], null],
+					["dbtest/json/", "ajax-dbtest", {"render_in": "json"}]
+				], null],
 				["", "index", {"render_in": "mako"}]
 				],
 			"session": {
