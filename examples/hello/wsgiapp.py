@@ -199,6 +199,20 @@ def ajax_doubler(request, number):
             )
 
 
+# benchmark purpose: json w/ db access
+@router_hub.endpoint('wsgi', 'ajax-dbtest')
+@renderable('json')
+def ajax_dbtest(request):
+    result = TestStruct().findall()
+
+    return ReflexResponse(
+            200,
+            {'result': list(result), },
+            {'mimetype': 'application/json', },
+            request,
+            )
+
+
 ## DEBUG: hook & session
 #session_backend = BeakerSession(request('site')['session'])
 #session_obj = WSGISession(session_backend)
