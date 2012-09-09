@@ -29,6 +29,8 @@ __all__ = [
         'renderable',
         ]
 
+from ..helpers.annotation import annotate
+
 
 def renderable(handler, *args, **kwargs):
     '''Marks an object as "renderable" by a certain handler, recording the

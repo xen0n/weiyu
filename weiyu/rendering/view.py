@@ -27,9 +27,11 @@ from . import render_hub
 from .exc import RenderingError
 from .base import RenderContext
 
+from ..helpers.annotation import get_annotation
+
 
 def render_view_func(renderable_fn, context, typ):
-    render_info = renderable_fn._weiyu_rendering_
+    render_info = get_annotation(renderable_fn, 'rendering')
 
     if typ not in render_info:
         # this format is not supported by view
