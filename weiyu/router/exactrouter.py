@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / router / regex based router
+# weiyu / router / exact-matching router
 #
 # Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -20,8 +20,8 @@
 from __future__ import unicode_literals, division
 
 __all__ = [
-            'RegexRouterTarget',
-            'RegexRouter',
+            'ExactRouterTarget',
+            'ExactRouter',
             ]
 
 import re
@@ -30,55 +30,49 @@ from . import router_hub
 from .base import *
 
 
-def args_from_match(match, named_groups):
-    kwargs = match.groupdict()
-    args = [i for idx, i in enumerate(match.groups())
-            if idx not in named_groups
-            ]
-    return (args, kwargs, )
+class ExactRouterTarget(RouterTargetBase):
+    '''
+    This target cannot extract any arguments from query strings; useful
+    when a large tree of, say, API endpoints are to be exposed, and the
+    parameters are not passed through the query string. It's supposed
+    to be faster than regex-based lookups in such static cases.
 
+    .. note::
+        No separator is automatically removed from the matched query
+        string for nested lookups; you should specify the separator such
+        as '/' yourself in the target pattern.
 
-class RegexRouterTarget(RouterTargetBase):
-    # __slots__ = ['name', 'pattern', 'target', '_namedgrps', ]
+    '''
 
     def __init__(self, pattern, target, extra_data=None):
-        super(RegexRouterTarget, self).__init__(target, extra_data)
+        super(ExactRouterTarget, self).__init__(target, extra_data)
 
-        self.pattern = re.compile(unicode(pattern))
-        self._namedgrps = [i - 1 for i in self.pattern.groupindex.values()]
+        self.pattern = unicode(pattern)
+        self._pat_len = len(self.pattern)
 
     def check(self, querystr, prev_args, prev_kwargs):
-        match = self.pattern.match(unicode(querystr))
+        match = querystr.startswith(self.pattern)
 
         if not match:
             return (STATUS_NOROUTE, None, None, None, )
 
-        curr_args, curr_kwargs = args_from_match(match, self._namedgrps)
-
-        # update the previous context
-        args = prev_args[:]
-        args.extend(curr_args)
-
-        kwargs = prev_kwargs.copy()
-        kwargs.update(curr_kwargs)
-
         # support for nested routing
         if not self.target_is_router:
-            return (STATUS_REACHED, args, kwargs, None, )
+            return (STATUS_REACHED, prev_args, prev_kwargs, None, )
 
         # target is router, forward
         # since the RE matches at the beginning, safely assume its span()
         # starts at 0.
         # now, extract the substring for further routing...
-        new_qs = querystr[match.span()[1]:]
+        new_qs = querystr[self._pat_len:]
 
         # and indicate this status.
-        return (STATUS_FORWARD, args, kwargs, new_qs, )
+        return (STATUS_FORWARD, prev_args, prev_kwargs, new_qs, )
 
 
-@router_hub.register_router_class('regex')
-class RegexRouter(RouterBase):
-    target_type = RegexRouterTarget
+@router_hub.register_router_class('exact')
+class ExactRouter(RouterBase):
+    target_type = ExactRouterTarget
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

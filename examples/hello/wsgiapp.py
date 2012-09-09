@@ -52,7 +52,6 @@ from weiyu.hooks.decorator import *
 
 # DEBUG: router
 from weiyu.router import router_hub
-from weiyu.router.regexrouter import RegexRouter
 
 # DEBUG: static file
 from weiyu.utils.views import staticfile_view
@@ -225,7 +224,6 @@ def ajax_dbtest(request):
 wsgi_router = router_hub.init_router(
         'wsgi',
         request('site')['routing'],
-        RegexRouter,
         )
 router_hub.register_router(wsgi_router)
 
