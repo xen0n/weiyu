@@ -29,7 +29,7 @@ __all__ = [
         'renderable',
         ]
 
-from ..helpers.annotation import annotate
+from ..helpers.annotation import annotate, get_annotation
 
 
 def renderable(handler, *args, **kwargs):
@@ -53,13 +53,13 @@ def renderable(handler, *args, **kwargs):
 
     def _decorator_(thing):
         try:
-            render_info = thing._weiyu_rendering_
+            render_info = get_annotation(thing, 'rendering')
         except AttributeError:
             render_info = {}
 
         render_info[handler] = (args, kwargs, )
 
-        thing._weiyu_rendering_ = render_info
+        annotate(thing, rendering=render_info)
         return thing
     return _decorator_
 
