@@ -1,6 +1,10 @@
 Helper functions and classes
 ============================
 
+.. automodule:: weiyu.helpers.annotation
+    :members:
+
+
 .. automodule:: weiyu.helpers.hub
     :members:
 
