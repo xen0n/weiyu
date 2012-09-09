@@ -21,11 +21,18 @@ from __future__ import unicode_literals, division
 
 from functools import wraps
 
+from ..helpers.annotation import annotate
+
 
 def only_methods(methods=None):
     methods = ['GET', ] if method is None else methods
 
     def _decorator_(fn):
+        # Although the actual binding of methods list occurs in
+        # closure scope, we keep a reference of it in annotation
+        # for clarity.
+        annotate(fn, allowed_methods=methods)
+
         @wraps(fn)
         def _wrapped_(request, *args, **kwargs):
             if request['method'] not in methods:
