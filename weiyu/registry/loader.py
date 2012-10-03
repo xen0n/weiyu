@@ -103,6 +103,11 @@ except ImportError:
 from .classes import VALID_REGISTRY_TYPES
 from .provider import request
 
+# $$directives
+DIRECTIVE_CLASS_OVERRIDE = '$$class'
+DIRECTIVE_UPDATE_OVERRIDE = '$$nodup'
+DIRECTIVE_INCLUDE = '$$include'
+
 
 class BaseConfig(object):
     '''Base class for prepopulated config storages. It has an interface
@@ -205,8 +210,8 @@ class BaseConfig(object):
 
     def process_directives(self, data):
         # process '$$include': [inc1, inc2, etc, ]
-        if '$$include' in data:
-            include_list = data.pop('$$include')
+        if DIRECTIVE_INCLUDE in data:
+            include_list = data.pop(DIRECTIVE_INCLUDE)
             data.update(self.do_include(include_list))
 
         return data
@@ -244,9 +249,11 @@ class BaseConfig(object):
         for k, v in self.data.iteritems():
             # k is registry name, v is a dict
             # v's format is as follows:
-            # {'class': '<class name of registry>',
-            #  'no_update': True/False,
-            #  'data': {key1: val1, key2: val2, etc: etc, },
+            # {['$$class': '<class name of registry (optional)>',]
+            #  ['$$nodup': True/False (optional),]
+            #  key1: val1,
+            #  key2: val2,
+            #  etc: etc,
             #  }
             # first a little type sanity check
             if not isinstance(k, (str, unicode, )):
@@ -261,35 +268,44 @@ class BaseConfig(object):
                         % (repr(type(v)), )
                         )
 
-            # type(v) ok ,move on to strictly match the keys...
-            v_keys = tuple(sorted(v.iterkeys()))
-            if v_keys != ('class', 'data', 'no_update', ):
-                raise ValueError('malformed pythonized registry definition')
+            # extract class and updating behavior
+            if DIRECTIVE_CLASS_OVERRIDE in v:
+                class_name = v.pop(DIRECTIVE_CLASS_OVERRIDE)
+            else:
+                # hard-code to be a string-keyed registry
+                class_name = 'UnicodeRegistry'
 
-            # types of class and data...
-            if not isinstance(v['class'], (str, unicode, )):
+            if DIRECTIVE_UPDATE_OVERRIDE in v:
+                nodup = v.pop(DIRECTIVE_UPDATE_OVERRIDE)
+            else:
+                # allow updating existing registries through conf by default
+                nodup = False
+
+            # override field type check
+            if not isinstance(class_name, (str, unicode, )):
                 raise ValueError('registry class name not of string type')
 
-            if not isinstance(v['no_update'], bool):
+            if not isinstance(nodup, bool):
                 raise ValueError('no_update property must be boolean')
-            nodup = v['no_update']
 
             # class validation
             try:
-                cls = VALID_REGISTRY_TYPES[v['class']]
+                cls = VALID_REGISTRY_TYPES[class_name]
             except KeyError:
                 raise ValueError("registry class name '%s' not valid"
-                        % (v['class'], )
+                        % (class_name, )
                         )
-
-            if not isinstance(v['data'], dict):
-                raise ValueError('pythonized data set must be dict')
 
             # format check (finally...) passed, go on with actually updating
             # NOTE: obviously registries cannot have duplicate names,
             # here we'll rely on RegistryBase's behavior to ensure this :P
             reg = request(k, autocreate=True, nodup=nodup, klass=cls)
-            for reg_k, reg_v in v['data'].iteritems():
+
+            # populate the dict
+            # NOTE: We don't use update() here, because filling values one by
+            # one would trigger validation and normalization for each of the
+            # k-v pairs, and sanity is what we need.
+            for reg_k, reg_v in v.iteritems():
                 reg[reg_k] = reg_v
 
 

@@ -1,85 +1,70 @@
 {
 	"site": {
-		"class": "UnicodeRegistry",
-		"no_update": true,
-		"data": {
-			"name": "weiyu hello site",
-			"routing": [
+		"$$nodup": true,
+		"name": "weiyu hello site",
+		"routing": [
+			"exact",
+			["/static/", [
+				"regex",
+				["^(?P<path>.*)$", "staticfile", null]
+			], null],
+			["/calc/", [
+				"regex",
+				["^(?P<val>\\d+)/", [
+					"regex",
+					["text/$", "multiformat-test", {"render_in": "mako"}],
+					["json/$", "multiformat-test", {"render_in": "json"}]
+					], null]
+			], null],
+			["/ajax/", [
 				"exact",
-				["/static/", [
+				["doubler/", [
 					"regex",
-					["^(?P<path>.*)$", "staticfile", null]
+					["^(?P<number>\\d+)/json/$", "ajax-doubler", {"render_in": "json"}]
 				], null],
-				["/calc/", [
-					"regex",
-					["^(?P<val>\\d+)/", [
-						"regex",
-						["text/$", "multiformat-test", {"render_in": "mako"}],
-						["json/$", "multiformat-test", {"render_in": "json"}]
-						], null]
-				], null],
-				["/ajax/", [
-					"exact",
-					["doubler/", [
-						"regex",
-						["^(?P<number>\\d+)/json/$", "ajax-doubler", {"render_in": "json"}]
-					], null],
-					["dbtest/json/", "ajax-dbtest", {"render_in": "json"}]
-				], null],
-				["", "index", {"render_in": "mako"}]
-				],
-			"session": {
-				"backend": "beaker",
-				"options": {
-					"session.type": "file",
-					"session.data_dir": "/tmp/beaker/data",
-					"session.lock_dir": "/tmp/beaker/lock",
-					"session.key": "weiyu.session",
-					"session.secret": "7h1z_must_13e_s3cr37",
-					"session.timeout": 300
-					}
-				},
-			"staticfile": {
-				"root": "./static/"
+				["dbtest/json/", "ajax-dbtest", {"render_in": "json"}]
+			], null],
+			["", "index", {"render_in": "mako"}]
+			],
+		"session": {
+			"backend": "beaker",
+			"options": {
+				"session.type": "file",
+				"session.data_dir": "/tmp/beaker/data",
+				"session.lock_dir": "/tmp/beaker/lock",
+				"session.key": "weiyu.session",
+				"session.secret": "7h1z_must_13e_s3cr37",
+				"session.timeout": 300
 				}
+			},
+		"staticfile": {
+			"root": "./static/"
 			}
 	 	},
 	"weiyu.rendering": {
-		"class": "UnicodeRegistry",
-		"no_update": false,
-		"data": {
-			"mako": {
-				"directories": ["./templates"],
-				"module_dir": "/tmp/mako-modules"
-			}
+		"mako": {
+			"directories": ["./templates"],
+			"module_dir": "/tmp/mako-modules"
 		}
 	},
 	"weiyu.db": {
-		"class": "UnicodeRegistry",
-		"no_update": false,
-		"data": {
-			"databases": {
-				"test": {
-					"driver": "pymongo",
-					"options": {
-						"host": "127.0.0.1",
-						"port": 27017,
-						"is_replica": false,
-						"path": "test"
-					}
+		"databases": {
+			"test": {
+				"driver": "pymongo",
+				"options": {
+					"host": "127.0.0.1",
+					"port": 27017,
+					"is_replica": false,
+					"path": "test"
 				}
 			}
 		}
 	},
 	"weiyu.db.mapper": {
-		"class": "UnicodeRegistry",
-		"no_update": false,
-		"data": {
-			"storage": {
-				"teststruct": {
-					"db": "test",
-					"collection": "test"
-				}
+		"storage": {
+			"teststruct": {
+				"db": "test",
+				"collection": "test"
 			}
 		}
 	}
