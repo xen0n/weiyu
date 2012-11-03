@@ -78,7 +78,7 @@ def to_response(request, status=200, mimetype='text/html', **kwargs):
 
 
 @router_hub.endpoint('wsgi', 'index')
-@renderable('mako', 'env.html')
+@renderable('mako', 'index.html')
 def index_view(request):
     return to_response(request)
 
