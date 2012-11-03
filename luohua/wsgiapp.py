@@ -22,6 +22,7 @@ from __future__ import unicode_literals, division
 import re
 
 from weiyu.registry.loader import JSONConfig
+from weiyu.registry.provider import request
 from weiyu.reflex.classes import ReflexResponse
 from weiyu.adapters.wsgi import WeiyuWSGIAdapter
 from weiyu.router import router_hub
