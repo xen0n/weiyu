@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>luohua test</title>
+
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" href="/static/reset.css" />
+
+    <style type="text/css">
+% if HAVE_GIT_COLOR:
+.gitcolor {
+  background-color: ${git_color} !important;
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  top: 8px;
+  right: 8px;
+}
+% endif
+    </style>
+  </head>
+
+  <body>
+    <div id="wrap">
+      <div class="root">
+        <header>
+        <h1>luohua test placeholder page</h1>
+        </header>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        powered by
+        <a href="https://github.com/xen0n/weiyu/">weiyu</a>
+        ${version}
+      </p>
+
+      <p>
+        <a href="http://validator.w3.org/check?uri=referer">
+          valid HTML5
+        </a>
+      </p>
+% if HAVE_GIT_COLOR:
+      <div class="gitcolor">
+      </div>
+% endif
+    </footer>
+  </body>
+  <!-- vim:set ai et ts=2 sw=2 sts=2 ff=unix fenc=utf-8 ft=mako: -->
+</html>
