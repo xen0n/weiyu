@@ -30,7 +30,7 @@ from weiyu.router import router_hub
 from weiyu.__version__ import VERSION_STR
 from weiyu.rendering.decorator import renderable
 from weiyu.utils.views import staticfile_view
-
+from weiyu.session import beakerbackend
 OUTPUT_ENC = 'utf-8'
 
 # load up registries
