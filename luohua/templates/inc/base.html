@@ -1,0 +1,56 @@
+## -*- coding: utf-8 -*-
+<%inherit file="/inc/skel.html" />
+
+
+<%block name="styles">
+  <link rel="stylesheet" href="/static/css/reset.css" />
+  <link rel="stylesheet" href="/static/css/colors.css" />
+  <link rel="stylesheet" href="/static/css/typography.css" />
+  <link rel="stylesheet" href="/static/css/base.css" />
+  <link rel="stylesheet" href="/static/css/sidebar.css" />
+  <link rel="stylesheet" href="/static/css/stickyfooter.css" />
+
+  <link rel="stylesheet" href="/static/css/index.css" />
+
+  % if HAVE_GIT_COLOR:
+  <style>
+    .git_bg {
+      background-color: ${git_color};
+    }
+  </style>
+  % endif
+
+  <!--[if !(IE 7) & (lt IE 9)]>
+	<style type="text/css">#wrap{display:table;height:100%}</style>
+  <![endif]-->
+</%block>
+
+
+<%block name="frameworks">
+</%block>
+
+
+<div id="wrap">
+  <div class="root">
+    <%block name="earlybody" />
+    <header class="toplevel clear">
+      <%block name="header">
+        <div class="logo"></div>
+      </%block>
+    </header>
+
+    <div class="contentwrapper clear">
+      ${next.body()}
+    </div>
+    <%block name="latebody" />
+  </div>
+</div>
+
+<footer class="toplevel">
+  <div class="footercontainer">
+<%include file="footer.html" />
+  </div>
+</footer>
+
+
+## vim:set ai et ts=2 sw=2 sts=2 ff=unix fenc=utf-8 syn=mako:

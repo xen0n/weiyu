@@ -1,52 +1,208 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>luohua test</title>
+## -*- coding: utf-8 -*-
+<%inherit file="inc/base.html" />
 
-    <meta charset="utf-8" />
-
-    <link rel="stylesheet" href="/static/reset.css" />
-
-    <style type="text/css">
-% if HAVE_GIT_COLOR:
-.gitcolor {
-  background-color: ${git_color} !important;
-  position: absolute;
-  width: 24px;
-  height: 24px;
-  top: 8px;
-  right: 8px;
-}
-% endif
-    </style>
-  </head>
-
-  <body>
-    <div id="wrap">
-      <div class="root">
+<div class="maincontentwrapper">
+  <div class="contentcontainer">
+    <div class="content">
+      <section class="mainnav recommend">
         <header>
-        <h1>luohua test placeholder page</h1>
+          <h1>推荐文章</h1>
         </header>
-      </div>
+        <nav>
+          <ul>
+            <li>
+              <a href="#">大家好我是推荐文章</a>
+            </li>
+          </ul>
+        </nav>
+      </section>
     </div>
+  </div>
+</div>
 
-    <footer>
-      <p>
-        powered by
-        <a href="https://github.com/xen0n/weiyu/">weiyu</a>
-        ${version}
-      </p>
+<aside class="right">
+  <div class="sidecontainer">
+    <section class="sidenav topten">
+      ${show_topten()}
+    </section>
 
-      <p>
-        <a href="http://validator.w3.org/check?uri=referer">
-          valid HTML5
-        </a>
-      </p>
-% if HAVE_GIT_COLOR:
-      <div class="gitcolor">
-      </div>
-% endif
-    </footer>
-  </body>
-  <!-- vim:set ai et ts=2 sw=2 sts=2 ff=unix fenc=utf-8 ft=mako: -->
-</html>
+    <section class="sidenav bless">
+      ${show_bless()}
+    </section>
+
+    <section class="sidenav news">
+      ${show_news()}
+    </section>
+
+    <section class="sidenav topseeds">
+      ${show_seeds()}
+    </section>
+  </div>
+</aside>
+
+
+<%def name="show_topten()">
+<header>
+  <h1>今日十大</h1>
+</header>
+<nav>
+  <ul>
+    <li>
+      <a href="#">大家好我是来刷存在感的</a>
+    </li>
+    <li>
+      <a href="#">大家好我也是来刷存在感的</a>
+    </li>
+    <li>
+      <a href="#">刷存在感什么的才不会呢</a>
+    </li>
+    <li>
+      <a href="#">你才阿卡林！你全家都阿卡林！</a>
+    </li>
+    <li>
+      <a href="#">阿卡林的透明力好棒好棒的</a>
+    </li>
+    <li>
+      <a href="#">摇曳百合又要开始了哦</a>
+    </li>
+    <li>
+      <a href="#">I DON'T MONEY</a>
+    </li>
+    <li>
+      <a href="#">专注搅姬30年</a>
+    </li>
+    <li>
+      <a href="#">每天被玩坏的阿卡林可绕地球3圈</a>
+    </li>
+    <li>
+      <a href="#">好像有奇怪的东西混进去了0 0</a>
+    </li>
+  </ul>
+</nav>
+</%def>
+
+
+<%def name="show_bless()">
+<header>
+  <h1>今日祝福</h1>
+</header>
+<nav>
+  <ul>
+    <li>
+      <a href="#">bless</a>
+    </li>
+    <li>
+      <a href="#">bless</a>
+    </li>
+    <li>
+      <a href="#">bless</a>
+    </li>
+    <li>
+      <a href="#">bless</a>
+    </li>
+    <li>
+      <a href="#">bless</a>
+    </li>
+    <li>
+      <a href="#">bless</a>
+    </li>
+    <li>
+      <a href="#">bless</a>
+    </li>
+    <li>
+      <a href="#">bless</a>
+    </li>
+    <li>
+      <a href="#">bless</a>
+    </li>
+    <li>
+      <a href="#">bless</a>
+    </li>
+  </ul>
+</nav>
+</%def>
+
+
+<%def name="show_news()">
+<header>
+  <h1>热点新闻</h1>
+</header>
+<nav>
+  <ul>
+    <li>
+      <a href="#">山东枣庄抓获一只成年母狮</a>
+    </li>
+    <li>
+      <a href="#">山东一青年调戏少女被打死</a>
+    </li>
+    <li>
+      <a href="#">小学生上网吧被温总理当场抓住</a>
+    </li>
+    <li>
+      <a href="#">山东枣庄抓获一只成年母狼</a>
+    </li>
+    <li>
+      <a href="#">山东警方再击毙一只似虎动物</a>
+    </li>
+    <li>
+      <a href="#">山东警方再击毙一只似西瓜动物</a>
+    </li>
+    <li>
+      <a href="#">小米科技招聘中、高级Python开发工程师</a>
+    </li>
+    <li>
+      <a href="#">恭喜傻娜同♀志勇夺2012日萌一预06组冠军</a>
+    </li>
+    <li>
+      <a href="#">我靠怎么山东新闻这么多</a>
+    </li>
+    <li>
+      <a href="#">好像又有奇怪的东西混进去了</a>
+    </li>
+  </ul>
+</nav>
+</%def>
+
+
+<%def name="show_seeds()">
+<header>
+  <h1>置顶种子</h1>
+</header>
+<nav>
+  <ul>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+    <li>
+      <a href="#">你懂得</a>
+    </li>
+  </ul>
+</nav>
+</%def>
+
+
+## vim:set ai et ts=2 sw=2 sts=2 ff=unix fenc=utf-8 syn=mako:

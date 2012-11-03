@@ -1,0 +1,75 @@
+/***** CLEARFIX *****/
+.clear:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
+/* for IE/Mac */
+.clear {
+    display: inline-block;
+}
+
+/* Holly Hack to calm other browsers \*/
+.clear {
+    display: block;
+}
+/* */
+
+/* Base layout */
+body {
+  line-height: 1.5;
+}
+
+.root {
+/*  width: 1000px;
+  margin: 0 auto;*/
+  margin: 0 5%;
+  min-height: 100%;
+}
+
+.contentcontainer {
+  /* Should be 0 RightColumnWidth 0 LeftColumnWidth */
+  margin: 0 25% 0 0;
+}
+
+.content {
+  padding: 0 32px 0 0;
+}
+
+header.toplevel, footer.toplevel {
+  width: 100%;
+}
+
+footer.toplevel .footercontainer {
+  padding: 3px 8px 0;
+}
+
+
+/* Common elements found on EVERY page */
+div.logo {
+  float: left;
+  background: url("/static/img/logo.png") top left no-repeat;
+
+  /* dimension must match image's */
+  width: 219px;
+  height: 110px;
+}
+
+/* git revision color block */
+.footercontainer {
+  position: relative;
+}
+
+div.versioned_color {
+  width: 5%; /* same as root right margin for alignment */
+  height: 128px; /* footer height in stickyfooter.css */
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+
+/* vim:set ai et ts=2 sw=2 sts=2: */

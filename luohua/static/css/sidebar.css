@@ -1,0 +1,53 @@
+aside {
+  float: left;
+}
+
+aside.left {
+/*  width: 230px; */
+  margin-left: -100%;
+}
+
+/*
+ * margin-left should be -(RightColumnWidth) for right columns
+ * remember this must be kept in sync w/ .contentwrapper in base.css!
+ */
+aside.right {
+  width: 25%;
+  margin-left: -25%;
+}
+
+.maincontentwrapper {
+  float: left;
+  width: 100%;
+}
+
+aside.left>div.sidecontainer {
+  padding: 0 4px 0 0;
+}
+
+aside.right>div.sidecontainer {
+  padding: 0 0 0 4px;
+}
+
+
+/* sections */
+section.sidenav {
+  margin: 0 0 32px;
+}
+
+section.sidenav header {
+  background-color: #a9d46d;
+}
+
+section.sidenav nav {
+  padding: 0 4px;
+  border: 1px solid #a9d46d;
+  background-color: #eaf5dc;
+}
+
+section.sidenav nav ul {
+  list-style: square inside;
+}
+
+
+/* vim:set ai et ts=2 sw=2 sts=2: */
