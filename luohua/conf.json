@@ -12,7 +12,7 @@
         ["^$", "index", {"render_in": "mako"}],
         ["^sec/", [
           "regex",
-          ["^$", "section_list", {"render_in": "mako"}],
+          ["^$", "section_list", {"render_in": "mako"}]
           ], null]
         ], null]
       ],
