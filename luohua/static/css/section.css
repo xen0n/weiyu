@@ -32,7 +32,7 @@
 .brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-title>.brd-item-ord {
   color: #6a0;
   opacity: 0.3;
-  font: 100 24px/1.5 "Segoe UI", helvetica, sans-serif;
+  font: 100 36px/1.5 "Segoe UI", helvetica, sans-serif;
 
   position: absolute;
   left: 8px;
@@ -67,7 +67,7 @@
 }
 
 .brd-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-title>.brd-item-name {
-  left: 24px;
+  left: 30px;
   opacity: 1;
 }
 
