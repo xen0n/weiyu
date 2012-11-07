@@ -83,6 +83,12 @@ def index_view(request):
     return to_response(request)
 
 
+@router_hub.endpoint('wsgi', 'section_list')
+@renderable('mako', 'section-list.html')
+def section_list_view(request):
+    return to_response(request)
+
+
 # router
 wsgi_router = router_hub.init_router(
         'wsgi',

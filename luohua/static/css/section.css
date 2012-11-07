@@ -1,0 +1,109 @@
+/* section list & board list */
+.brd-list {
+  margin: 0 0 64px;
+}
+
+.brd-list>header {
+  margin: 0 0 16px;
+}
+
+.brd-list>header>h1 {
+  color: #a9d46d;
+  font-size: 32px;
+}
+
+
+/* section/boards list */
+.brd-list>.brd-nav>.brd-nav-list>.brd-item {
+  border-bottom: 1px solid #a9d46d;
+
+  height: 48px;
+  position: relative;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item:last-child {
+  border-bottom: none;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item:hover {
+  background-color: #eaf5dc;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-title>.brd-item-ord {
+  color: #6a0;
+  opacity: 0.3;
+  font: 100 24px/1.5 "Segoe UI", helvetica, sans-serif;
+
+  position: absolute;
+  left: 8px;
+  top: 0;
+  z-index: 5;
+
+  -moz-transition: opacity 0.15s ease 0s;
+  -webkit-transition: opacity 0.15s ease 0s;
+  -o-transition: opacity 0.15s ease 0s;
+  transition: opacity 0.15s ease 0s;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-title>.brd-item-ord {
+  opacity: 0.8;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-title>.brd-item-name {
+  color: #6a0;
+  opacity: 0.4;
+  font-weight: 100;
+  font-size: 24px;
+
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  z-index: 10;
+
+  -moz-transition: left 0.15s ease 0s, opacity 0.15s ease 0s;
+  -webkit-transition: left 0.15s ease 0s, opacity 0.15s ease 0s;
+  -o-transition: left 0.15s ease 0s, opacity 0.15s ease 0s;
+  transition: left 0.15s ease 0s, opacity 0.15s ease 0s;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-title>.brd-item-name {
+  left: 24px;
+  opacity: 1;
+}
+
+/* section topics */
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics {
+  color: #000;
+  opacity: 0.2;
+
+  display: inline-block;
+  z-index: 7;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  
+  -moz-transition: opacity 0.15s ease 0s;
+  -webkit-transition: opacity 0.15s ease 0s;
+  -o-transition: opacity 0.15s ease 0s;
+  transition: opacity 0.15s ease 0s;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-topics {
+  opacity: 0.5;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics>.brd-item-topic {
+  float: left;
+  font-size: 18px;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics>.brd-item-topic:before {
+  content: "[";
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics>.brd-item-topic:after {
+  content: "]";
+}
+
+
+/* vim:set ai et ts=2 sw=2 sts=2: */

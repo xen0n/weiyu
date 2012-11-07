@@ -1,0 +1,96 @@
+## -*- coding: utf-8 -*-
+<%inherit file="inc/base.html" />
+
+<div class="maincontentwrapper">
+  <div class="contentcontainer">
+    <div class="content">
+      <section class="sec-list brd-list">
+        <header>
+          <h1>分区列表</h1>
+        </header>
+        <nav class="brd-nav">
+          <ul class="brd-nav-list">
+            ${show_sec_item(u'0', u'站务系统', [u'公告', u'意见', ])}
+            ${show_sec_item(u'1', u'江南大学', [u'学院', u'院系', ])}
+            ${show_sec_item(u'2', u'文化艺术', [u'艺术', u'音乐', ])}
+            ${show_sec_item(u'3', u'电脑技术', [u'电脑', u'程序', ])}
+            ${show_sec_item(u'4', u'学术科学', [u'学术', u'设计', ])}
+            ${show_sec_item(u'5', u'菁菁校园', [u'校园', u'资讯', ])}
+            ${show_sec_item(u'6', u'知性感性', [u'生活', u'感受', ])}
+            ${show_sec_item(u'7', u'休闲娱乐', [u'游戏', u'健身', ])}
+            ${show_sec_item(u'8', u'社团群体', [u'社团', u'群体', ])}
+            ${show_sec_item(u'9', u'校务信箱', [u'建议', u'反馈', ])}
+            ${show_sec_item(u'A', u'服务专区', [u'交易', u'服务', ])}
+          </ul>
+        </nav>
+      </section>
+    </div>
+  </div>
+</div>
+
+<aside class="right">
+  <div class="sidecontainer">
+    <section class="sidenav topten">
+      ${show_sec_topten()}
+    </section>
+  </div>
+</aside>
+
+
+<%def name="show_sec_item(sec_ord, sec_name, sec_topics=[])">
+<li class="brd-item">
+  <h2 class="brd-item-title">
+    <span class="brd-item-ord">${sec_ord}</span>
+    <a href="/secs/${sec_ord}/" class="brd-item-name">${sec_name}</a>
+  </h2>
+  <ul class="brd-item-topics clear">
+  % for topic in sec_topics:
+    <li class="brd-item-topic">${topic}</li>
+  % endfor
+  </ul>
+</li>
+</%def>
+
+
+<%def name="show_sec_topten()">
+<header>
+  <h1>分区十大</h1>
+</header>
+<nav>
+  <ul>
+    <li>
+      <a href="#">大家好我是来刷存在感的</a>
+    </li>
+    <li>
+      <a href="#">大家好我也是来刷存在感的</a>
+    </li>
+    <li>
+      <a href="#">刷存在感什么的才不会呢</a>
+    </li>
+    <li>
+      <a href="#">你才阿卡林！你全家都阿卡林！</a>
+    </li>
+    <li>
+      <a href="#">阿卡林的透明力好棒好棒的</a>
+    </li>
+    <li>
+      <a href="#">摇曳百合又要开始了哦</a>
+    </li>
+    <li>
+      <a href="#">I DON'T MONEY</a>
+    </li>
+    <li>
+      <a href="#">专注搅姬30年</a>
+    </li>
+    <li>
+      <a href="#">每天被玩坏的阿卡林可绕地球3圈</a>
+    </li>
+    <li>
+      <a href="#">好像有奇怪的东西混进去了0 0</a>
+    </li>
+  </ul>
+</nav>
+</%def>
+
+
+## vim:set ai et ts=2 sw=2 sts=2 ff=unix fenc=utf-8 syn=mako:

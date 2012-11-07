@@ -1,53 +1,57 @@
 {
-	"site": {
-		"$$nodup": true,
-		"routing": [
-			"exact",
-			["/static/", [
-				"regex",
-				["^(?P<path>.*)$", "staticfile", null]
-			], null],
-			["/", [
-				"regex",
-				["^$", "index", {"render_in": "mako"}]
-			], null]
-			],
-		"session": {
-			"backend": "beaker",
-			"options": {
-				"session.type": "file",
-				"session.data_dir": "/tmp/beaker/data",
-				"session.lock_dir": "/tmp/beaker/lock",
-				"session.key": "weiyu.session",
-				"session.secret": "placeholder",
-				"session.timeout": 300
-				}
-			},
-		"staticfile": {
-			"root": "./static/"
-			}
-	 	},
-	"weiyu.rendering": {
-		"mako": {
-			"directories": ["./templates"],
-			"module_dir": "/tmp/mako-modules"
-		}
-	},
-	"weiyu.db": {
-		"databases": {
-			"bbs": {
-				"driver": "pymongo",
-				"options": {
-					"host": "127.0.0.1",
-					"port": 27017,
-					"is_replica": false,
-					"path": "bbs"
-				}
-			}
-		}
-	},
-	"weiyu.db.mapper": {
-		"storage": {
-		}
-	}
+  "site": {
+    "$$nodup": true,
+    "routing": [
+      "exact",
+      ["/static/", [
+        "regex",
+        ["^(?P<path>.*)$", "staticfile", null]
+        ], null],
+      ["/", [
+        "regex",
+        ["^$", "index", {"render_in": "mako"}],
+        ["^sec/", [
+          "regex",
+          ["^$", "section_list", {"render_in": "mako"}],
+          ], null]
+        ], null]
+      ],
+    "session": {
+      "backend": "beaker",
+      "options": {
+        "session.type": "file",
+        "session.data_dir": "/tmp/beaker/data",
+        "session.lock_dir": "/tmp/beaker/lock",
+        "session.key": "weiyu.session",
+        "session.secret": "placeholder",
+        "session.timeout": 300
+        }
+      },
+    "staticfile": {
+      "root": "./static/"
+      }
+     },
+  "weiyu.rendering": {
+    "mako": {
+      "directories": ["./templates"],
+      "module_dir": "/tmp/mako-modules"
+    }
+  },
+  "weiyu.db": {
+    "databases": {
+      "bbs": {
+        "driver": "pymongo",
+        "options": {
+          "host": "127.0.0.1",
+          "port": 27017,
+          "is_replica": false,
+          "path": "bbs"
+        }
+      }
+    }
+  },
+  "weiyu.db.mapper": {
+    "storage": {
+    }
+  }
 }
