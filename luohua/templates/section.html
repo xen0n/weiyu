@@ -1,0 +1,100 @@
+## -*- coding: utf-8 -*-
+<%inherit file="inc/base.html" />
+
+<div class="maincontentwrapper">
+  <div class="contentcontainer">
+    <div class="content">
+      <section class="brd-list">
+        <header>
+          <h1>版面列表</h1>
+        </header>
+        <nav class="brd-nav">
+          <ul class="brd-nav-list">
+            ${show_brd_item(u'Android', u'Android世界', [u'待定', ], [])}
+            ${show_brd_item(u'Apple', u'Apple', [u'苹果', ], [u'wangshuang', ])}
+            ${show_brd_item(u'ComputerPark', u'电脑天地', [u'电脑', ], [u'liqu1d', ])}
+            ${show_brd_item(u'JNRainerds', u'技术沙龙', [u'交流', ], [])}
+            ${show_brd_item(u'Linux', u'Linux', [u'学术', ], [u'akira', ])}
+            ${show_brd_item(u'MobileDigit', u'玩转数码', [u'电脑', ], [])}
+            ${show_brd_item(u'Program', u'程序语言', [u'编程', ], [])}
+            ${show_brd_item(u'Resources', u'听雨资源', [u'资源', ], [u'pin', ])}
+            ${show_brd_item(u'Vista', u'Windows', [u'电脑', ], [])}
+            ${show_brd_item(u'website', u'网站建设', [u'待定', ], [])}
+          </ul>
+        </nav>
+      </section>
+    </div>
+  </div>
+</div>
+
+<aside class="right">
+  <div class="sidecontainer">
+    <section class="sidenav topten">
+      ${show_brd_topten()}
+    </section>
+  </div>
+</aside>
+
+
+<%def name="show_brd_item(brd_id, brd_name, brd_topics=[], bm_list=[])">
+<li class="brd-item">
+  <h2 class="brd-item-title">
+    <span class="brd-item-ord">${brd_id}</span>
+    <a href="/board/${brd_id}/" class="brd-item-name">${brd_name}</a>
+  </h2>
+  <ul class="brd-item-bm-list clear">
+  % for bm in bm_list:
+    <li class="brd-item-bm"><a href="/user/${bm}/">${bm}</a></li>
+  % endfor
+  </ul>
+  <ul class="brd-item-topics clear">
+  % for topic in brd_topics:
+    <li class="brd-item-topic">${topic}</li>
+  % endfor
+  </ul>
+</li>
+</%def>
+
+
+<%def name="show_brd_topten()">
+<header>
+  <h1>版面十大</h1>
+</header>
+<nav>
+  <ul>
+    <li>
+      <a href="#">大家好我是来刷存在感的</a>
+    </li>
+    <li>
+      <a href="#">大家好我也是来刷存在感的</a>
+    </li>
+    <li>
+      <a href="#">刷存在感什么的才不会呢</a>
+    </li>
+    <li>
+      <a href="#">你才阿卡林！你全家都阿卡林！</a>
+    </li>
+    <li>
+      <a href="#">阿卡林的透明力好棒好棒的</a>
+    </li>
+    <li>
+      <a href="#">摇曳百合又要开始了哦</a>
+    </li>
+    <li>
+      <a href="#">I DON'T MONEY</a>
+    </li>
+    <li>
+      <a href="#">专注搅姬30年</a>
+    </li>
+    <li>
+      <a href="#">每天被玩坏的阿卡林可绕地球3圈</a>
+    </li>
+    <li>
+      <a href="#">好像有奇怪的东西混进去了0 0</a>
+    </li>
+  </ul>
+</nav>
+</%def>
+
+
+## vim:set ai et ts=2 sw=2 sts=2 ff=unix fenc=utf-8 syn=mako:
