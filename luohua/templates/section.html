@@ -39,14 +39,14 @@
 <%def name="show_brd_item(brd_id, brd_name, brd_topics=[], bm_list=[])">
 <li class="brd-item">
   <h2 class="brd-item-title">
-    <span class="brd-item-ord">${brd_id}</span>
-    <a href="/board/${brd_id}/" class="brd-item-name">${brd_name}</a>
+    <span class="brd-item-ord">${brd_id|h}</span>
+    <a href="/board/${brd_id|u}/" class="brd-item-name">${brd_name|h}</a>
   </h2>
   <aside class="brd-item-data clear">
   % if len(bm_list) > 0:
   <ul class="brd-item-bm-list clear">
   % for bm in bm_list:
-    <li class="brd-item-bm"><a href="/user/${bm}/">${bm}</a></li>
+    <li class="brd-item-bm"><a href="/user/${bm|u}/">${bm|h}</a></li>
   % endfor
   </ul>
   % else:
@@ -56,7 +56,7 @@
   % endif
   <ul class="brd-item-topics clear">
   % for topic in brd_topics:
-    <li class="brd-item-topic">${topic}</li>
+    <li class="brd-item-topic">${topic|h}</li>
   % endfor
   </ul>
   </aside>
