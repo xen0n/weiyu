@@ -18,9 +18,13 @@
 /* list item */
 .brd-list>.brd-nav>.brd-nav-list>.brd-item {
   border-bottom: 1px solid #a9d46d;
+  height: 64px;
 
-  height: 48px;
   position: relative;
+}
+
+.sec-list>.brd-nav>.brd-nav-list>.brd-item {
+  height: 48px;
 }
 
 .brd-list>.brd-nav>.brd-nav-list>.brd-item:last-child {
@@ -35,7 +39,7 @@
 .brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-title>.brd-item-ord {
   color: #6a0;
   opacity: 0.3;
-  font: 100 36px/1.5 "Segoe UI Light", "Segoe UI", helvetica, sans-serif;
+  font: 100 40px/1.5 "Segoe UI Light", "Segoe UI", helvetica, sans-serif;
 
   position: absolute;
   left: 8px;
@@ -48,7 +52,11 @@
   transition: opacity 0.15s ease 0s;
 }
 
-.brd-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-title>.brd-item-ord {
+.sec-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-title>.brd-item-ord {
+  font-size: 36px;
+}
+
+.sec-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-title>.brd-item-ord {
   opacity: 0.8;
 }
 
@@ -70,44 +78,82 @@
   transition: left 0.15s ease 0s, opacity 0.15s ease 0s;
 }
 
+.sec-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-title>.brd-item-name {
+  font-size: 24px;
+}
+
 .brd-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-title>.brd-item-name {
   left: 30px;
   opacity: 1;
 }
 
+/* bottom-right corner info */
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-data {
+  z-index: 7;
+
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
 /* topics */
-.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics {
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-data>.brd-item-topics {
   color: #000;
   opacity: 0.2;
 
   display: inline-block;
-  z-index: 7;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  
+  float: left;
+
   -moz-transition: opacity 0.15s ease 0s;
   -webkit-transition: opacity 0.15s ease 0s;
   -o-transition: opacity 0.15s ease 0s;
   transition: opacity 0.15s ease 0s;
 }
 
-.brd-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-topics {
+.brd-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-data>.brd-item-topics {
   opacity: 0.5;
 }
 
 /* topic item */
-.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics>.brd-item-topic {
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-data>.brd-item-topics>.brd-item-topic {
   float: left;
   font-size: 18px;
 }
 
-.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics>.brd-item-topic:before {
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-data>.brd-item-topics>.brd-item-topic:before {
   content: "[";
 }
 
-.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics>.brd-item-topic:after {
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-data>.brd-item-topics>.brd-item-topic:after {
   content: "]";
+}
+
+/* BM list */
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-data>.brd-item-bm-list {
+  float: left;
+  color: #000;
+  font-size: 18px;
+  opacity: 0.2;
+  margin: 0 8px 0 0;
+
+  -moz-transition: opacity 0.15s ease 0s;
+  -webkit-transition: opacity 0.15s ease 0s;
+  -o-transition: opacity 0.15s ease 0s;
+  transition: opacity 0.15s ease 0s;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-data>.brd-item-bm-list:before {
+  content: "BM:";
+  float: left;
+  margin: 0 4px 0 0;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item:hover>.brd-item-data>.brd-item-bm-list {
+  opacity: 0.5;
+}
+
+.brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-data>.brd-item-bm-list>.brd-item-bm {
+  float: left;
 }
 
 

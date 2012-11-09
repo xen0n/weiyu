@@ -42,16 +42,24 @@
     <span class="brd-item-ord">${brd_id}</span>
     <a href="/board/${brd_id}/" class="brd-item-name">${brd_name}</a>
   </h2>
+  <aside class="brd-item-data clear">
+  % if len(bm_list) > 0:
   <ul class="brd-item-bm-list clear">
   % for bm in bm_list:
     <li class="brd-item-bm"><a href="/user/${bm}/">${bm}</a></li>
   % endfor
   </ul>
+  % else:
+  <ul class="brd-item-bm-list clear">
+    <li class="brd-item-bm brd-item-not-bm">暂无</li>
+  </ul>
+  % endif
   <ul class="brd-item-topics clear">
   % for topic in brd_topics:
     <li class="brd-item-topic">${topic}</li>
   % endfor
   </ul>
+  </aside>
 </li>
 </%def>
 

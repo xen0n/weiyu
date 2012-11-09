@@ -35,11 +35,13 @@
     <span class="brd-item-ord">${sec_ord|h}</span>
     <a href="/sec/${sec_ord|u}/" class="brd-item-name">${sec_name|h}</a>
   </h2>
+  <aside class="brd-item-data clear">
   <ul class="brd-item-topics clear">
   % for topic in sec_topics:
     <li class="brd-item-topic">${topic|h}</li>
   % endfor
   </ul>
+  </aside>
 </li>
 </%def>
 
