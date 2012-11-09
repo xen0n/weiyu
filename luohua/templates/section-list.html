@@ -32,12 +32,12 @@
 <%def name="show_sec_item(sec_ord, sec_name, sec_topics=[])">
 <li class="brd-item">
   <h2 class="brd-item-title">
-    <span class="brd-item-ord">${sec_ord}</span>
-    <a href="/sec/${sec_ord}/" class="brd-item-name">${sec_name}</a>
+    <span class="brd-item-ord">${sec_ord|h}</span>
+    <a href="/sec/${sec_ord|u}/" class="brd-item-name">${sec_name|h}</a>
   </h2>
   <ul class="brd-item-topics clear">
   % for topic in sec_topics:
-    <li class="brd-item-topic">${topic}</li>
+    <li class="brd-item-topic">${topic|h}</li>
   % endfor
   </ul>
 </li>
