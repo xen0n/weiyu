@@ -35,18 +35,28 @@ aside.right>div.sidecontainer {
   margin: 0 0 32px;
 }
 
-.sidenav>header {
-  background-color: #a9d46d;
-}
-
-.sidenav>nav {
-  padding: 0 4px;
-  border: 1px solid #a9d46d;
-  background-color: #eaf5dc;
+.sidenav>header>h1 {
+  color: #a9d46d;
+  font-size: 24px;
 }
 
 .sidenav>nav>ul {
-  list-style: square inside;
+  border-left: 2px solid #a9d46d;
+  border-top: 1px solid #a9d46d;
+  padding: 2px 0 0 4px;
+}
+
+.sidenav>nav>ul>li {
+  opacity: 0.4;
+
+  -moz-transition: opacity 0.2s ease 0s;
+  -webkit-transition: opacity 0.2s ease 0s;
+  -o-transition: opacity 0.2s ease 0s;
+  transition: opacity 0.2s ease 0s;
+}
+
+.sidenav>nav>ul>li:hover {
+  opacity: 1;
 }
 
 
