@@ -89,17 +89,17 @@ def index_view(request):
 @renderable('json')
 def section_list_view(request):
     result = OrderedDict([
-            ('0', {'name': '站务系统', 'topics': ['公告', '意见', ], }),
-            ('1', {'name': '江南大学', 'topics': ['学院', '院系', ], }),
-            ('2', {'name': '文化艺术', 'topics': ['艺术', '音乐', ], }),
-            ('3', {'name': '电脑技术', 'topics': ['电脑', '程序', ], }),
-            ('4', {'name': '学术科学', 'topics': ['学术', '设计', ], }),
-            ('5', {'name': '菁菁校园', 'topics': ['校园', '资讯', ], }),
-            ('6', {'name': '知性感性', 'topics': ['生活', '感受', ], }),
-            ('7', {'name': '休闲娱乐', 'topics': ['游戏', '健身', ], }),
-            ('8', {'name': '社团群体', 'topics': ['社团', '群体', ], }),
-            ('9', {'name': '校务信箱', 'topics': ['建议', '反馈', ], }),
-            ('A', {'name': '服务专区', 'topics': ['交易', '服务', ], }),
+            (u'0', {u'name': u'站务系统', u'topics': [u'公告', u'意见', ], }),
+            (u'1', {u'name': u'江南大学', u'topics': [u'学院', u'院系', ], }),
+            (u'2', {u'name': u'文化艺术', u'topics': [u'艺术', u'音乐', ], }),
+            (u'3', {u'name': u'电脑技术', u'topics': [u'电脑', u'程序', ], }),
+            (u'4', {u'name': u'学术科学', u'topics': [u'学术', u'设计', ], }),
+            (u'5', {u'name': u'菁菁校园', u'topics': [u'校园', u'资讯', ], }),
+            (u'6', {u'name': u'知性感性', u'topics': [u'生活', u'感受', ], }),
+            (u'7', {u'name': u'休闲娱乐', u'topics': [u'游戏', u'健身', ], }),
+            (u'8', {u'name': u'社团群体', u'topics': [u'社团', u'群体', ], }),
+            (u'9', {u'name': u'校务信箱', u'topics': [u'建议', u'反馈', ], }),
+            (u'A', {u'name': u'服务专区', u'topics': [u'交易', u'服务', ], }),
             ])
     return ReflexResponse(
             200,
