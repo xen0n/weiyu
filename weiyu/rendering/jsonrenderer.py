@@ -31,7 +31,17 @@ from __future__ import unicode_literals, division
 
 __all__ = ['JSONRenderable', ]
 
-from json import dumps
+try:
+    # favor esnme's ujson accelerated library
+    from ujson import dumps
+except ImportError:
+    # fallback on the stdlib
+    from json import dumps
+
+    # use compact encoding, so construct a shim to keep the function
+    # signature consistent
+    from functools import partial
+    dumps = partial(dumps, separators=(',', ':', ))
 
 from . import render_hub
 from .base import Renderable
