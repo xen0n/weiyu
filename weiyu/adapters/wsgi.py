@@ -170,7 +170,7 @@ class WSGIReflex(BaseReflex):
         # Render the response early
         # TODO: find a way to extract all the literals out
         request = response.request
-        ctx, hdrs = response.context, []
+        ctx, hdrs, extras = response.context, [], {}
         render_in = cont = mime = None
         dont_render = False
 
@@ -199,7 +199,7 @@ class WSGIReflex(BaseReflex):
                         )
 
             # rendering is not suppressed, do it now
-            cont = render_view_func(
+            cont, extras = render_view_func(
                     request.callback_info[0],
                     response.content,
                     render_in,
@@ -207,7 +207,11 @@ class WSGIReflex(BaseReflex):
 
         enc = ctx.get('enc', 'utf-8')
         response.encoding = enc
-        mime = ctx.get('mimetype', 'text/html') if mime is None else mime
+        if 'mimetype' in extras:
+            # Allow renderers to override mimetype
+            mime = extras['mimetype']
+        else:
+            mime = ctx.get('mimetype', 'text/html') if mime is None else mime
 
         # encode content, if it's a Unicode thing
         response.content = smartbytes(cont, enc, 'replace')

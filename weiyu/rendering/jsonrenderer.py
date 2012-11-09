@@ -36,10 +36,16 @@ from json import dumps
 from . import render_hub
 from .base import Renderable
 
+# FIXME: this doesn't work for [lte IE 7], as a Save As dialog would pop up.
+# We need to sniff the UA string and return text/javascript in that case.
+JSON_COMMON_EXTRAS = {
+        'mimetype': 'application/json',
+        }
+
 
 class JSONRenderable(Renderable):
     def _do_render(self, context):
-        return dumps(dict(context))
+        return dumps(dict(context)), JSON_COMMON_EXTRAS
 
 
 @render_hub.register_handler('json')
