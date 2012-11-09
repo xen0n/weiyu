@@ -11,7 +11,8 @@
         "exact",
         ["sec/", [
           "regex",
-          ["^$", "section_list", {"render_in": "json"}]
+          ["^$", "section_list", {"render_in": "json"}],
+          ["^(?P<sec_id>[0-9A-Za-z])/$", "section", {"render_in": "json"}]
           ], null]
         ], null],
       ["/", [

@@ -9,18 +9,11 @@
           <h1>版面列表</h1>
         </header>
         <nav class="brd-nav">
-          <ul class="brd-nav-list">
-            ${show_brd_item(u'Android', u'Android世界', [u'待定', ], [])}
-            ${show_brd_item(u'Apple', u'Apple', [u'苹果', ], [u'wangshuang', ])}
-            ${show_brd_item(u'ComputerPark', u'电脑天地', [u'电脑', ], [u'liqu1d', ])}
-            ${show_brd_item(u'JNRainerds', u'技术沙龙', [u'交流', ], [])}
-            ${show_brd_item(u'Linux', u'Linux', [u'学术', ], [u'akira', ])}
-            ${show_brd_item(u'MobileDigit', u'玩转数码', [u'电脑', ], [])}
-            ${show_brd_item(u'Program', u'程序语言', [u'编程', ], [])}
-            ${show_brd_item(u'Resources', u'听雨资源', [u'资源', ], [u'pin', ])}
-            ${show_brd_item(u'Vista', u'Windows', [u'电脑', ], [])}
-            ${show_brd_item(u'website', u'网站建设', [u'待定', ], [])}
-          </ul>
+        <ul class="brd-nav-list">
+          % for brd_id, brd in boards.items():
+          ${show_brd_item(brd_id, brd[u'name'], brd[u'topics'], brd[u'bm'])}
+          % endfor
+        </ul>
         </nav>
       </section>
     </div>

@@ -114,8 +114,29 @@ def section_list_view(request):
 
 @router_hub.endpoint('wsgi', 'section')
 @renderable('mako', 'section.html')
+@renderable('json')
 def section_view(request, sec_id):
-    return to_response(request)
+    result = OrderedDict([
+            (u'Android', {u'name': u'Android世界', u'topics': [u'待定', ], u'bm': [], }),
+            (u'Apple', {u'name': u'Apple', u'topics': [u'苹果', ], u'bm': [u'wangshuang', ], }),
+            (u'ComputerPark', {u'name': u'电脑天地', u'topics': [u'电脑', ], u'bm': [u'liqu1d', ], }),
+            (u'JNRainerds', {u'name': u'技术沙龙', u'topics': [u'交流', ], u'bm': [], }),
+            (u'Linux', {u'name': u'Linux', u'topics': [u'学术', ], u'bm': [u'akira', ], }),
+            (u'MobileDigit', {u'name': u'玩转数码', u'topics': [u'电脑', ], u'bm': [], }),
+            (u'Program', {u'name': u'程序语言', u'topics': [u'编程', ], u'bm': [], }),
+            (u'Resources', {u'name': u'听雨资源', u'topics': [u'资源', ], u'bm': [u'pin', ], }),
+            (u'Vista', {u'name': u'Windows', u'topics': [u'电脑', ], u'bm': [], }),
+            (u'website', {u'name': u'网站建设', u'topics': [u'待定', ], u'bm': [], }),
+            ])
+    return ReflexResponse(
+            200,
+            {'boards': result, },
+            {
+                'mimetype': 'text/html',
+                'enc': OUTPUT_ENC,
+                },
+            request,
+            )
 
 
 # router
