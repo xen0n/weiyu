@@ -9,19 +9,11 @@
           <h1>分区列表</h1>
         </header>
         <nav class="brd-nav">
-          <ul class="brd-nav-list">
-            ${show_sec_item(u'0', u'站务系统', [u'公告', u'意见', ])}
-            ${show_sec_item(u'1', u'江南大学', [u'学院', u'院系', ])}
-            ${show_sec_item(u'2', u'文化艺术', [u'艺术', u'音乐', ])}
-            ${show_sec_item(u'3', u'电脑技术', [u'电脑', u'程序', ])}
-            ${show_sec_item(u'4', u'学术科学', [u'学术', u'设计', ])}
-            ${show_sec_item(u'5', u'菁菁校园', [u'校园', u'资讯', ])}
-            ${show_sec_item(u'6', u'知性感性', [u'生活', u'感受', ])}
-            ${show_sec_item(u'7', u'休闲娱乐', [u'游戏', u'健身', ])}
-            ${show_sec_item(u'8', u'社团群体', [u'社团', u'群体', ])}
-            ${show_sec_item(u'9', u'校务信箱', [u'建议', u'反馈', ])}
-            ${show_sec_item(u'A', u'服务专区', [u'交易', u'服务', ])}
-          </ul>
+        <ul class="brd-nav-list">
+          % for sec_ord, sec in sections.items():
+          ${show_sec_item(sec_ord, sec['name'], sec['topics'])}
+          % endfor
+        </ul>
         </nav>
       </section>
     </div>

@@ -7,6 +7,13 @@
         "regex",
         ["^(?P<path>.*)$", "staticfile", null]
         ], null],
+      ["/api/", [
+        "exact",
+        ["sec/", [
+          "regex",
+          ["^$", "section_list", {"render_in": "json"}]
+          ], null]
+        ], null],
       ["/", [
         "regex",
         ["^$", "index", {"render_in": "mako"}],

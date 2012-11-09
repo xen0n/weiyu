@@ -20,6 +20,7 @@
 from __future__ import unicode_literals, division
 
 import re
+from collections import OrderedDict
 
 from weiyu.registry.loader import JSONConfig
 from weiyu.registry.provider import request
@@ -85,8 +86,30 @@ def index_view(request):
 
 @router_hub.endpoint('wsgi', 'section_list')
 @renderable('mako', 'section-list.html')
+@renderable('json')
 def section_list_view(request):
-    return to_response(request)
+    result = OrderedDict([
+            ('0', {'name': '站务系统', 'topics': ['公告', '意见', ], }),
+            ('1', {'name': '江南大学', 'topics': ['学院', '院系', ], }),
+            ('2', {'name': '文化艺术', 'topics': ['艺术', '音乐', ], }),
+            ('3', {'name': '电脑技术', 'topics': ['电脑', '程序', ], }),
+            ('4', {'name': '学术科学', 'topics': ['学术', '设计', ], }),
+            ('5', {'name': '菁菁校园', 'topics': ['校园', '资讯', ], }),
+            ('6', {'name': '知性感性', 'topics': ['生活', '感受', ], }),
+            ('7', {'name': '休闲娱乐', 'topics': ['游戏', '健身', ], }),
+            ('8', {'name': '社团群体', 'topics': ['社团', '群体', ], }),
+            ('9', {'name': '校务信箱', 'topics': ['建议', '反馈', ], }),
+            ('A', {'name': '服务专区', 'topics': ['交易', '服务', ], }),
+            ])
+    return ReflexResponse(
+            200,
+            {'sections': result, },
+            {
+                'mimetype': 'text/html',
+                'enc': OUTPUT_ENC,
+                },
+            request,
+            )
 
 
 @router_hub.endpoint('wsgi', 'section')
