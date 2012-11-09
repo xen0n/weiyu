@@ -31,21 +31,21 @@ aside.right>div.sidecontainer {
 
 
 /* sections */
-section.sidenav {
+.sidenav {
   margin: 0 0 32px;
 }
 
-section.sidenav header {
+.sidenav>header {
   background-color: #a9d46d;
 }
 
-section.sidenav nav {
+.sidenav>nav {
   padding: 0 4px;
   border: 1px solid #a9d46d;
   background-color: #eaf5dc;
 }
 
-section.sidenav nav ul {
+.sidenav>nav>ul {
   list-style: square inside;
 }
 
