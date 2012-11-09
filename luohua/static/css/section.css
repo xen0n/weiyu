@@ -1,4 +1,6 @@
-/* section list & board list */
+/*** section list & board list ***/
+/** common styles **/
+/* section-wide styles */
 .brd-list {
   margin: 0 0 64px;
 }
@@ -13,7 +15,7 @@
 }
 
 
-/* section/boards list */
+/* list item */
 .brd-list>.brd-nav>.brd-nav-list>.brd-item {
   border-bottom: 1px solid #a9d46d;
 
@@ -29,10 +31,11 @@
   background-color: #eaf5dc;
 }
 
+/* section ordinal/board id */
 .brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-title>.brd-item-ord {
   color: #6a0;
   opacity: 0.3;
-  font: 100 36px/1.5 "Segoe UI", helvetica, sans-serif;
+  font: 100 36px/1.5 "Segoe UI Light", "Segoe UI", helvetica, sans-serif;
 
   position: absolute;
   left: 8px;
@@ -49,6 +52,7 @@
   opacity: 0.8;
 }
 
+/* section name/board name */
 .brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-title>.brd-item-name {
   color: #6a0;
   opacity: 0.4;
@@ -71,7 +75,7 @@
   opacity: 1;
 }
 
-/* section topics */
+/* topics */
 .brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics {
   color: #000;
   opacity: 0.2;
@@ -92,6 +96,7 @@
   opacity: 0.5;
 }
 
+/* topic item */
 .brd-list>.brd-nav>.brd-nav-list>.brd-item>.brd-item-topics>.brd-item-topic {
   float: left;
   font-size: 18px;
