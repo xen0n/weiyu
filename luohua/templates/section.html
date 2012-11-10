@@ -10,9 +10,6 @@
         </header>
         <nav class="brd-nav">
         <ul class="brd-nav-list">
-          % for brd_id, brd in boards.items():
-          ${show_brd_item(brd_id, brd[u'name'], brd[u'topics'], brd[u'bm'])}
-          % endfor
         </ul>
         </nav>
       </section>
@@ -29,32 +26,46 @@
 </aside>
 
 
-<%def name="show_brd_item(brd_id, brd_name, brd_topics=[], bm_list=[])">
+<script type="text/x-jqote-template" id="brd-item-tmpl"><![CDATA[
+<* for (var i=0; i<this.boards.length; i++) { var brd=this.boards[i]; *>
 <li class="brd-item">
   <h2 class="brd-item-title">
-    <span class="brd-item-ord">${brd_id|h}</span>
-    <a href="/board/${brd_id|u}/" class="brd-item-name">${brd_name|h}</a>
+    <span class="brd-item-ord"><*= brd.id *></span>
+    <a href="/board/<*= brd.id *>/" class="brd-item-name"><*= brd.name *></a>
   </h2>
   <aside class="brd-item-data clear">
-  % if len(bm_list) > 0:
+  <* if (brd.bm.length > 0) { *>
   <ul class="brd-item-bm-list clear">
-  % for bm in bm_list:
-    <li class="brd-item-bm"><a href="/user/${bm|u}/">${bm|h}</a></li>
-  % endfor
+  <* for (var j in brd.bm) {*>
+    <li class="brd-item-bm"><a href="/user/<*= brd.bm[j] *>/"><*= brd.bm[j] *></a></li>
+  <* } *>
   </ul>
-  % else:
+  <* } else { *>
   <ul class="brd-item-bm-list clear">
     <li class="brd-item-bm brd-item-not-bm">暂无</li>
   </ul>
-  % endif
+  <* } *>
   <ul class="brd-item-topics clear">
-  % for topic in brd_topics:
-    <li class="brd-item-topic">${topic|h}</li>
-  % endfor
+  <* for (var j in brd.topics) { *>
+    <li class="brd-item-topic"><*= brd.topics[j] *></li>
+  <* } *>
   </ul>
   </aside>
 </li>
-</%def>
+<* } *>
+]]></script>
+
+<script>
+$(document).ready(function() {
+  var brdlist=$('.brd-nav-list');
+
+  $.getJSON(
+    '/api/sec/${sec_id}/',
+    function(data, text_status, jqXHR) {
+      brdlist.append($('#brd-item-tmpl').jqote(data, '*'));
+    });
+  });
+</script>
 
 
 <%def name="show_brd_topten()">

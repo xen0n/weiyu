@@ -20,7 +20,6 @@
 from __future__ import unicode_literals, division
 
 import re
-from collections import OrderedDict
 
 from weiyu.registry.loader import JSONConfig
 from weiyu.registry.provider import request
@@ -88,22 +87,22 @@ def index_view(request):
 @renderable('mako', 'section-list.html')
 @renderable('json')
 def section_list_view(request):
-    result = OrderedDict([
-            (u'0', {u'name': u'站务系统', u'topics': [u'公告', u'意见', ], }),
-            (u'1', {u'name': u'江南大学', u'topics': [u'学院', u'院系', ], }),
-            (u'2', {u'name': u'文化艺术', u'topics': [u'艺术', u'音乐', ], }),
-            (u'3', {u'name': u'电脑技术', u'topics': [u'电脑', u'程序', ], }),
-            (u'4', {u'name': u'学术科学', u'topics': [u'学术', u'设计', ], }),
-            (u'5', {u'name': u'菁菁校园', u'topics': [u'校园', u'资讯', ], }),
-            (u'6', {u'name': u'知性感性', u'topics': [u'生活', u'感受', ], }),
-            (u'7', {u'name': u'休闲娱乐', u'topics': [u'游戏', u'健身', ], }),
-            (u'8', {u'name': u'社团群体', u'topics': [u'社团', u'群体', ], }),
-            (u'9', {u'name': u'校务信箱', u'topics': [u'建议', u'反馈', ], }),
-            (u'A', {u'name': u'服务专区', u'topics': [u'交易', u'服务', ], }),
-            ])
+    result = [
+            {u'ord': u'0', u'name': u'站务系统', u'topics': [u'公告', u'意见', ], },
+            {u'ord': u'1', u'name': u'江南大学', u'topics': [u'学院', u'院系', ], },
+            {u'ord': u'2', u'name': u'文化艺术', u'topics': [u'艺术', u'音乐', ], },
+            {u'ord': u'3', u'name': u'电脑技术', u'topics': [u'电脑', u'程序', ], },
+            {u'ord': u'4', u'name': u'学术科学', u'topics': [u'学术', u'设计', ], },
+            {u'ord': u'5', u'name': u'菁菁校园', u'topics': [u'校园', u'资讯', ], },
+            {u'ord': u'6', u'name': u'知性感性', u'topics': [u'生活', u'感受', ], },
+            {u'ord': u'7', u'name': u'休闲娱乐', u'topics': [u'游戏', u'健身', ], },
+            {u'ord': u'8', u'name': u'社团群体', u'topics': [u'社团', u'群体', ], },
+            {u'ord': u'9', u'name': u'校务信箱', u'topics': [u'建议', u'反馈', ], },
+            {u'ord': u'A', u'name': u'服务专区', u'topics': [u'交易', u'服务', ], },
+            ]
     return ReflexResponse(
             200,
-            {'sections': result, },
+            {u'sections': result, },
             {
                 'mimetype': 'text/html',
                 'enc': OUTPUT_ENC,
@@ -116,21 +115,21 @@ def section_list_view(request):
 @renderable('mako', 'section.html')
 @renderable('json')
 def section_view(request, sec_id):
-    result = OrderedDict([
-            (u'Android', {u'name': u'Android世界', u'topics': [u'待定', ], u'bm': [], }),
-            (u'Apple', {u'name': u'Apple', u'topics': [u'苹果', ], u'bm': [u'wangshuang', ], }),
-            (u'ComputerPark', {u'name': u'电脑天地', u'topics': [u'电脑', ], u'bm': [u'liqu1d', ], }),
-            (u'JNRainerds', {u'name': u'技术沙龙', u'topics': [u'交流', ], u'bm': [], }),
-            (u'Linux', {u'name': u'Linux', u'topics': [u'学术', ], u'bm': [u'akira', ], }),
-            (u'MobileDigit', {u'name': u'玩转数码', u'topics': [u'电脑', ], u'bm': [], }),
-            (u'Program', {u'name': u'程序语言', u'topics': [u'编程', ], u'bm': [], }),
-            (u'Resources', {u'name': u'听雨资源', u'topics': [u'资源', ], u'bm': [u'pin', ], }),
-            (u'Vista', {u'name': u'Windows', u'topics': [u'电脑', ], u'bm': [], }),
-            (u'website', {u'name': u'网站建设', u'topics': [u'待定', ], u'bm': [], }),
-            ])
+    result = [
+            {u'id': u'Android', u'name': u'Android世界', u'topics': [u'待定', ], u'bm': [], },
+            {u'id': u'Apple', u'name': u'Apple', u'topics': [u'苹果', ], u'bm': [u'wangshuang', ], },
+            {u'id': u'ComputerPark', u'name': u'电脑天地', u'topics': [u'电脑', ], u'bm': [u'liqu1d', ], },
+            {u'id': u'JNRainerds', u'name': u'技术沙龙', u'topics': [u'交流', ], u'bm': [], },
+            {u'id': u'Linux', u'name': u'Linux', u'topics': [u'学术', ], u'bm': [u'akira', ], },
+            {u'id': u'MobileDigit', u'name': u'玩转数码', u'topics': [u'电脑', ], u'bm': [], },
+            {u'id': u'Program', u'name': u'程序语言', u'topics': [u'编程', ], u'bm': [], },
+            {u'id': u'Resources', u'name': u'听雨资源', u'topics': [u'资源', ], u'bm': [u'pin', ], },
+            {u'id': u'Vista', u'name': u'Windows', u'topics': [u'电脑', ], u'bm': [], },
+            {u'id': u'website', u'name': u'网站建设', u'topics': [u'待定', ], u'bm': [], },
+            ]
     return ReflexResponse(
             200,
-            {'boards': result, },
+            {u'sec_id': sec_id, u'boards': result, },
             {
                 'mimetype': 'text/html',
                 'enc': OUTPUT_ENC,

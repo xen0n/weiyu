@@ -10,9 +10,6 @@
         </header>
         <nav class="brd-nav">
         <ul class="brd-nav-list">
-          % for sec_ord, sec in sections.items():
-          ${show_sec_item(sec_ord, sec['name'], sec['topics'])}
-          % endfor
         </ul>
         </nav>
       </section>
@@ -28,22 +25,35 @@
   </div>
 </aside>
 
-
-<%def name="show_sec_item(sec_ord, sec_name, sec_topics=[])">
+<script type="text/x-jqote-template" id="sec-item-tmpl"><![CDATA[
+<* for (var i=0; i<this.sections.length; i++) { var sec=this.sections[i]; *>
 <li class="brd-item">
   <h2 class="brd-item-title">
-    <span class="brd-item-ord">${sec_ord|h}</span>
-    <a href="/sec/${sec_ord|u}/" class="brd-item-name">${sec_name|h}</a>
+    <span class="brd-item-ord"><*= sec.ord *></span>
+    <a href="/sec/<*= sec.ord *>/" class="brd-item-name"><*= sec.name *></a>
   </h2>
   <aside class="brd-item-data clear">
   <ul class="brd-item-topics clear">
-  % for topic in sec_topics:
-    <li class="brd-item-topic">${topic|h}</li>
-  % endfor
+  <* for (var j=0; j<sec.topics.length; j++) { *>
+    <li class="brd-item-topic"><*= sec.topics[j] *></li>
+  <* } *>
   </ul>
   </aside>
 </li>
-</%def>
+<* } *>
+]]></script>
+
+<script>
+$(document).ready(function() {
+  var brdlist=$('.brd-nav-list');
+
+  $.getJSON(
+    '/api/sec/',
+    function(data, text_status, jqXHR) {
+      brdlist.append($('#sec-item-tmpl').jqote(data, '*'));
+    });
+  });
+</script>
 
 
 <%def name="show_sec_topten()">
