@@ -24,6 +24,7 @@ __all__ = [
             ]
 
 from functools import partial
+from urlparse import parse_qs
 
 from ..helpers.misc import smartstr, smartbytes
 
@@ -147,6 +148,19 @@ class WSGIReflex(BaseReflex):
         # read the request body if content length is given
         if length is not None and request.method == 'POST':
             request.content = env['wsgi.input'].read(length)
+
+            # parse the POSTed data
+            ctype = request.content_type = env.get('CONTENT_TYPE', None)
+            if ctype == 'application/x-www-form-urlencoded':
+                # decode the response for the view
+                form = parse_qs(request.content)
+
+                # eliminate all those 1-element lists
+                for k in form.iterkeys():
+                    if len(form[k]) == 1:
+                        form[k] = form[k][0]
+
+                request.form = form
         else:
             request.content = None
 
