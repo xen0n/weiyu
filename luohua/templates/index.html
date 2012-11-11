@@ -169,40 +169,34 @@
   <h1>置顶种子</h1>
 </header>
 <nav>
-  <ul>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
-    <li>
-      <a href="#">你懂得</a>
-    </li>
+  <ul class="top-seeds-list">
   </ul>
 </nav>
 </%def>
+
+
+<%block name="scripts">
+<script type="text/x-handlebars-template" id="top-seeds-tmpl">
+  {{#seeds}}
+  <li>
+  <a href="{{link}}">{{name}}</a>
+  </li>
+  {{/seeds}}
+</script>
+
+<script>
+$(document).ready(function() {
+  var seed_list=$('.top-seeds-list');
+  var top_seeds_tmpl=Handlebars.compile($('#top-seeds-tmpl').html());
+
+  $.getJSON(
+    'http://bt.jnrain.com/get_top_seed_json.php?callback=?',
+    function(data, text_status, jqXHR) {
+      seed_list.empty().html(top_seeds_tmpl(data));
+    });
+  });
+</script>
+</%block>
 
 
 ## vim:set ai et ts=2 sw=2 sts=2 ff=unix fenc=utf-8 syn=mako:
