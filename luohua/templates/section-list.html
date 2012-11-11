@@ -25,32 +25,33 @@
   </div>
 </aside>
 
-<script type="text/x-jqote-template" id="sec-item-tmpl"><![CDATA[
-<* for (var i=0; i<this.sections.length; i++) { var sec=this.sections[i]; *>
+<script type="text/x-handlebars-template" id="sec-item-tmpl">
+{{#sections}}
 <li class="brd-item">
   <h2 class="brd-item-title">
-    <span class="brd-item-ord"><*= sec.ord *></span>
-    <a href="/sec/<*= sec.ord *>/" class="brd-item-name"><*= sec.name *></a>
+    <span class="brd-item-ord">{{ord}}</span>
+    <a href="/sec/{{ord}}/" class="brd-item-name">{{name}}</a>
   </h2>
   <aside class="brd-item-data clear">
   <ul class="brd-item-topics clear">
-  <* for (var j=0; j<sec.topics.length; j++) { *>
-    <li class="brd-item-topic"><*= sec.topics[j] *></li>
-  <* } *>
+    {{#each topics}}
+    <li class="brd-item-topic">{{this}}</li>
+    {{/each}}
   </ul>
   </aside>
 </li>
-<* } *>
-]]></script>
+{{/sections}}
+</script>
 
 <script>
 $(document).ready(function() {
   var brdlist=$('.brd-nav-list');
+  var sec_item_tmpl=Handlebars.compile($('#sec-item-tmpl').html());
 
   $.getJSON(
     '/api/sec/',
     function(data, text_status, jqXHR) {
-      brdlist.append($('#sec-item-tmpl').jqote(data, '*'));
+      brdlist.empty().html(sec_item_tmpl(data));
     });
   });
 </script>

@@ -26,43 +26,42 @@
 </aside>
 
 
-<script type="text/x-jqote-template" id="brd-item-tmpl"><![CDATA[
-<* for (var i=0; i<this.boards.length; i++) { var brd=this.boards[i]; *>
+<script type="text/x-handlebars-template" id="brd-item-tmpl">
+{{#boards}}
 <li class="brd-item">
   <h2 class="brd-item-title">
-    <span class="brd-item-ord"><*= brd.id *></span>
-    <a href="/board/<*= brd.id *>/" class="brd-item-name"><*= brd.name *></a>
+    <span class="brd-item-ord">{{id}}</span>
+    <a href="/board/{{id}}/" class="brd-item-name">{{name}}</a>
   </h2>
   <aside class="brd-item-data clear">
-  <* if (brd.bm.length > 0) { *>
+
   <ul class="brd-item-bm-list clear">
-  <* for (var j in brd.bm) {*>
-    <li class="brd-item-bm"><a href="/user/<*= brd.bm[j] *>/"><*= brd.bm[j] *></a></li>
-  <* } *>
-  </ul>
-  <* } else { *>
-  <ul class="brd-item-bm-list clear">
+    {{#if bm}}{{#each bm}}
+    <li class="brd-item-bm"><a href="/user/{{this}}/">{{this}}</a></li>{{/each}}
+    {{else}}
     <li class="brd-item-bm brd-item-not-bm">暂无</li>
+    {{/if}}
   </ul>
-  <* } *>
+
   <ul class="brd-item-topics clear">
-  <* for (var j in brd.topics) { *>
-    <li class="brd-item-topic"><*= brd.topics[j] *></li>
-  <* } *>
+    {{#topics}}
+    <li class="brd-item-topic">{{this}}</li>
+    {{/topics}}
   </ul>
   </aside>
 </li>
-<* } *>
-]]></script>
+{{/boards}}
+</script>
 
 <script>
 $(document).ready(function() {
   var brdlist=$('.brd-nav-list');
+  var brd_item_tmpl=Handlebars.compile($('#brd-item-tmpl').html());
 
   $.getJSON(
     '/api/sec/${sec_id}/',
     function(data, text_status, jqXHR) {
-      brdlist.append($('#brd-item-tmpl').jqote(data, '*'));
+      brdlist.empty().html(brd_item_tmpl(data));
     });
   });
 </script>
