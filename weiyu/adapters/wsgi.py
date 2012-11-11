@@ -216,6 +216,7 @@ class WSGIReflex(BaseReflex):
             cont, extras = render_view_func(
                     request.callback_info[0],
                     response.content,
+                    ctx,
                     render_in,
                     )
 

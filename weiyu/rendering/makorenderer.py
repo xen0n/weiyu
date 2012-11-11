@@ -68,8 +68,10 @@ class MakoRenderable(Renderable):
         super(MakoRenderable, self).__init__(*args, **kwargs)
         self._template = tmpl
 
-    def _do_render(self, context):
-        return self._template.render_unicode(**dict(context)), {}
+    def _do_render(self, result, context):
+        real_ctx = result.copy()
+        real_ctx.update(context)
+        return self._template.render_unicode(**real_ctx), {}
 
 
 @render_hub.register_handler('mako')

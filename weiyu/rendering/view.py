@@ -30,7 +30,7 @@ from .base import RenderContext
 from ..helpers.annotation import get_annotation
 
 
-def render_view_func(renderable_fn, context, typ):
+def render_view_func(renderable_fn, result, context, typ):
     render_info = get_annotation(renderable_fn, 'rendering')
 
     if typ not in render_info:
@@ -43,7 +43,7 @@ def render_view_func(renderable_fn, context, typ):
     ctx = RenderContext(context)
     handler_args, handler_kwargs = render_info[typ]
     tmpl = render_hub.get_template(typ, *handler_args, **handler_kwargs)
-    return tmpl.render(ctx)
+    return tmpl.render(result, ctx)
 
 
 

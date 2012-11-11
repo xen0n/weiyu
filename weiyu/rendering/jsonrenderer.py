@@ -54,8 +54,9 @@ JSON_COMMON_EXTRAS = {
 
 
 class JSONRenderable(Renderable):
-    def _do_render(self, context):
-        return dumps(dict(context)), JSON_COMMON_EXTRAS
+    def _do_render(self, result, context):
+        # only expose the desired result object
+        return dumps(dict(result)), JSON_COMMON_EXTRAS
 
 
 @render_hub.register_handler('json')
