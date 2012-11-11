@@ -25,6 +25,8 @@
   </div>
 </aside>
 
+
+<%block name="scripts">
 <script type="text/x-handlebars-template" id="sec-item-tmpl">
 {{#sections}}
 <li class="brd-item">
@@ -55,6 +57,7 @@ $(document).ready(function() {
     });
   });
 </script>
+</%block>
 
 
 <%def name="show_sec_topten()">
