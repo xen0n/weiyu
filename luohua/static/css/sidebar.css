@@ -35,6 +35,11 @@ aside.right>div.sidecontainer {
   margin: 0 0 32px;
 }
 
+.sidenav>header {
+  margin: 0 0 -1px;
+  border-bottom: 1px solid #a9d46d;
+}
+
 .sidenav>header>h1 {
   color: #a9d46d;
   font-size: 24px;
@@ -42,8 +47,7 @@ aside.right>div.sidecontainer {
 
 .sidenav>nav>ul {
   border-left: 2px solid #a9d46d;
-  border-top: 1px solid #a9d46d;
-  padding: 2px 0 0 4px;
+  padding: 0 0 0 4px;
 }
 
 .sidenav>nav>ul>li {
@@ -58,9 +62,9 @@ aside.right>div.sidecontainer {
 .sidenav>nav>ul>li:hover {
   opacity: 1;
 
-  margin: 0 0 0 -4px;
-  padding: 0 0 0 2px;
-  border-left: 2px solid #a9d46d;
+  margin: 0 0 0 -9px;
+  padding: 0 0 0 6px;
+  border-left: 3px solid #a9d46d;
 }
 
 
