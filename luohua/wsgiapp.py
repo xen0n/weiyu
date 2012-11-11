@@ -49,29 +49,19 @@ def get_git_rev_color(_re_pat=re.compile(r'Git-([0-9A-Fa-f]{6,})$')):
 HAVE_GIT_COLOR, GIT_COLOR_VAL = get_git_rev_color()
 
 
-def get_response(request, **kwargs):
-    env, conf, session = request.env, request.site, request.session
-
-    result = dict(
-            request=request,
-            env=env,
-            version=VERSION_STR,
-            session=session,
-            HAVE_GIT_COLOR=HAVE_GIT_COLOR,
-            git_color=GIT_COLOR_VAL,
-            **kwargs
-            )
-
-    return result
-
-
 def to_response(request, status=200, mimetype='text/html', **kwargs):
     return ReflexResponse(
             status,
-            get_response(request, **kwargs),
+            kwargs,
             {
                 'mimetype': mimetype,
                 'enc': OUTPUT_ENC,
+                'request': request,
+                'env': request.env,
+                'session': request.session,
+                'version': VERSION_STR,
+                'HAVE_GIT_COLOR': HAVE_GIT_COLOR,
+                'git_color': GIT_COLOR_VAL,
                 },
             request,
             )
@@ -100,15 +90,7 @@ def section_list_view(request):
             {u'ord': u'9', u'name': u'校务信箱', u'topics': [u'建议', u'反馈', ], },
             {u'ord': u'A', u'name': u'服务专区', u'topics': [u'交易', u'服务', ], },
             ]
-    return ReflexResponse(
-            200,
-            {u'sections': result, },
-            {
-                'mimetype': 'text/html',
-                'enc': OUTPUT_ENC,
-                },
-            request,
-            )
+    return to_response(request, sections=result)
 
 
 @router_hub.endpoint('wsgi', 'section')
@@ -127,15 +109,7 @@ def section_view(request, sec_id):
             {u'id': u'Vista', u'name': u'Windows', u'topics': [u'电脑', ], u'bm': [], },
             {u'id': u'website', u'name': u'网站建设', u'topics': [u'待定', ], u'bm': [], },
             ]
-    return ReflexResponse(
-            200,
-            {u'sec_id': sec_id, u'boards': result, },
-            {
-                'mimetype': 'text/html',
-                'enc': OUTPUT_ENC,
-                },
-            request,
-            )
+    return to_response(request, sec_id=sec_id, boards=result)
 
 
 # router
