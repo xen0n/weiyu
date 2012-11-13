@@ -112,6 +112,52 @@ def section_view(request, sec_id):
     return to_response(request, sec_id=sec_id, boards=result)
 
 
+@router_hub.endpoint('wsgi', 'hot-global')
+@renderable('json')
+def global_hot_view(request):
+    result = [
+            {
+                u'id': 123 + i,
+                u'board': u'A.JNRainClub',
+                u'title': u'测试1_%d' % i,
+                u'author': u'xenon',
+                }
+            for i in range(10)
+            ]
+    return to_response(request, type=u'global', posts=result)
+
+
+@router_hub.endpoint('wsgi', 'hot-section')
+@renderable('json')
+def section_hot_view(request, sec_id):
+    result = [
+            {
+                u'id': 234 + i,
+                u'board': u'ComputerPark',
+                u'title': u'测试2_%d' % i,
+                u'author': u'xenon',
+                }
+            for i in range(10)
+            ]
+    return to_response(request, type=u'sec', sec_id=sec_id, posts=result)
+
+
+@router_hub.endpoint('wsgi', 'hot-board')
+@renderable('json')
+def board_hot_view(request, board):
+    result = [
+            {
+                u'id': 345 + i,
+                u'board': board,
+                u'title': u'测试3_%d' % i,
+                u'author': u'xenon',
+                }
+            for i in range(10)
+            ]
+    return to_response(request, type=u'board', board=board, posts=result)
+
+
+
 # router
 wsgi_router = router_hub.init_router(
         'wsgi',
