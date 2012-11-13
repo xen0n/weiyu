@@ -46,37 +46,7 @@
   <h1>今日十大</h1>
 </header>
 <nav>
-  <ul>
-    <li>
-      <a href="#">大家好我是来刷存在感的</a>
-    </li>
-    <li>
-      <a href="#">大家好我也是来刷存在感的</a>
-    </li>
-    <li>
-      <a href="#">刷存在感什么的才不会呢</a>
-    </li>
-    <li>
-      <a href="#">你才阿卡林！你全家都阿卡林！</a>
-    </li>
-    <li>
-      <a href="#">阿卡林的透明力好棒好棒的</a>
-    </li>
-    <li>
-      <a href="#">摇曳百合又要开始了哦</a>
-    </li>
-    <li>
-      <a href="#">I DON'T MONEY</a>
-    </li>
-    <li>
-      <a href="#">专注搅姬30年</a>
-    </li>
-    <li>
-      <a href="#">每天被玩坏的阿卡林可绕地球3圈</a>
-    </li>
-    <li>
-      <a href="#">好像有奇怪的东西混进去了0 0</a>
-    </li>
+  <ul class="global-hot-list">
   </ul>
 </nav>
 </%def>
@@ -176,6 +146,15 @@
 
 
 <%block name="scripts">
+<script type="text/x-handlebars-template" id="global-hot-tmpl">
+  {{#posts}}
+  <li>
+  <h2><a href="//bbs.jnrain.com/rainstyle/disparticle.php?boardName={{board}}&ID={{id}}">{{title}}</a></h2>
+  <!-- <span class="author">{{author}}</span> -->
+  </li>
+  {{/posts}}
+</script>
+
 <script type="text/x-handlebars-template" id="top-seeds-tmpl">
   {{#seeds}}
   <li>
@@ -186,8 +165,16 @@
 
 <script>
 $(document).ready(function() {
+  var global_hot_list=$('.global-hot-list');
   var seed_list=$('.top-seeds-list');
+  var global_hot_tmpl=Handlebars.compile($('#global-hot-tmpl').html());
   var top_seeds_tmpl=Handlebars.compile($('#top-seeds-tmpl').html());
+
+  $.getJSON(
+    'http://bbs.jnrain.com/rainstyle/topten_json.php?callback=?',
+    function(data, text_status, jqXHR) {
+      global_hot_list.empty().html(global_hot_tmpl(data));
+    });
 
   $.getJSON(
     'http://bt.jnrain.com/get_top_seed_json.php?callback=?',
