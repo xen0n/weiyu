@@ -1,36 +1,6 @@
 {
   "site": {
     "$$nodup": true,
-    "routing": [
-      "exact",
-      ["/static/", [
-        "regex",
-        ["^(?P<path>.*)$", "staticfile", null]
-        ], null],
-      ["/api/", [
-        "exact",
-        ["sec/", [
-          "regex",
-          ["^$", "section_list", {"render_in": "json"}],
-          ["^(?P<sec_id>[0-9A-Za-z])/$", "section", {"render_in": "json"}]
-          ], null],
-        ["hot/", [
-          "regex",
-          ["^$", "hot-global", {"render_in": "json"}],
-          ["^sec/(?P<sec_id>[0-9A-Za-z])/$", "hot-section", {"render_in": "json"}],
-          ["^board/(?P<board>[0-9A-Za-z._]+)/$", "hot-board", {"render_in": "json"}]
-          ], null]
-        ], null],
-      ["/", [
-        "regex",
-        ["^$", "index", {"render_in": "mako"}],
-        ["^sec/", [
-          "regex",
-          ["^$", "section_list", {"render_in": "mako"}],
-          ["^(?P<sec_id>[0-9A-Za-z])/$", "section", {"render_in": "mako"}]
-          ], null]
-        ], null]
-      ],
     "session": {
       "backend": "beaker",
       "options": {

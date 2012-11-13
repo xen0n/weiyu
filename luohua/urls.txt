@@ -1,0 +1,25 @@
+--exact
+/static/:
+    --regex
+    ^(?P<path>.*)$ staticfile null
+
+/api/:
+    --exact
+    sec/:
+        --regex
+        ^$ section_list json
+        ^(?P<sec_id>[0-9A-Za-z])/$ section json
+    hot/:
+        --regex
+        ^$ hot-global json
+        ^sec/(?P<sec_id>[0-9A-Za-z])/$ hot-section json
+        ^board/(?P<board>[0-9A-Za-z._]+)/$ hot-board json
+
+/:
+    --regex
+    ^$ index mako
+    ^sec/:
+        --regex
+        ^$ section_list mako
+        ^(?P<sec_id>[0-9A-Za-z])/$ section mako
+

@@ -159,10 +159,7 @@ def board_hot_view(request, board):
 
 
 # router
-wsgi_router = router_hub.init_router(
-        'wsgi',
-        request('site')['routing'],
-        )
+wsgi_router = router_hub.init_router_from_config('wsgi', 'urls.txt')
 router_hub.register_router(wsgi_router)
 
 
