@@ -1,3 +1,4 @@
 Beaker>=1.6.3
 Mako>=0.7.1
 pymongo>=2.2.1
+ply>=3.4

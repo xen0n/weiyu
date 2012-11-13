@@ -26,6 +26,9 @@ __all__ = [
 from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
 
+# this does not cause circular import
+from .config.parser import parse_config
+
 
 class RouterHub(BaseHub):
     registry_name = 'weiyu.router'
@@ -152,6 +155,10 @@ class RouterHub(BaseHub):
 
     def init_router(self, typ, routing_rules):
         return self._do_init_router(typ, routing_rules, 0)
+
+    def init_router_from_config(self, typ, filename):
+        config = parse_config(filename)
+        return self.init_router(typ, config)
 
 
 router_hub = RouterHub()
