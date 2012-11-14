@@ -1,16 +1,31 @@
 weiyu
 =====
 
-**weiyu** (**微雨** as in 落花人獨立，微雨燕雙飛/落花人独立，微雨燕双飞), is
-an experimental modern BBS mainly written in `Python`_. It is meant to replace
-the aging `KBS BBS`_ backend used by the `JNRain`_ forum.
+**weiyu** is yet another lightweight `Python`_ web framework that is highly
+modular and configurable. On top of the framework is **luohua**, an
+experimental modern BBS. The two are developed to replace the aging
+`KBS BBS`_ backend used by the `JNRain`_ forum.
 
 .. _Python: http://python.org/
 .. _KBS BBS: http://dev.kcn.cn/
 .. _JNRain: http://bbs.jnrain.com/
 
+Why the name?
+-------------
+
+The two names come from *Lin Jiang Xian* (trad: 臨江仙/simp: 临江仙) by Yan
+Jidao, a poet of the Song dynasty. The referenced sentence is
+“去年春恨卻來時，落花人獨立，微雨燕雙飛”.
+
+
 Dependencies
 ------------
+
+The simple way:
+
+    $ pip install -r requirements.txt
+
+Or the more detailed description:
 
 ``weiyu`` utilizes non-relational DBMS, at present only `MongoDB`_ with the
 `pymongo`_ wrapper is supported.
@@ -27,6 +42,11 @@ The only session backend implemented so far is a wrapper around `Beaker`_.
 install it for all your textual data rendering.
 
 .. _Mako templating system: http://www.makotemplates.org/
+
+The routing module features a micro-language specifically designed for
+describing routing rules, and for the parser part `ply`_ is needed.
+
+.. _ply: http://www.dabeaz.com/ply/
 
 The system is planned to make use of message queue, and the preferred MQ
 provider is `RabbitMQ`_. `Celery`_ will be required together to provide
