@@ -51,7 +51,7 @@ $(document).ready(function() {
   var sec_item_tmpl=Handlebars.compile($('#sec-item-tmpl').html());
 
   $.getJSON(
-    '/api/sec/',
+    'http://bbs.jnrain.com/rainstyle/sec_json.php?callback=?',
     function(data, text_status, jqXHR) {
       brdlist.empty().html(sec_item_tmpl(data));
     });
