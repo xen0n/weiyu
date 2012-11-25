@@ -60,7 +60,7 @@ $(document).ready(function() {
   var brd_item_tmpl=Handlebars.compile($('#brd-item-tmpl').html());
 
   $.getJSON(
-    '/api/sec/${sec_id}/',
+    'http://bbs.jnrain.com/rainstyle/boards_json.php?sec=${sec_id}&callback=?',
     function(data, text_status, jqXHR) {
       brdlist.empty().html(brd_item_tmpl(data));
     });
