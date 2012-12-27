@@ -2,30 +2,6 @@
 	"site": {
 		"$$nodup": true,
 		"name": "weiyu hello site",
-		"routing": [
-			"exact",
-			["/static/", [
-				"regex",
-				["^(?P<path>.*)$", "staticfile", null]
-			], null],
-			["/calc/", [
-				"regex",
-				["^(?P<val>\\d+)/", [
-					"regex",
-					["text/$", "multiformat-test", {"render_in": "mako"}],
-					["json/$", "multiformat-test", {"render_in": "json"}]
-					], null]
-			], null],
-			["/ajax/", [
-				"exact",
-				["doubler/", [
-					"regex",
-					["^(?P<number>\\d+)/json/$", "ajax-doubler", {"render_in": "json"}]
-				], null],
-				["dbtest/json/", "ajax-dbtest", {"render_in": "json"}]
-			], null],
-			["", "index", {"render_in": "mako"}]
-			],
 		"session": {
 			"backend": "beaker",
 			"options": {
