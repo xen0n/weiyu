@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / adapter / WSGI interface
+# weiyu / adapter / http / WSGI interface
 #
 # Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -26,62 +26,18 @@ __all__ = [
 from functools import partial
 from urlparse import parse_qs
 
-from ..helpers.misc import smartstr, smartbytes
+from ...helpers.misc import smartstr, smartbytes
 
-from ..registry.provider import request as reg_request
+from ...registry.provider import request as reg_request
 
-from ..reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
-from ..router import router_hub
-from ..session import session_hub
-from ..rendering.view import render_view_func
+from ...reflex.classes import BaseReflex, ReflexRequest, ReflexResponse
+from ...router import router_hub
+from ...session import session_hub
+from ...rendering.view import render_view_func
+
+from .util import status_to_str
 
 HEADER_ENC = 'utf-8'
-
-# This dict is pasted from Django's core/handlers/wsgi.py
-# See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
-STATUS_CODES_MAP = {
-        100: b'CONTINUE',
-        101: b'SWITCHING PROTOCOLS',
-        200: b'OK',
-        201: b'CREATED',
-        202: b'ACCEPTED',
-        203: b'NON-AUTHORITATIVE INFORMATION',
-        204: b'NO CONTENT',
-        205: b'RESET CONTENT',
-        206: b'PARTIAL CONTENT',
-        300: b'MULTIPLE CHOICES',
-        301: b'MOVED PERMANENTLY',
-        302: b'FOUND',
-        303: b'SEE OTHER',
-        304: b'NOT MODIFIED',
-        305: b'USE PROXY',
-        306: b'RESERVED',
-        307: b'TEMPORARY REDIRECT',
-        400: b'BAD REQUEST',
-        401: b'UNAUTHORIZED',
-        402: b'PAYMENT REQUIRED',
-        403: b'FORBIDDEN',
-        404: b'NOT FOUND',
-        405: b'METHOD NOT ALLOWED',
-        406: b'NOT ACCEPTABLE',
-        407: b'PROXY AUTHENTICATION REQUIRED',
-        408: b'REQUEST TIMEOUT',
-        409: b'CONFLICT',
-        410: b'GONE',
-        411: b'LENGTH REQUIRED',
-        412: b'PRECONDITION FAILED',
-        413: b'REQUEST ENTITY TOO LARGE',
-        414: b'REQUEST-URI TOO LONG',
-        415: b'UNSUPPORTED MEDIA TYPE',
-        416: b'REQUESTED RANGE NOT SATISFIABLE',
-        417: b'EXPECTATION FAILED',
-        500: b'INTERNAL SERVER ERROR',
-        501: b'NOT IMPLEMENTED',
-        502: b'BAD GATEWAY',
-        503: b'SERVICE UNAVAILABLE',
-        504: b'GATEWAY TIMEOUT',
-        505: b'HTTP VERSION NOT SUPPORTED',
-        }
 
 
 class WSGIRequest(ReflexRequest):
@@ -258,7 +214,7 @@ class WSGIReflex(BaseReflex):
 
         status_line = b'%d %s' % (
                 status_code,
-                STATUS_CODES_MAP[status_code],
+                status_to_str(status_code),
                 )
 
         # ensure all header contents are bytes

@@ -24,7 +24,7 @@ import re
 from weiyu.registry.loader import JSONConfig
 from weiyu.registry.provider import request
 from weiyu.reflex.classes import ReflexResponse
-from weiyu.adapters.wsgi import WeiyuWSGIAdapter
+from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
 from weiyu.router import router_hub
 
 from weiyu.__version__ import VERSION_STR
