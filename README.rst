@@ -10,6 +10,14 @@ experimental modern BBS. The two are developed to replace the aging
 .. _KBS BBS: http://dev.kcn.cn/
 .. _JNRain: http://bbs.jnrain.com/
 
+Community
+---------
+
+* Mailing list
+
+    * weiyu-cn at groups.google.com (Main language: Chinese)
+
+
 Why the name?
 -------------
 
