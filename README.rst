@@ -14,7 +14,6 @@ Community
 ---------
 
 * Mailing list
-
     * weiyu-cn at groups.google.com (Main language: Chinese)
 
 
