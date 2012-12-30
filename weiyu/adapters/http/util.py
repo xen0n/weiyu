@@ -28,6 +28,7 @@ __all__ = [
             ]
 
 from functools import partial
+from urlparse import parse_qs
 
 from ...helpers.misc import smartbytes
 
