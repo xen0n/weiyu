@@ -27,7 +27,7 @@ from ..reflex.classes import ReflexResponse
 from ..router import router_hub
 
 
-@router_hub.endpoint('wsgi', 'staticfile')
+@router_hub.endpoint('http', 'staticfile')
 def staticfile_view(request, path):
     # TODO: caching
     conf = request.site['staticfile']

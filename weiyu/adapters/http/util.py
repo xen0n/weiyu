@@ -21,7 +21,15 @@ from __future__ import unicode_literals, division
 
 __all__ = [
             'status_to_str',
+            'dummy_file_wrapper',
+            'send_content_iter',
+            'parse_form',
+            'gen_http_headers',
             ]
+
+from functools import partial
+
+from ...helpers.misc import smartbytes
 
 
 # This dict is pasted from Django's core/handlers/wsgi.py
@@ -70,6 +78,9 @@ STATUS_CODES_MAP = {
         505: b'HTTP VERSION NOT SUPPORTED',
         }
 
+# hopefully reduce repetitive tuple building...?
+STR_CLASSES = (str, unicode, )
+
 
 def status_to_str(status):
     '''Converts status code to its description.
@@ -77,6 +88,57 @@ def status_to_str(status):
     '''
 
     return STATUS_CODES_MAP[status]
+
+
+def dummy_file_wrapper(fp, blk_sz=None):
+    blk_sz = blk_sz if blk_sz is not None else 4096
+    do_read = partial(fp.read, blk_sz)
+    chunk = do_read()
+    while len(chunk) > 0:
+        yield chunk
+        chunk = do_read()
+    fp.close()
+
+
+def send_content_iter(content, enc):
+    if isinstance(content, STR_CLASSES):
+        yield smartbytes(content, enc, 'replace')
+    else:
+        for chunk in content:
+            # encode and send the chunk using response.encoding
+            yield smartbytes(chunk, enc, 'replace')
+
+
+def parse_form(content):
+    form = parse_qs(content)
+
+    # eliminate all those 1-element lists
+    for k in form.iterkeys():
+        if len(form[k]) == 1:
+            form[k] = form[k][0]
+
+    return form
+
+
+def gen_http_headers(response):
+    status_code, enc = response.status, response.encoding
+
+    status_line = b'%d %s' % (
+            status_code,
+            status_to_str(status_code),
+            )
+
+    # ensure all header contents are bytes
+    headers = []
+
+    # insert a Content-Length along if response is not raw file
+    if not response.is_raw_file:
+        headers.append((b'Content-Length', str(len(response.content)), ))
+
+    for k, v in response.http_headers:
+        headers.append((smartbytes(k, enc), smartbytes(v, enc), ))
+
+    return status_line, headers
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
