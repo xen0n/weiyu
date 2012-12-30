@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / luohua / WSGI application
+# weiyu / luohua / Tornado test
 #
 # Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -20,7 +20,7 @@
 from __future__ import unicode_literals, division
 
 from weiyu.registry.loader import JSONConfig
-from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
+from weiyu.adapters.http.tornado_ import WeiyuTornadoAdapter
 from weiyu.router import router_hub
 
 from weiyu.utils.views import staticfile_view
@@ -35,25 +35,15 @@ from luohua import views
 
 
 # router
-wsgi_router = router_hub.init_router_from_config('http', 'urls.txt')
-router_hub.register_router(wsgi_router)
-
-
-# WSGI callable
-application = WeiyuWSGIAdapter()
+http_router = router_hub.init_router_from_config('http', 'urls.txt')
+router_hub.register_router(http_router)
 
 
 if __name__ == '__main__':
     import sys
-    from socket import gethostname
+    from tornado import ioloop
 
     DEFAULT_PORT = 9090
-
-    try:
-        from cherrypy import wsgiserver
-    except ImportError:
-        print >>sys.stderr, 'no cherrypy, plz run via an external wsgi server'
-        sys.exit(1)
 
     if len(sys.argv) > 2:
         print >>sys.stderr, 'usage: %s [port=%d]' % (sys.argv[0], DEFAULT_PORT)
@@ -61,13 +51,9 @@ if __name__ == '__main__':
 
     port = int(sys.argv[1]) if len(sys.argv) == 2 else DEFAULT_PORT
 
-    server = wsgiserver.CherryPyWSGIServer(
-            ('0.0.0.0', port),
-            application,
-            server_name=gethostname(),
-            )
-
-    server.start()
+    server = WeiyuTornadoAdapter()
+    server.listen(port)
+    ioloop.IOLoop.instance().start()
 
 
 # vim:ai:et:ts=4:sw=4:sts=4:ff=unix:fenc=utf-8:
