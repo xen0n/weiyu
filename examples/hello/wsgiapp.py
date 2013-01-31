@@ -137,7 +137,7 @@ def get_response(request):
     return result
 
 
-@router_hub.endpoint('wsgi', 'index')
+@router_hub.endpoint('http', 'index')
 @renderable('mako', 'env.html')
 @hookable('test-app')
 def env_test_worker(request):
@@ -154,7 +154,7 @@ def env_test_worker(request):
             )
 
 
-@router_hub.endpoint('wsgi', 'multiformat-test')
+@router_hub.endpoint('http', 'multiformat-test')
 @renderable('mako', 'multifmt.txt')
 @renderable('json')
 def multiformat_test_view(request, val):
@@ -178,7 +178,7 @@ def multiformat_test_view(request, val):
 
 
 # a simple Ajax servicing routine
-@router_hub.endpoint('wsgi', 'ajax-doubler')
+@router_hub.endpoint('http', 'ajax-doubler')
 @renderable('json')
 def ajax_doubler(request, number):
     num = None
@@ -199,7 +199,7 @@ def ajax_doubler(request, number):
 
 
 # benchmark purpose: json w/ db access
-@router_hub.endpoint('wsgi', 'ajax-dbtest')
+@router_hub.endpoint('http', 'ajax-dbtest')
 @renderable('json')
 def ajax_dbtest(request):
     result = TestStruct().findall()
@@ -221,7 +221,7 @@ def ajax_dbtest(request):
 
 
 # DEBUG: router
-wsgi_router = router_hub.init_router_from_config('wsgi', 'urls.txt')
+wsgi_router = router_hub.init_router_from_config('http', 'urls.txt')
 router_hub.register_router(wsgi_router)
 
 
