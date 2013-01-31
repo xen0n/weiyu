@@ -24,6 +24,8 @@ try:
 except ImportError:
     import json
 
+import subprocess
+
 from weiyu.reflex.classes import ReflexResponse
 
 from weiyu.registry.provider import request as regrequest
@@ -53,6 +55,8 @@ def dummy_response(status):
 @router_hub.endpoint('http', 'gh-webhook-post-receive')
 @renderable('dummy')
 def on_gh_post_receive(request):
+    conf = regrequest('site')['github']['post-receive']
+
     if request.remote_addr not in GH_IP_WHITELIST:
         return dummy_response(403)
 
@@ -70,7 +74,19 @@ def on_gh_post_receive(request):
     except ValueError:
         return dummy_response(400)
 
-    # TODO: WIP
+    repo_name, ref = payload['repository']['name'], payload['ref']
+    if repo_name != conf['name'] or ref != conf['ref']:
+        return dummy_response(403)
+
+    # Push accepted, execute the command given in configuration
+    # FIXME: This is best done via some established deferred mechanism
+    # For now touching a file should be a sign of success
+    # Wait... you're deploying this on Windows? Are you serious?
+    touch = subprocess.Popen(
+            ['touch', conf['touch'], ],
+            shell=False,
+            )
+    touch.communicate()
 
     return dummy_response(204)
 

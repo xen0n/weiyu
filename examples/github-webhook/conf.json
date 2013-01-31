@@ -1,0 +1,12 @@
+{
+	"site": {
+		"$$nodup": true,
+		"github": {
+			"post-receive": {
+				"name": "weiyu",
+				"ref": "refs/heads/github-webhook",
+				"touch": "/tmp/github-post-receive-worked"
+			}
+		}
+	 }
+}
