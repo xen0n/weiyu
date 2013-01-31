@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / rendering / package
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,9 +45,8 @@ render_hub = RenderHub()
 # Force loading of handlers AFTER hub init
 # XXX This is extremely dangerous and can easily lead to circular imports.
 # Rewrite to some file-based __import__-invoking thing may be better.
-from . import jsonrenderer
-from . import makorenderer
-del jsonrenderer, makorenderer
+from . import _reg
+del _reg
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
