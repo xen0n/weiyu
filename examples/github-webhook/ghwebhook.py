@@ -41,7 +41,7 @@ GH_IP_WHITELIST = (
         )
 
 
-def dummy_response(status):
+def dummy_response(status, request):
     return ReflexResponse(
             status,
             None,
@@ -56,27 +56,28 @@ def dummy_response(status):
 @renderable('dummy')
 def on_gh_post_receive(request):
     conf = regrequest('site')['github']['post-receive']
+    dummy = lambda status: dummy_response(status, request)
 
     if request.remote_addr not in GH_IP_WHITELIST:
-        return dummy_response(403)
+        return dummy(403)
 
     if request.method != 'POST':
         # TODO: a limit method decorator would be better
-        return dummy_response(400)
+        return dummy(400)
 
     try:
         payload_json = request.form['payload']
     except KeyError:
-        return dummy_response(400)
+        return dummy(400)
 
     try:
         payload = json.loads(payload_json)
     except ValueError:
-        return dummy_response(400)
+        return dummy(400)
 
     repo_name, ref = payload['repository']['name'], payload['ref']
     if repo_name != conf['name'] or ref != conf['ref']:
-        return dummy_response(403)
+        return dummy(403)
 
     # Push accepted, execute the command given in configuration
     # FIXME: This is best done via some established deferred mechanism
@@ -88,7 +89,7 @@ def on_gh_post_receive(request):
             )
     touch.communicate()
 
-    return dummy_response(204)
+    return dummy(204)
 
 
 # vim:ai:et:ts=4:sw=4:sts=4:ff=unix:fenc=utf-8:
