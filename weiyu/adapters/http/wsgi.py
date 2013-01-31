@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / adapter / http / WSGI interface
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -91,7 +91,7 @@ class WSGIReflex(BaseHTTPReflex):
             ctype = request.content_type = env.get('CONTENT_TYPE', None)
             if ctype == 'application/x-www-form-urlencoded':
                 # decode the response for the view
-                request.form = parse_form(content)
+                request.form = parse_form(request.content)
         else:
             request.content = None
 
