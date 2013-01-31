@@ -7,6 +7,17 @@
 				"ref": "refs/heads/github-webhook",
 				"touch": "/tmp/github-post-receive-worked"
 			}
+		},
+		"session": {
+			"backend": "beaker",
+			"options": {
+				"session.type": "file",
+				"session.data_dir": "/tmp/beaker/data",
+				"session.lock_dir": "/tmp/beaker/lock",
+				"session.key": "weiyu.session",
+				"session.secret": "7h1z_must_13e_s3cr37",
+				"session.timeout": 120
+			}
 		}
-	 }
+	}
 }
