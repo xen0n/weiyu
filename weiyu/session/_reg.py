@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / session handling / package
+# weiyu / session handling / class registry helper
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,27 +19,7 @@
 
 from __future__ import unicode_literals, division
 
-__all__ = [
-        'session_hub',
-        ]
-
-from ..helpers.hub import BaseHub
-from ..registry.classes import UnicodeRegistry
-from ..registry.provider import request
-
-
-class SessionHub(BaseHub):
-    registry_name = 'weiyu.session'
-    registry_class = UnicodeRegistry
-    handlers_key = 'backends'
-
-
-session_hub = SessionHub()
-
-
-# force class load
-from . import _reg
-del _reg
+from . import beakerbackend
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
