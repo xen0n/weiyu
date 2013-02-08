@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / GitHub webhook listener
+# weiyu / utilities / GitHub webhook listener
 #
 # Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
