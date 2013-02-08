@@ -29,7 +29,7 @@ conf = JSONConfig('conf.json')
 conf.populate_central_regs()
 
 # view functions
-from ghwebhook import on_gh_post_receive
+from weiyu.utils.ghwebhook import on_gh_post_receive
 
 
 # router
