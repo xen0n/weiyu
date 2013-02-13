@@ -24,8 +24,6 @@ try:
 except ImportError:
     import json
 
-import subprocess
-
 from weiyu.reflex.classes import ReflexResponse
 
 from weiyu.registry.provider import request as regrequest
@@ -38,6 +36,12 @@ GH_IP_WHITELIST = (
         '50.57.128.197',
         '108.171.174.178',
         '50.57.231.61',
+        '54.235.183.49',
+        '54.235.183.23',
+        '54.235.118.251',
+        '54.235.120.57',
+        '54.235.120.61',
+        '54.235.120.62',
         )
 
 
@@ -76,18 +80,15 @@ def on_gh_post_receive(request):
         return dummy(400)
 
     repo_name, ref = payload['repository']['name'], payload['ref']
-    if repo_name != conf['name'] or ref != conf['ref']:
+    if repo_name != conf['name'] or ref not in conf['refs']:
         return dummy(403)
 
     # Push accepted, execute the command given in configuration
+    # Write the payload into the configured file, in effect also touching
+    # it
     # FIXME: This is best done via some established deferred mechanism
-    # For now touching a file should be a sign of success
-    # Wait... you're deploying this on Windows? Are you serious?
-    touch = subprocess.Popen(
-            ['touch', conf['touch'], ],
-            shell=False,
-            )
-    touch.communicate()
+    with open(conf['refs'][ref], 'wb') as fp:
+        fp.write(payload_json)
 
     return dummy(204)
 
