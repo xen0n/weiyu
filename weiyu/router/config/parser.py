@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / rendering / view renderer
+# weiyu / routing config / parser wrapper
 #
 # Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -20,31 +20,20 @@
 from __future__ import unicode_literals, division
 
 __all__ = [
-        'render_view_func',
+        'parse_config',
         ]
 
-from . import render_hub
-from .exc import RenderingError
-from .base import RenderContext
-
-from ..helpers.annotation import get_annotation
+import ply.lex as lex
+from .wrlex import WRLexer
+from .wryacc import parser
 
 
-def render_view_func(renderable_fn, result, context, typ):
-    render_info = get_annotation(renderable_fn, 'rendering')
+def parse_config(filename, enc='utf-8'):
+    with open(filename, 'rb') as fp:
+        raw_content = fp.read()
+    content = raw_content.decode(enc)
 
-    if typ not in render_info:
-        # this format is not supported by view
-        # TODO: maybe specialize this exception's type
-        raise RenderingError(
-                'This format ("%s") is not supported by view' % typ
-                )
-
-    ctx = RenderContext(context)
-    handler_args, handler_kwargs = render_info[typ]
-    tmpl = render_hub.get_template(typ, *handler_args, **handler_kwargs)
-    return tmpl.render(result, ctx)
+    return parser.parse(lexer=WRLexer(content))
 
 
-
-# vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
+# vim:ai:et:ts=4:sw=4:sts=4:ff=unix:fenc=utf-8:

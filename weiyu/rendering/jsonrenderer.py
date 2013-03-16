@@ -31,15 +31,32 @@ from __future__ import unicode_literals, division
 
 __all__ = ['JSONRenderable', ]
 
-from json import dumps
+try:
+    # favor esnme's ujson accelerated library
+    from ujson import dumps
+except ImportError:
+    # fallback on the stdlib
+    from json import dumps
+
+    # use compact encoding, so construct a shim to keep the function
+    # signature consistent
+    from functools import partial
+    dumps = partial(dumps, separators=(',', ':', ))
 
 from . import render_hub
 from .base import Renderable
 
+# FIXME: this doesn't work for [lte IE 7], as a Save As dialog would pop up.
+# We need to sniff the UA string and return text/javascript in that case.
+JSON_COMMON_EXTRAS = {
+        'mimetype': 'application/json',
+        }
+
 
 class JSONRenderable(Renderable):
-    def _do_render(self, context):
-        return dumps(dict(context))
+    def _do_render(self, result, context):
+        # only expose the desired result object
+        return dumps(dict(result)), JSON_COMMON_EXTRAS
 
 
 @render_hub.register_handler('json')

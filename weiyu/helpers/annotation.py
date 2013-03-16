@@ -55,6 +55,7 @@ def is_annotated(obj):
 
     return ANNOTATE_KEY in obj.__dict__
 
+
 def ensure_annotation(obj):
     '''Ensures the presence of ``_weiyu_data_`` dict inside the object's
     ``__dict__``. Does nothing if the object has already been annotated
@@ -110,7 +111,7 @@ def get_annotation(obj, key=None):
 
     Raises :exc:`AttributeError` if ``obj`` is not previously annotated
     by this module.
-    
+
     If ``key`` is ``None``, returns a copy of the object's annotation
     dictionary; returns the data associated with ``key`` otherwise. If
     ``key`` is not found, :exc:`KeyError` is ``raise``\ d.

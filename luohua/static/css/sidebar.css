@@ -1,0 +1,71 @@
+aside {
+  float: left;
+}
+
+aside.left {
+/*  width: 230px; */
+  margin-left: -100%;
+}
+
+/*
+ * margin-left should be -(RightColumnWidth) for right columns
+ * remember this must be kept in sync w/ .contentwrapper in base.css!
+ */
+aside.right {
+  width: 25%;
+  margin-left: -25%;
+}
+
+.maincontentwrapper {
+  float: left;
+  width: 100%;
+}
+
+aside.left>div.sidecontainer {
+  padding: 0 4px 0 0;
+}
+
+aside.right>div.sidecontainer {
+  padding: 0 0 0 4px;
+}
+
+
+/* sections */
+.sidenav {
+  margin: 0 0 32px;
+}
+
+.sidenav>header {
+  margin: 0 0 -1px;
+  border-bottom: 1px solid #a9d46d;
+}
+
+.sidenav>header>h1 {
+  color: #a9d46d;
+  font-size: 24px;
+}
+
+.sidenav>nav>ul {
+  border-left: 2px solid #a9d46d;
+  padding: 0 0 0 4px;
+}
+
+.sidenav>nav>ul>li {
+  opacity: 0.4;
+
+  -moz-transition: opacity 0.2s ease 0s;
+  -webkit-transition: opacity 0.2s ease 0s;
+  -o-transition: opacity 0.2s ease 0s;
+  transition: opacity 0.2s ease 0s;
+}
+
+.sidenav>nav>ul>li:hover {
+  opacity: 1;
+
+  margin: 0 0 0 -9px;
+  padding: 0 0 0 6px;
+  border-left: 3px solid #a9d46d;
+}
+
+
+/* vim:set ai et ts=2 sw=2 sts=2: */

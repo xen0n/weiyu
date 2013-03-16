@@ -1,0 +1,113 @@
+## -*- coding: utf-8 -*-
+<%inherit file="inc/base.html" />
+
+<div class="maincontentwrapper">
+  <div class="contentcontainer">
+    <div class="content">
+      <section class="brd-list">
+        <header>
+          <h1>版面列表</h1>
+        </header>
+        <nav class="brd-nav">
+        <ul class="brd-nav-list">
+        </ul>
+        </nav>
+      </section>
+    </div>
+  </div>
+</div>
+
+<aside class="right">
+  <div class="sidecontainer">
+    <section class="sidenav topten">
+      ${show_brd_topten()}
+    </section>
+  </div>
+</aside>
+
+
+<%block name="scripts">
+<script type="text/x-handlebars-template" id="brd-item-tmpl">
+{{#boards}}
+<li class="brd-item">
+  <h2 class="brd-item-title">
+    <span class="brd-item-ord">{{id}}</span>
+    <a href="/board/{{id}}/" class="brd-item-name">{{name}}</a>
+  </h2>
+  <aside class="brd-item-data clear">
+
+  <ul class="brd-item-bm-list clear">
+    {{#if bm}}{{#each bm}}
+    <li class="brd-item-bm"><a href="/user/{{this}}/">{{this}}</a></li>{{/each}}
+    {{else}}
+    <li class="brd-item-bm brd-item-not-bm">暂无</li>
+    {{/if}}
+  </ul>
+
+  <ul class="brd-item-topics clear">
+    {{#topics}}
+    <li class="brd-item-topic">{{this}}</li>
+    {{/topics}}
+  </ul>
+  </aside>
+</li>
+{{/boards}}
+</script>
+
+<script>
+$(document).ready(function() {
+  var brdlist=$('.brd-nav-list');
+  var brd_item_tmpl=Handlebars.compile($('#brd-item-tmpl').html());
+
+  $.getJSON(
+    'http://bbs.jnrain.com/rainstyle/boards_json.php?sec=${sec_id}&callback=?',
+    function(data, text_status, jqXHR) {
+      brdlist.empty().html(brd_item_tmpl(data));
+    });
+  });
+</script>
+</%block>
+
+
+<%def name="show_brd_topten()">
+<header>
+  <h1>版面十大</h1>
+</header>
+<nav>
+  <ul>
+    <li>
+      <a href="#">大家好我是来刷存在感的</a>
+    </li>
+    <li>
+      <a href="#">大家好我也是来刷存在感的</a>
+    </li>
+    <li>
+      <a href="#">刷存在感什么的才不会呢</a>
+    </li>
+    <li>
+      <a href="#">你才阿卡林！你全家都阿卡林！</a>
+    </li>
+    <li>
+      <a href="#">阿卡林的透明力好棒好棒的</a>
+    </li>
+    <li>
+      <a href="#">摇曳百合又要开始了哦</a>
+    </li>
+    <li>
+      <a href="#">I DON'T MONEY</a>
+    </li>
+    <li>
+      <a href="#">专注搅姬30年</a>
+    </li>
+    <li>
+      <a href="#">每天被玩坏的阿卡林可绕地球3圈</a>
+    </li>
+    <li>
+      <a href="#">好像有奇怪的东西混进去了0 0</a>
+    </li>
+  </ul>
+</nav>
+</%def>
+
+
+## vim:set ai et ts=2 sw=2 sts=2 ff=unix fenc=utf-8 syn=mako:

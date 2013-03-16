@@ -1,0 +1,21 @@
+--exact
+/static/:
+    --regex
+    ^(?P<path>.*)$ staticfile null
+
+/calc/:
+    --regex
+    ^(?P<val>\\d+)/:
+        --regex
+        text/$ multiformat-test mako
+        json/$ multiformat-test json
+
+/ajax/:
+    --exact
+    doubler/:
+        --regex
+        ^(?P<number>\\d+)/json/$ ajax-doubler json
+    dbtest/json/ ajax-dbtest json
+
+"" index mako
+

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / <component> / <file desc>
+# weiyu / session handling / class registry helper
 #
-# Copyright (C) 2013 <AUTHOR>
+# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,10 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from __future__ import unicode_literals, division
 
-# TODO: write code here
+from . import beakerbackend
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

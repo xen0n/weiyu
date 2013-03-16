@@ -56,13 +56,13 @@ class Renderable(object):
     middleware system, which actually is what inspired this design.
 
     The pre-processor or post-processor can be any callable. Pre-processors
-    are called with one argument, a ``RenderContext`` instance; its return
-    type specifies the action following. A return value of ``None`` just
-    makes the system proceed to the next hook (if any); a ``unicode``
-    return value causes the actual rendering be skipped and post-processor
-    hooks invoked; a return value that is a ``RenderContext`` *replaces*
-    the current rendering context. Any other return types would lead to a
-    ``RenderingError``. The post-processors work almost the same way; they
+    are called with the result object and a ``RenderContext`` instance, and
+    are expected to return a tuple ``(proceed, new_result, new_context, )``.
+    If  ``proceed == False``, the actual rendering will be skipped and
+    post-processor hooks will be invoked. The rendering result will be set
+    to ``new_result`` in this case.
+
+    The post-processors work almost the same way; they
     are invoked with two parameters, the first being the newest
     intermediate result of rendering, the second the final render context
     object. Their return values are interpreted in a similar fashion,
@@ -75,61 +75,61 @@ class Renderable(object):
         self.pre_hooks = pre_hooks if pre_hooks is not None else []
         self.post_hooks = post_hooks if post_hooks is not None else []
 
-    def _do_render(self, context):
+    def _do_render(self, result, context):
         raise NotImplementedError
 
-    def render(self, context=None):
-        if context is None:
-            context = RenderContext()
+    def render(self, result=None, context=None):
+        result = {} if result is None else result
+        context = RenderContext() if context is None else context
 
         if not is_render_context(context):
             raise RenderingError(
                     u'class of context must be subclass of RenderContext'
                     )
 
-        real_context, result = context, None
+        skip_render, rendered = False, None
+        cooked_result, cooked_ctx = result, context
 
         # Execute the preprocess hooks.
         for hook in self.pre_hooks:
-            newly_cooked = hook(real_context)
+            proceed, new_result, new_ctx = hook(cooked_result, cooked_ctx)
 
-            if newly_cooked is None:
-                # do nothing, proceed to the next hook
-                continue
-            elif is_render_context(newly_cooked):
-                # update the context
-                real_context = newly_cooked
-            elif issubclass(type(newly_cooked), unicode):
-                # bypass the actual rendering
-                result = newly_cooked
-            else:
+            # context
+            if not is_render_context(new_ctx):
                 raise RenderingError(
-                        u"invalid pre-process hook return type: got '%s'"
-                        % str(type(newly_cooked))
+                        'new context not subclass of RenderContext'
                         )
+
+            # update the result and context
+            cooked_result, cooked_ctx = new_result, new_ctx
+
+            # skip rendering?
+            if not proceed:
+                skip_render, rendered = True, cooked_result
+                break
 
         # do the actual render if none of the preprocess hooks demanded early
         # return
-        if result is None:
-            result = self._do_render(real_context)
+        if not skip_render:
+            rendered = self._do_render(cooked_result, cooked_ctx)
 
         # Execute the postprocess hooks, w/ the result string and context.
         for hook in self.post_hooks:
-            new_result = hook(result, real_context)
+            new_rendered = hook(rendered, cooked_ctx)
 
-            if new_result is None:
+            if new_rendered is None:
                 # skip to the next one
                 continue
-            elif issubclass(type(new_result), unicode):
-                # update (replace) result string
-                result = new_result
+            elif issubclass(type(new_rendered), unicode):
+                # update (replace) rendered string
+                rendered = new_rendered
             else:
                 raise RenderingError(
                         u"invalid post-process hook return type: got '%s'"
-                        % str(type(new_result))
+                        % str(type(new_rendered))
                         )
 
-        return result
+        return rendered
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

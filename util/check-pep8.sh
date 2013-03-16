@@ -4,7 +4,7 @@ UTIL_DIR="$( cd "$( dirname ${BASH_SOURCE[0]} )" && pwd )"
 
 cd "${UTIL_DIR}/.."
 
-for subdir in weiyu kbslib util; do
+for subdir in luohua weiyu kbslib util; do
     find "${subdir}" -name '*.py' -type f | xargs pep8
 done
 

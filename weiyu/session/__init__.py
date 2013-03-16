@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / session handling / package
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,6 +35,11 @@ class SessionHub(BaseHub):
 
 
 session_hub = SessionHub()
+
+
+# force class load
+from . import _reg
+del _reg
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
