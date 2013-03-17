@@ -3,3 +3,4 @@ Mako>=0.7.1
 pymongo>=2.2.1
 ply>=3.4
 ipaddr>=2.1.10
+celery>3.0
