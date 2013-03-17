@@ -19,10 +19,6 @@
 
 from __future__ import unicode_literals, division
 
-__all__ = [
-        '',
-        ]
-
 import celery
 
 from . import task_hub
