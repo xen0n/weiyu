@@ -1,11 +1,9 @@
 # this file based on gitignore/Python.gitignore template on Github.
 
 # Compiled Python files
-#######################
 *.py[co]
 
 # Backup files
-##############
 *.bak
 *.tmp
 *.old
@@ -13,7 +11,6 @@
 .*.swp
 
 # Packages
-##########
 *.egg
 *.egg-info
 dist
@@ -27,24 +24,22 @@ develop-eggs
 .installed.cfg
 
 # Installer logs and other logfiles
-###################################
 pip-log.txt
 *.log
 
 # Unit test / coverage reports
-##############################
 .coverage
 .tox
 
-#Translations
-#############
+# Translations
 *.mo
 
-#Mr Developer
-#############
+# Mr Developer
 .mr.developer.cfg
 
-#Eric4
-######
+# Eric4
 *.e4p
 .eric4project
+
+# luohua, possibly housed inside
+luohua/
