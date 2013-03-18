@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / examples / GitHub WebHook API host - WSGI file
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
