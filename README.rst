@@ -90,4 +90,4 @@ process. In the future, mechanisms will be added to allow hot-reloading.
     the BBS are finished.
 
 
-.. vim:ai:et:ts=4:sw=4:sts=4:fenc=utf-8:
+.. vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
