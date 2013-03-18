@@ -25,6 +25,7 @@ from weiyu.router import router_hub
 from weiyu.rendering.decorator import renderable
 from weiyu.reflex.classes import ReflexResponse
 from weiyu.tasks import task_hub
+from weiyu.utils.server import cli_server
 
 # load up registries
 conf = JSONConfig('conf.json')
@@ -70,30 +71,7 @@ application = WeiyuWSGIAdapter()
 
 
 if __name__ == '__main__':
-    import sys
-    from socket import gethostname
-
-    DEFAULT_PORT = 9090
-
-    try:
-        from cherrypy import wsgiserver
-    except ImportError:
-        print >>sys.stderr, 'no cherrypy, plz run via an external wsgi server'
-        sys.exit(1)
-
-    if len(sys.argv) > 2:
-        print >>sys.stderr, 'usage: %s [port=%d]' % (sys.argv[0], DEFAULT_PORT)
-        sys.exit(2)
-
-    port = int(sys.argv[1]) if len(sys.argv) == 2 else DEFAULT_PORT
-
-    server = wsgiserver.CherryPyWSGIServer(
-            ('0.0.0.0', port),
-            application,
-            server_name=gethostname(),
-            )
-
-    server.start()
+    cli_server(application)
 
 
 # vim:ai:et:ts=4:sw=4:sts=4:ff=unix:fenc=utf-8:
