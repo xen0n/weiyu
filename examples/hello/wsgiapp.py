@@ -5,7 +5,7 @@
 # directory into a virtualenv. symlinks can prevent Python from locating
 # weiyu's libraries!
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ import re
 from weiyu.registry.loader import JSONConfig
 from weiyu.reflex.classes import ReflexResponse
 from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
+from weiyu.utils.server import cli_server
 
 from weiyu.__version__ import VERSION_STR
 from weiyu.registry.provider import request, _registries as REGS
@@ -230,30 +231,7 @@ application = WeiyuWSGIAdapter()
 
 
 if __name__ == '__main__':
-    import sys
-    from socket import gethostname
-
-    DEFAULT_PORT = 9090
-
-    try:
-        from cherrypy import wsgiserver
-    except ImportError:
-        print >>sys.stderr, 'no cherrypy, plz run via an external wsgi server'
-        sys.exit(1)
-
-    if len(sys.argv) > 2:
-        print >>sys.stderr, 'usage: %s [port=%d]' % (sys.argv[0], DEFAULT_PORT)
-        sys.exit(2)
-
-    port = int(sys.argv[1]) if len(sys.argv) == 2 else DEFAULT_PORT
-
-    server = wsgiserver.CherryPyWSGIServer(
-            ('0.0.0.0', port),
-            application,
-            server_name=gethostname(),
-            )
-
-    server.start()
+    cli_server(application)
 
 
 # vim:ai:et:ts=4:sw=4:sts=4:ff=unix:fenc=utf-8:
