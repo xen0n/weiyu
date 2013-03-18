@@ -131,7 +131,7 @@ class TornadoReflex(BaseHTTPReflex):
             return dummy_file_wrapper(response.raw_fp, response.raw_blksz)
         else:
             return send_content_iter(content, enc)
-            
+
     def _do_deliver_response(self, response):
         req = response.request._native_request
         writer = req.write
