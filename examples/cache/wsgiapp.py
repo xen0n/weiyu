@@ -23,9 +23,7 @@ import time
 
 from weiyu.registry.loader import JSONConfig
 from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
-from weiyu.router import router_hub
-from weiyu.rendering.decorator import renderable
-from weiyu.reflex.classes import ReflexResponse
+from weiyu.shortcuts import *
 from weiyu.cache import cache_hub
 from weiyu.utils.server import cli_server
 
@@ -38,14 +36,16 @@ def gen_cache_key(a, b):
     return b'add_%s_%s' % (a, b, )
 
 
-@router_hub.endpoint('http', 'cached-add-redis')
+@http('cached-add-redis')
 @renderable('json')
+@view
 def redis_add(request, r_a, r_b):
     return do_add(request, r_a, r_b, 'main-redis')
 
 
-@router_hub.endpoint('http', 'cached-add-memcached')
+@http('cached-add-memcached')
 @renderable('json')
+@view
 def mc_add(request, r_a, r_b):
     return do_add(request, r_a, r_b, 'main-mc')
 
@@ -68,7 +68,7 @@ def do_add(request, r_a, r_b, cache_name):
         # update cache
         cache.set(c_key, r)
 
-    return ReflexResponse(
+    return (
             200,
             {
                 'a': a,
@@ -81,21 +81,16 @@ def do_add(request, r_a, r_b, cache_name):
                 'mimetype': 'text/plain',
                 'enc': 'utf-8',
                 },
-            request,
             )
 
 
-# router
-wsgi_router = router_hub.init_router_from_config('http', 'urls.txt')
-router_hub.register_router(wsgi_router)
-
-
-# WSGI callable
+# init router and app
+load_router('http', 'urls.txt')
 application = WeiyuWSGIAdapter()
 
 
 if __name__ == '__main__':
-    cli_server(application)
+    cli_server()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

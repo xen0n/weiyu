@@ -23,11 +23,11 @@ from os.path import exists, isdir, islink, normcase, sep
 from os.path import normpath, abspath, realpath, join as pathjoin
 from mimetypes import guess_type
 
-from ..reflex.classes import ReflexResponse
-from ..router import router_hub
+from ..shortcuts import http, view
 
 
-@router_hub.endpoint('http', 'staticfile')
+@http('staticfile')
+@view
 def staticfile_view(request, path):
     # TODO: caching
     conf = request.site['staticfile']
@@ -60,20 +60,18 @@ def staticfile_view(request, path):
         fp = open(real_path, 'rb')
 
         # return a raw file response
-        return ReflexResponse(
+        return (
                 200,
                 {'sendfile_fp': fp, },
                 {'is_raw_file': True, 'mimetype': mimetype, },
-                request,
                 )
 
     # not found, return a 404
     # FIXME: This view is NOT renderable, this is SURE to raise exc later!
-    return ReflexResponse(
+    return (
             404,
             {},
             {},
-            request,
             )
 
 

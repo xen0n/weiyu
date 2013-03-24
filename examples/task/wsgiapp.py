@@ -21,9 +21,7 @@ from __future__ import unicode_literals, division
 
 from weiyu.registry.loader import JSONConfig
 from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
-from weiyu.router import router_hub
-from weiyu.rendering.decorator import renderable
-from weiyu.reflex.classes import ReflexResponse
+from weiyu.shortcuts import *
 from weiyu.tasks import task_hub
 from weiyu.utils.server import cli_server
 
@@ -34,8 +32,9 @@ conf.populate_central_regs()
 from tasktest.tasks import add
 
 
-@router_hub.endpoint('http', 'delayed-add')
+@http('delayed-add')
 @renderable('json')
+@view
 def add_view(request, r_a, r_b):
     a, b = int(r_a), int(r_b)
     r = add.delay(a, b)
@@ -44,7 +43,7 @@ def add_view(request, r_a, r_b):
     r.wait()
     r_stat, r_result = r.status, r.result
 
-    return ReflexResponse(
+    return (
             200,
             {
                 'a': a,
@@ -57,21 +56,16 @@ def add_view(request, r_a, r_b):
                 'mimetype': 'text/plain',
                 'enc': 'utf-8',
                 },
-            request,
             )
 
 
-# router
-wsgi_router = router_hub.init_router_from_config('http', 'urls.txt')
-router_hub.register_router(wsgi_router)
-
-
-# WSGI callable
+# init router and app
+load_router('http', 'urls.txt')
 application = WeiyuWSGIAdapter()
 
 
 if __name__ == '__main__':
-    cli_server(application)
+    cli_server()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

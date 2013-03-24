@@ -21,7 +21,7 @@ from __future__ import unicode_literals, division
 
 from weiyu.registry.loader import JSONConfig
 from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
-from weiyu.router import router_hub
+from weiyu.shortcuts import load_router
 from weiyu.utils.server import cli_server
 
 # load up registries
@@ -32,17 +32,13 @@ conf.populate_central_regs()
 from weiyu.utils.ghwebhook import on_gh_post_receive
 
 
-# router
-wsgi_router = router_hub.init_router_from_config('http', 'urls.txt')
-router_hub.register_router(wsgi_router)
-
-
-# WSGI callable
+# init router and app
+load_router('http', 'urls.txt')
 application = WeiyuWSGIAdapter()
 
 
 if __name__ == '__main__':
-    cli_server(application)
+    cli_server()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

@@ -25,13 +25,12 @@ from __future__ import unicode_literals, division
 import re
 
 from weiyu.registry.loader import JSONConfig
-from weiyu.reflex.classes import ReflexResponse
 from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
+from weiyu.shortcuts import *
 from weiyu.utils.server import cli_server
 
 from weiyu.__version__ import VERSION_STR
 from weiyu.registry.provider import request, _registries as REGS
-from weiyu.rendering.decorator import renderable
 
 OUTPUT_ENC = 'utf-8'
 
@@ -50,9 +49,6 @@ from weiyu.session import session_hub
 
 # DEBUG: hooks
 from weiyu.hooks.decorator import *
-
-# DEBUG: router
-from weiyu.router import router_hub
 
 # DEBUG: static file
 from weiyu.utils.views import staticfile_view
@@ -138,26 +134,27 @@ def get_response(request):
     return result
 
 
-@router_hub.endpoint('http', 'index')
+@http('index')
 @renderable('mako', 'env.html')
 @hookable('test-app')
+@view
 def env_test_worker(request):
     session_test(request.session)
 
-    return ReflexResponse(
+    return (
             200,
             get_response(request),
             {
                 'mimetype': 'text/html',
                 'enc': OUTPUT_ENC,
             },
-            request,
             )
 
 
-@router_hub.endpoint('http', 'multiformat-test')
+@http('multiformat-test')
 @renderable('mako', 'multifmt.txt')
 @renderable('json')
+@view
 def multiformat_test_view(request, val):
     session_test(request.session)
 
@@ -166,7 +163,7 @@ def multiformat_test_view(request, val):
     except ValueError:
         val = 0
 
-    return ReflexResponse(
+    return (
             200,
             {
                 'visits': request.session['visited'],
@@ -174,13 +171,13 @@ def multiformat_test_view(request, val):
                 'results': [val + 2, val * 2, val ** 2, ],
                 },
             {'mimetype': 'text/plain', 'enc': OUTPUT_ENC, },
-            request,
             )
 
 
 # a simple Ajax servicing routine
-@router_hub.endpoint('http', 'ajax-doubler')
+@http('ajax-doubler')
 @renderable('json')
+@view
 def ajax_doubler(request, number):
     num = None
     try:
@@ -191,25 +188,24 @@ def ajax_doubler(request, number):
     if num is not None:
         num *= 2
 
-    return ReflexResponse(
+    return (
             200,
             {'result': num, },
             {'mimetype': 'application/json', },
-            request,
             )
 
 
 # benchmark purpose: json w/ db access
-@router_hub.endpoint('http', 'ajax-dbtest')
+@http('ajax-dbtest')
 @renderable('json')
+@view
 def ajax_dbtest(request):
     result = TestStruct().findall()
 
-    return ReflexResponse(
+    return (
             200,
             {'result': list(result), },
             {'mimetype': 'application/json', },
-            request,
             )
 
 
@@ -221,17 +217,13 @@ def ajax_dbtest(request):
 #hook_after('test-app')(session_obj.post_hook)
 
 
-# DEBUG: router
-wsgi_router = router_hub.init_router_from_config('http', 'urls.txt')
-router_hub.register_router(wsgi_router)
-
-
-# WSGI callable
+# init router and app
+load_router('http', 'urls.txt')
 application = WeiyuWSGIAdapter()
 
 
 if __name__ == '__main__':
-    cli_server(application)
+    cli_server()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
