@@ -20,11 +20,13 @@
 from __future__ import unicode_literals, division
 
 import sys
+import inspect
 from socket import gethostname
+
 DEFAULT_PORT = 9090
 
 
-def cli_server(application, port=None, hostname=None):
+def cli_server(application=None, port=None, hostname=None):
     try:
         from cherrypy import wsgiserver
     except ImportError:
@@ -41,9 +43,17 @@ def cli_server(application, port=None, hostname=None):
     if hostname is None:
         hostname = gethostname()
 
+    if application is None:
+        # inspect the outer frame's locals to get the application object, for
+        # developer's convenience.
+        outer_frame = inspect.getouterframes(inspect.currentframe())[1][0]
+        app = outer_frame.f_globals['application']
+    else:
+        app = application
+
     server = wsgiserver.CherryPyWSGIServer(
             ('0.0.0.0', port),
-            application,
+            app,
             server_name=hostname,
             )
 
