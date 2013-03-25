@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / GitHub WebHook API host - WSGI file
+# weiyu / adapter / class registry helper
 #
 # Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -19,25 +19,10 @@
 
 from __future__ import unicode_literals, division
 
-from weiyu.registry.loader import JSONConfig
-from weiyu.shortcuts import load_router, make_app
-from weiyu.utils.server import cli_server
-
-# load up registries
-conf = JSONConfig('conf.json')
-conf.populate_central_regs()
-
-# view functions
-from weiyu.utils.ghwebhook import on_gh_post_receive
-
-
-# init router and app
-load_router('http', 'urls.txt')
-application = make_app('wsgi')
-
-
-if __name__ == '__main__':
-    cli_server()
+from .http import (
+        wsgi,
+        tornado_,
+        )
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

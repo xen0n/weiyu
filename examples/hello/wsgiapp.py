@@ -25,7 +25,6 @@ from __future__ import unicode_literals, division
 import re
 
 from weiyu.registry.loader import JSONConfig
-from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
 from weiyu.shortcuts import *
 from weiyu.utils.server import cli_server
 
@@ -219,7 +218,7 @@ def ajax_dbtest(request):
 
 # init router and app
 load_router('http', 'urls.txt')
-application = WeiyuWSGIAdapter()
+application = make_app('wsgi')
 
 
 if __name__ == '__main__':
