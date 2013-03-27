@@ -101,6 +101,11 @@ def p_simpletgt_simple(p):
     #print 'SIMPLETGT: %s' % (repr(p[0]), )
 
 
+def p_simpletgt_defaultrenderer(p):
+    'simpletgt : pattern endpoint'
+    p[0] = [p[1], p[2], {'render_in': 'inherit', }, ]
+
+
 def p_simpletgt_withextras(p):
     'simpletgt : pattern endpoint renderer extras'
     renderer = p[3]

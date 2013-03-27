@@ -1,21 +1,22 @@
 --exact
+--renderer=mako
 /static/:
     --regex
     ^(?P<path>.*)$ staticfile null
 
 /calc/:
     --regex
-    ^(?P<val>\\d+)/:
+    ^(?P<val>\d+)/:
         --regex
-        text/$ multiformat-test mako
+        text/$ multiformat-test
         json/$ multiformat-test json
 
 /ajax/:
     --exact
+    --renderer=json
     doubler/:
         --regex
-        ^(?P<number>\\d+)/json/$ ajax-doubler json
-    dbtest/json/ ajax-dbtest json
+        ^(?P<number>\d+)/json/$ ajax-doubler
+    dbtest/json/ ajax-dbtest
 
-"" index mako
-
+"" index
