@@ -109,7 +109,7 @@ class RouterHub(BaseHub):
         # TODO: is it really useful to allow passing kwargs also?
         return self.do_handling(typ, querystr, *args)
 
-    def _do_init_router(self, typ, routing_rules, lvl):
+    def _do_init_router(self, typ, routing_rules, lvl, parent_info):
         # recursive algorithm, watch out d-:
         # typ is not really useful except checking against endpoint reg
         #
@@ -118,11 +118,33 @@ class RouterHub(BaseHub):
         _list_types = (list, tuple, )
         _str_types = (str, unicode, )
 
+        # Attribute processing.
+        attrib_list = routing_rules[0]
+        inherited_renderer = parent_info['inherited_renderer']
+
+        if isinstance(attrib_list, _list_types):
+            # Multiple attributes.
+            # separate the router class from the others
+            # the class spec is hardcoded to be the 1st attrib in the list
+            cls_name = attrib_list[0]
+
+            # Process the other attributes.
+            for attrib in attrib_list[1:]:
+                k, v = attrib.split('=', 1)
+
+                # case: renderer=xxx
+                if k == 'renderer':
+                    # record the renderer to inherit
+                    inherited_renderer = v
+        else:
+            # only one attribute. it must be the router class spec
+            cls_name = attrib_list
+
         # Support different router classes to be used
         # Because the mere request of an unregistered router class can
         # be considered improper, no exception recovery is attempted.
         try:
-            cls = self._classes[routing_rules[0]]
+            cls = self._classes[cls_name]
         except KeyError:
             raise RuntimeError(
                     'request of unknown router class \'%s\'' % (
@@ -135,7 +157,10 @@ class RouterHub(BaseHub):
             if isinstance(target_spec, _list_types):
                 # this is a router... recursively construct a router out
                 # of it
-                tgt = self._do_init_router(typ, target_spec, lvl + 1)
+                my_info = {
+                        'inherited_renderer': inherited_renderer,
+                        }
+                tgt = self._do_init_router(typ, target_spec, lvl + 1, my_info)
             elif isinstance(target_spec, _str_types):
                 # target is endpoint... check against endpoint registry
                 # this is where typ is used
@@ -146,6 +171,13 @@ class RouterHub(BaseHub):
                 # unrecognized target specification, pass it thru as is
                 tgt = target_spec
 
+            # process special data
+            # render_in
+            if extra_data is not None:
+                if extra_data.get('render_in', None) == 'inherit':
+                    # inherit renderer from parent
+                    extra_data['render_in'] = inherited_renderer
+
             # add a rule
             result_rules.append((pattern, tgt, extra_data, ))
 
@@ -154,7 +186,14 @@ class RouterHub(BaseHub):
         return cls(result_rules, name=typ if lvl == 0 else None)
 
     def init_router(self, typ, routing_rules):
-        return self._do_init_router(typ, routing_rules, 0)
+        return self._do_init_router(
+                typ,
+                routing_rules,
+                0,
+                {
+                    'inherited_renderer': None,
+                    },
+                )
 
     def init_router_from_config(self, typ, filename):
         config = parse_config(filename)
