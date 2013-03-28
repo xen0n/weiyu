@@ -1,5 +1,6 @@
 --exact
 --renderer=mako
+
 /static/:
     --regex
     ^(?P<path>.*)$ staticfile null
@@ -12,11 +13,6 @@
         json/$ multiformat-test json
 
 /ajax/:
-    --exact
-    --renderer=json
-    doubler/:
-        --regex
-        ^(?P<number>\d+)/json/$ ajax-doubler
-    dbtest/json/ ajax-dbtest
+    --include=urls.ajax.txt
 
 "" index
