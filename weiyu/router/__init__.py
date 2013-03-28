@@ -121,6 +121,7 @@ class RouterHub(BaseHub):
         # Attribute processing.
         attrib_list = routing_rules[0]
         inherited_renderer = parent_info['inherited_renderer']
+        include_path, cls_name = None, None
 
         if isinstance(attrib_list, _list_types):
             # Multiple attributes.
@@ -136,9 +137,36 @@ class RouterHub(BaseHub):
                 if k == 'renderer':
                     # record the renderer to inherit
                     inherited_renderer = v
+
+                # case: include=xxx
+                if k == 'include':
+                    # it must appear as the only attribute, if used!
+                    # throw an exception.
+                    raise RuntimeError(
+                            'include directive must appear on its own'
+                            )
         else:
-            # only one attribute. it must be the router class spec
-            cls_name = attrib_list
+            # only one attribute.
+            # it is either the router class spec, or an include directive
+            if attrib_list.startswith('include='):
+                k, v = attrib_list.split('=', 1)
+                include_path = v
+            else:
+                cls_name = attrib_list
+
+        # Process include.
+        if include_path is not None:
+            # There must be no other routing rules described... or we would
+            # not know what to include.
+            if len(routing_rules) > 1:
+                raise RuntimeError(
+                        'included router description should not contain '
+                        'any rules'
+                        )
+
+            # The included file is then treated as a normal routing
+            # description.
+            return self.init_router_from_config(typ, include_path)
 
         # Support different router classes to be used
         # Because the mere request of an unregistered router class can
