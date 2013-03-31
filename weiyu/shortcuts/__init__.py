@@ -28,6 +28,7 @@ from ..adapters import adapter_hub
 from ..router import router_hub
 from ..rendering.decorator import renderable
 from ..reflex.classes import ReflexResponse
+from ..registry.loader import BaseConfig
 
 
 def expose(fn):
@@ -76,6 +77,11 @@ def http(name):
 def load_router(typ, filename):
     router = router_hub.init_router_from_config(typ, filename)
     return router_hub.register_router(router)
+
+
+@expose
+def load_config(path):
+    return BaseConfig.get_config(path).populate_central_regs()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

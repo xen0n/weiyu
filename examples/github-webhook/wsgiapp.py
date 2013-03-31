@@ -19,13 +19,11 @@
 
 from __future__ import unicode_literals, division
 
-from weiyu.registry.loader import JSONConfig
-from weiyu.shortcuts import load_router, make_app
+from weiyu.shortcuts import load_config, load_router, make_app
 from weiyu.utils.server import cli_server
 
 # load up registries
-conf = JSONConfig('conf.json')
-conf.populate_central_regs()
+load_config('conf.json')
 
 # view functions
 from weiyu.utils.ghwebhook import on_gh_post_receive
