@@ -22,13 +22,11 @@
 
 from __future__ import unicode_literals, division
 
-from weiyu.registry.loader import JSONConfig
 from weiyu.shortcuts import *
 from weiyu.utils.server import cli_server
 
 # load up registries
-conf = JSONConfig('conf.json')
-conf.populate_central_regs()
+load_config('conf.json')
 
 # DEBUG: static file
 from weiyu.utils.views import staticfile_view
