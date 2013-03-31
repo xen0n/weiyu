@@ -20,7 +20,6 @@
 from __future__ import unicode_literals, division
 
 from weiyu.registry.loader import JSONConfig
-from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
 from weiyu.shortcuts import *
 from weiyu.tasks import task_hub
 from weiyu.utils.server import cli_server
@@ -61,11 +60,11 @@ def add_view(request, r_a, r_b):
 
 # init router and app
 load_router('http', 'urls.txt')
-application = WeiyuWSGIAdapter()
+application = make_app('wsgi')
 
 
 if __name__ == '__main__':
-    cli_server()
+    cli_server('cherrypy')
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

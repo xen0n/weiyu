@@ -24,6 +24,7 @@ __all__ = [
 
 from functools import wraps
 
+from ..adapters import adapter_hub
 from ..router import router_hub
 from ..rendering.decorator import renderable
 from ..reflex.classes import ReflexResponse
@@ -38,6 +39,9 @@ def expose(fn):
 
 # Expose convenient aliases.
 expose(renderable)
+
+make_app = adapter_hub.make_app
+expose(make_app)
 
 
 @expose

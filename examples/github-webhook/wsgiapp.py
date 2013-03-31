@@ -20,8 +20,7 @@
 from __future__ import unicode_literals, division
 
 from weiyu.registry.loader import JSONConfig
-from weiyu.adapters.http.wsgi import WeiyuWSGIAdapter
-from weiyu.shortcuts import load_router
+from weiyu.shortcuts import load_router, make_app
 from weiyu.utils.server import cli_server
 
 # load up registries
@@ -34,11 +33,11 @@ from weiyu.utils.ghwebhook import on_gh_post_receive
 
 # init router and app
 load_router('http', 'urls.txt')
-application = WeiyuWSGIAdapter()
+application = make_app('wsgi')
 
 
 if __name__ == '__main__':
-    cli_server()
+    cli_server('cherrypy')
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

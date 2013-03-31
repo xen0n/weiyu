@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / hello world app - WSGI file
-# NOTE: the recommended way to run this example is to copy the example
-# directory into a virtualenv. symlinks can prevent Python from locating
-# weiyu's libraries!
+# weiyu / adapter / class registry helper
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,27 +19,10 @@
 
 from __future__ import unicode_literals, division
 
-from weiyu.registry.loader import JSONConfig
-from weiyu.shortcuts import *
-from weiyu.utils.server import cli_server
-
-# load up registries
-conf = JSONConfig('conf.json')
-conf.populate_central_regs()
-
-# DEBUG: static file
-from weiyu.utils.views import staticfile_view
-
-# app views
-import hello_views
-
-# init router and app
-load_router('http', 'urls.txt')
-application = make_app('wsgi')
-
-
-if __name__ == '__main__':
-    cli_server('cherrypy')
+from .http import (
+        wsgi,
+        tornado_,
+        )
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

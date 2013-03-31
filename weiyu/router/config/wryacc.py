@@ -35,14 +35,17 @@ tokens = WRLexer.tokens
 
 # general rule
 def p_routedef(p):
-    '''routedef : attriblist targetlist
+    '''routedef : attriblist
+                | attriblist targetlist
                 | attriblist targetlist EOF'''
     attriblist = p[1]
+    has_targets = len(p) > 2
+
     if len(attriblist) == 1:
-        p[0] = p[1] + p[2]
+        p[0] = p[1] + p[2] if has_targets else p[1]
     else:
         # wrap the attribs so that they always occupy 1 position
-        p[0] = [p[1]] + p[2]
+        p[0] = [p[1]] + p[2] if has_targets else [p[1]]
     #print 'new routedef %s' % (repr(p[0]), )
 
 
@@ -99,6 +102,11 @@ def p_simpletgt_simple(p):
     'simpletgt : pattern endpoint renderer'
     p[0] = [p[1], p[2], p[3], ]
     #print 'SIMPLETGT: %s' % (repr(p[0]), )
+
+
+def p_simpletgt_defaultrenderer(p):
+    'simpletgt : pattern endpoint'
+    p[0] = [p[1], p[2], {'render_in': 'inherit', }, ]
 
 
 def p_simpletgt_withextras(p):
