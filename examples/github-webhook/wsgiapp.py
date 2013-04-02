@@ -6,17 +6,11 @@
 
 from __future__ import unicode_literals, division
 
-from weiyu.shortcuts import load_config, load_router, make_app
+from weiyu.shortcuts import *
 from weiyu.utils.server import cli_server
 
-# load up registries
 load_config('conf.json')
-
-# view functions
-from weiyu.utils.ghwebhook import on_gh_post_receive
-
-
-# init router and app
+load_views('views.json')
 load_router('http', 'urls.txt')
 application = make_app('wsgi')
 

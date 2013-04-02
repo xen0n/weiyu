@@ -9,13 +9,9 @@ from __future__ import unicode_literals, division
 from weiyu.shortcuts import *
 from weiyu.utils.server import cli_server
 
-# load up registries
+# initialize registries, views, router and app, in that order
 load_config('conf.json')
-
-# load views
 load_views('views.json')
-
-# init router and app
 load_router('http', 'urls.txt')
 application = make_app('wsgi')
 

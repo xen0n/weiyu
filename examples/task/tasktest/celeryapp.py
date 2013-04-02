@@ -6,13 +6,10 @@
 
 from __future__ import unicode_literals, division
 
-from weiyu.registry.loader import JSONConfig
+from weiyu.shortcuts import load_config
 from weiyu.tasks import task_hub
 
-# load up registries
-conf = JSONConfig('conf.json')
-conf.populate_central_regs()
-
+load_config('conf.json')
 celery = task_hub.get_app('tasktest')
 
 
