@@ -5,6 +5,12 @@ Highly modular and configurable, ``weiyu`` tries hard to integrate common
 functionalities for the developer's convenience.
 
 
+## Licenses
+
+* GPL-3
+* Public domain for `examples/`
+
+
 ## Community
 
 * Mailing list
