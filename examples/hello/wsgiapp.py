@@ -28,11 +28,8 @@ from weiyu.utils.server import cli_server
 # load up registries
 load_config('conf.json')
 
-# DEBUG: static file
-from weiyu.utils.views import staticfile_view
-
-# app views
-import hello_views
+# load views
+load_views('views.json')
 
 # init router and app
 load_router('http', 'urls.txt')
