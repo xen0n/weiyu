@@ -1,0 +1,6 @@
+{
+  "modules": [
+    "weiyu.utils.views",
+    "hello_views"
+    ]
+}

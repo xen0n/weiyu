@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / hello world app - WSGI file
-# NOTE: the recommended way to run this example is to copy the example
-# directory into a virtualenv. symlinks can prevent Python from locating
-# weiyu's libraries!
+# weiyu / utilities / view loader
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,22 +19,27 @@
 
 from __future__ import unicode_literals, division
 
-from weiyu.shortcuts import *
-from weiyu.utils.server import cli_server
+__all__ = [
+        'ViewLoader',
+        ]
 
-# load up registries
-load_config('conf.json')
-
-# load views
-load_views('views.json')
-
-# init router and app
-load_router('http', 'urls.txt')
-application = make_app('wsgi')
+import importlib
+import json
 
 
-if __name__ == '__main__':
-    cli_server('cherrypy')
+class ViewLoader(object):
+    def __init__(self, path):
+        with open(path, 'rb') as fp:
+            content = fp.read()
+        self.config = json.loads(content)
+
+    def __call__(self):
+        cfg = self.config
+        pkg_anchor = cfg.get('package', None)
+        modules = cfg.get('modules', [])
+
+        for name in modules:
+            importlib.import_module(name, pkg_anchor)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

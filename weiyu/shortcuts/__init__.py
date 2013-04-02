@@ -29,6 +29,7 @@ from ..router import router_hub
 from ..rendering.decorator import renderable
 from ..reflex.classes import ReflexResponse
 from ..registry.loader import BaseConfig
+from ..utils.viewloader import ViewLoader
 
 
 def expose(fn):
@@ -82,6 +83,11 @@ def load_router(typ, filename):
 @expose
 def load_config(path):
     return BaseConfig.get_config(path).populate_central_regs()
+
+
+@expose
+def load_views(path):
+    return ViewLoader(path)()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
