@@ -7,6 +7,9 @@ example, as during experiment I found out that sometimes Python won't be
 able to locate ``weiyu`` if the library is put on the Python path by use of
 ``.pth`` files.
 
+The examples are now put in public domain, so you can use them in whatever
+way you want to, without any limitation.
+
 
 ## hello
 
