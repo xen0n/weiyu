@@ -178,7 +178,7 @@ def ajax_doubler(request, number):
 @renderable('json')
 @view
 def ajax_dbtest(request):
-    result = TestStruct().findall()
+    result = TestStruct.findall()
 
     return (
             200,
