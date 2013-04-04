@@ -19,11 +19,32 @@
 
 from __future__ import unicode_literals, division
 
+__all__ = [
+        'Document',
+        ]
+
 from functools import partial
 from threading import Lock
 
 from .. import db_hub
 from . import mapper_hub
+
+
+class _DocumentLockManager(object):
+    def __init__(self):
+        self.locks = {}
+
+    def ensure_lock(self, name):
+        if name in self.locks:
+            return
+
+        self.locks[name] = Lock()
+
+    def __call__(self, name):
+        return self.locks[name]
+
+
+_LM = _DocumentLockManager()
 
 
 class Document(dict):
@@ -36,7 +57,7 @@ class Document(dict):
 
         # TODO: remove this MongoDB-specific hack
         self.__assoc_id = self['_id'] if '_id' in self else None
-        self.__dblock = Lock()
+        _LM.ensure_lock(self.struct_id)
 
     def insert(self, version=None, *args, **kwargs):
         # Only continue if the class is configured to associate with a
@@ -53,7 +74,7 @@ class Document(dict):
 
         # Thread-safe but NOT process-safe: serialize operations on docs
         # with same struct_id
-        with self.__lock:
+        with _LM(struct_id):
             with conn:
                 # get the new id and associate self with that object
                 _id = conn.ops.insert(path, obj)
@@ -68,7 +89,7 @@ class Document(dict):
         obj = mapper_hub.encode(struct_id, self, version)
         conn, path = mapper_hub.get_storage(struct_id)
 
-        with self.__lock:
+        with _LM(struct_id):
             with conn:
                 # XXX Naive implementation: this does not perform "smart"
                 # operations such as $inc or $set, only replacing the doc
@@ -89,7 +110,7 @@ class Document(dict):
 
         conn, path = mapper_hub.get_storage(struct_id)
 
-        with self.__lock:
+        with _LM(struct_id):
             with conn:
                 conn.ops.remove(path, {'_id': assoc_id, }, )
 
