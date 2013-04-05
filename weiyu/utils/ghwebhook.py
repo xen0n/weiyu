@@ -50,7 +50,7 @@ def _dummy(status):
             status,
             None,
             {
-                'mimetpe': 'text/plain',
+                'mimetype': 'text/plain',
                 },
             )
 
