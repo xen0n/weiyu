@@ -22,6 +22,7 @@ from __future__ import unicode_literals, division
 __all__ = [
         ]
 
+import inspect
 from functools import wraps
 
 from ..adapters import adapter_hub
@@ -88,6 +89,30 @@ def load_config(path):
 @expose
 def load_views(path):
     return ViewLoader(path)()
+
+
+@expose
+def load_all(
+        conf_path='conf.json',
+        views_path='views.json',
+        router_type='http',
+        root_router_file='urls.txt',
+        ):
+    # initialize registries, views, router, in that order
+    load_config(conf_path)
+    load_views(views_path)
+    load_router(router_type, root_router_file)
+
+
+@expose
+def inject_app(app_type='wsgi', var='application', *args, **kwargs):
+    # Make app
+    load_all(*args, **kwargs)
+    app = make_app(app_type)
+
+    # Then inject the object into the caller's global namespace
+    parentframe = inspect.getouterframes(inspect.currentframe())[1][0]
+    parentframe.f_globals[var] = app
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

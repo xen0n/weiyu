@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / GitHub WebHook API host - WSGI file
+# weiyu / examples / GitHub WebHook API host - WSGI stub
 #
 # This file is in public domain.
 
 from __future__ import unicode_literals, division
 
-from weiyu.shortcuts import *
+from weiyu.shortcuts import inject_app
 from weiyu.utils.server import cli_server
 
-load_config('conf.json')
-load_views('views.json')
-load_router('http', 'urls.txt')
-application = make_app('wsgi')
+inject_app()
 
 
 if __name__ == '__main__':
