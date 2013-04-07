@@ -97,7 +97,7 @@ def cli_server_tornado(server=None, port=None, hostname=None):
                 )
         sys.exit(1)
 
-    port = get_port_name_number() if port is None else port
+    port = get_port_number() if port is None else port
     hostname = gethostname() if hostname is None else hostname
 
     if server is None:
