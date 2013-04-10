@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / adapter / package
+# weiyu / cache / package
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,31 +20,46 @@
 from __future__ import unicode_literals, division
 
 __all__ = [
-        'adapter_hub',
+        'cache_hub',
         ]
 
 from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
 
-ADAPTERS_KEY = 'adapters'
+CACHE_DRIVERS_KEY = 'drivers'
+CACHE_CONF_KEY = 'caches'
+DEFAULT_CACHE_NAME = 'main'
 
 
-class AdapterHub(BaseHub):
-    registry_name = 'weiyu.adapter'
+class CacheHub(BaseHub):
+    registry_name = 'weiyu.cache'
     registry_class = UnicodeRegistry
-    handlers_key = ADAPTERS_KEY
+    handlers_key = CACHE_DRIVERS_KEY
 
     def __init__(self):
-        super(AdapterHub, self).__init__()
+        super(CacheHub, self).__init__()
 
-    def make_app(self, adapter):
-        return self.do_handling(adapter)
+        self._cfg = {}
+
+    def get_cache(self, name=DEFAULT_CACHE_NAME):
+        try:
+            drv, opts = self._cfg[name]
+        except KeyError:
+            try:
+                opts = self._reg[CACHE_CONF_KEY][name].copy()
+            except KeyError:
+                raise ValueError("cache '%s' not configured" % (name, ))
+
+            drv = opts.pop('driver')
+            self._cfg[name] = (drv, opts, )
+
+        return self.do_handling(drv, opts)
 
 
-adapter_hub = AdapterHub()
+cache_hub = CacheHub()
 
 
-# Force loading of adapters
+# Force loading of cache backends
 from . import _reg
 del _reg
 

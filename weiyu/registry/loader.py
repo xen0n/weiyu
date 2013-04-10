@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / central registry / config loader
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -88,7 +88,13 @@ Classes
 
 from __future__ import unicode_literals, division
 
-from os.path import abspath
+__all__ = [
+        'BaseConfig',
+        'JSONConfig',
+        'PickleConfig',
+        ]
+
+from os.path import abspath, splitext
 from functools import wraps
 import abc
 import json
@@ -108,6 +114,16 @@ DIRECTIVE_CLASS_OVERRIDE = '$$class'
 DIRECTIVE_UPDATE_OVERRIDE = '$$nodup'
 DIRECTIVE_INCLUDE = '$$include'
 
+# config file extension handler registry
+_EXTENSION_HANDLERS = {}
+
+
+def handler_for_ext(ext):
+    def _decorator_(thing):
+        _EXTENSION_HANDLERS[ext] = thing
+        return thing
+    return _decorator_
+
 
 class BaseConfig(object):
     '''Base class for prepopulated config storages. It has an interface
@@ -120,6 +136,22 @@ class BaseConfig(object):
     '''
 
     __metaclass__ = abc.ABCMeta
+
+    @staticmethod
+    def get_config(path):
+        ext = splitext(path)[1]
+
+        try:
+            cls = _EXTENSION_HANDLERS[ext]
+        except KeyError:
+            raise ValueError(
+                    "cannot handle config file '%s' with extension '%s'" % (
+                        path,
+                        ext,
+                        ),
+                    )
+
+        return cls(path)
 
     def __init__(self, path=None):
         '''Constructor function.
@@ -309,6 +341,7 @@ class BaseConfig(object):
                 reg[reg_k] = reg_v
 
 
+@handler_for_ext('.json')
 class JSONConfig(BaseConfig):
     '''JSON config backend.'''
 
@@ -318,6 +351,7 @@ class JSONConfig(BaseConfig):
         return dump
 
 
+@handler_for_ext('.pickle')
 class PickleConfig(BaseConfig):
     '''Python pickle config backend.'''
 

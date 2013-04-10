@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / adapter / package
+# weiyu / cache drivers / memcached driver
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,34 +19,32 @@
 
 from __future__ import unicode_literals, division
 
-__all__ = [
-        'adapter_hub',
-        ]
+import memcache
 
-from ..helpers.hub import BaseHub
-from ..registry.classes import UnicodeRegistry
-
-ADAPTERS_KEY = 'adapters'
+from .. import cache_hub
+from .baseclass import BaseCache
 
 
-class AdapterHub(BaseHub):
-    registry_name = 'weiyu.adapter'
-    registry_class = UnicodeRegistry
-    handlers_key = ADAPTERS_KEY
+class MemcachedCache(BaseCache):
+    def __init__(self, servers):
+        super(MemcachedCache, self).__init__()
+        self._conn = memcache.Client(servers)
 
-    def __init__(self):
-        super(AdapterHub, self).__init__()
+    def get(self, k):
+        return self._conn.get(k)
 
-    def make_app(self, adapter):
-        return self.do_handling(adapter)
+    def set(self, k, v, timeout=None):
+        return self._conn.set(k, v)
+
+    def delete(self, k):
+        return self._conn.delete(k)
 
 
-adapter_hub = AdapterHub()
+@cache_hub.register_handler('memcached')
+def memcached_handler(hub, opts):
+    servers = opts['servers']
 
-
-# Force loading of adapters
-from . import _reg
-del _reg
+    return MemcachedCache(servers)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

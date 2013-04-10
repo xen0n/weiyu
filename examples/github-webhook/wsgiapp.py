@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / hello world app - WSGI stub
+# weiyu / examples / GitHub WebHook API host - WSGI stub
 #
 # This file is in public domain.
 

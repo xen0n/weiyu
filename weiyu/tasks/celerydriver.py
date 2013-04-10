@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / adapter / package
+# weiyu / tasks / Celery integration
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,34 +19,27 @@
 
 from __future__ import unicode_literals, division
 
-__all__ = [
-        'adapter_hub',
-        ]
+import celery
 
-from ..helpers.hub import BaseHub
-from ..registry.classes import UnicodeRegistry
-
-ADAPTERS_KEY = 'adapters'
+from . import task_hub
 
 
-class AdapterHub(BaseHub):
-    registry_name = 'weiyu.adapter'
-    registry_class = UnicodeRegistry
-    handlers_key = ADAPTERS_KEY
+class CeleryHubHandler(object):
+    def build_app(self, conf, extras):
+        obj = celery.Celery(**conf)
+        obj.conf.update(**extras)
+        return obj
 
-    def __init__(self):
-        super(AdapterHub, self).__init__()
-
-    def make_app(self, adapter):
-        return self.do_handling(adapter)
+    def get_task(self, appobj):
+        return appobj.task
 
 
-adapter_hub = AdapterHub()
+_handler = CeleryHubHandler()
 
 
-# Force loading of adapters
-from . import _reg
-del _reg
+@task_hub.register_handler('celery')
+def _celery_handler_stub(hub):
+    return _handler
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

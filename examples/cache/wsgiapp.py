@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / hello world app - WSGI stub
+# weiyu / examples / Cache integration - WSGI stub
 #
 # This file is in public domain.
 

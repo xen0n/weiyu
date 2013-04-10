@@ -1,0 +1,8 @@
+--exact
+--renderer=json
+
+doubler/:
+    --regex
+    ^(?P<number>\d+)/json/$ ajax-doubler
+
+dbtest/json/ ajax-dbtest

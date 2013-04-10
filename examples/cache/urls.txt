@@ -1,0 +1,4 @@
+--regex
+--renderer=json
+/add/(?P<r_a>\d+)/(?P<r_b>\d+)/redis/$ cached-add-redis
+/add/(?P<r_a>\d+)/(?P<r_b>\d+)/memcached/$ cached-add-memcached
