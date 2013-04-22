@@ -1,0 +1,9 @@
+{
+  "package": "simplechat",
+  "modules": [
+    "weiyu.utils.views",
+    "weiyu.async.views",
+    ".namespace",
+    ".views"
+    ]
+}
