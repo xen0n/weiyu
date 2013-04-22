@@ -1,0 +1,25 @@
+{
+  "site": {
+    "$$nodup": true,
+    "session": {
+      "backend": "beaker",
+      "options": {
+        "session.type": "file",
+        "session.data_dir": "/tmp/beaker/data",
+        "session.lock_dir": "/tmp/beaker/lock",
+        "session.key": "weiyu.session",
+        "session.secret": "7h1z_must_13e_s3cr37",
+        "session.timeout": 300
+        }
+      },
+    "staticfile": {
+      "root": "./static/"
+      }
+     },
+  "weiyu.rendering": {
+    "mako": {
+      "directories": ["./templates"],
+      "module_dir": "/tmp/mako-modules"
+    }
+  }
+}
