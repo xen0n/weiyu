@@ -30,6 +30,7 @@ from ...registry.provider import request as reg_request
 from ...reflex.classes import BaseReflex
 from ...router import router_hub
 from ...session import session_hub
+from ...signals import signal_hub
 from ...rendering.view import render_view_func
 
 
@@ -47,16 +48,31 @@ class BaseHTTPReflex(BaseReflex):
         # maybe this should be in some sort of "middleware" instead...?
         # XXX Tornado is not WSGI-compatible in general, we need to do more
         # work
-        ses_conf = self.SITE_CONF['session']
-        ses_backend, ses_opts = ses_conf['backend'], ses_conf['options']
-        self.session = session_hub.do_handling(ses_backend, ses_opts)
+        if 'session' in self.SITE_CONF:
+            ses_conf = self.SITE_CONF['session']
+            ses_backend, ses_opts = ses_conf['backend'], ses_conf['options']
+            self.session = session_hub.do_handling(ses_backend, ses_opts)
+
+            # register (synchronous) signal listeners
+            @signal_hub.append_listener_to('http-session-pre')
+            def _http_session_preprocess(reflex, request):
+                reflex.session.preprocess(request)
+
+            @signal_hub.prepend_listener_to('http-session-post')
+            def _http_session_postprocess(reflex, response):
+                reflex.session.postprocess(response)
+
+    def _do_translate_request(self, request):
+        # Session injection
+        signal_hub.fire_nullok('http-session-pre', self, request)
+        return request
 
     def _do_generate_response(self, request):
         fn, args, kwargs = request.callback_info
         response = fn(request, *args, **kwargs)
 
         # Session persistence is part of generation; may be moved tho
-        response = self.session.postprocess(response)
+        signal_hub.fire_nullok('http-session-post', self, response)
 
         return response
 

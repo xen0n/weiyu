@@ -96,10 +96,8 @@ class WSGIReflex(BaseHTTPReflex):
 
         # TODO: add more ubiquitous HTTP request headers
 
-        # Session injection
-        self.session.preprocess(request)
-
-        return request
+        # do session injection in baseclass
+        return super(WSGIReflex, self)._do_translate_request(request)
 
     def _do_deliver_response(self, response):
         content = response.content
