@@ -74,6 +74,11 @@ class SignalHub(BaseHub):
         for fn in callbacks:
             fn(*args, **kwargs)
 
+    def fire_nullok(self, name, *args, **kwargs):
+        if name not in self._listeners:
+            return
+        return self.fire(name, *args, **kwargs)
+
 
 signal_hub = SignalHub()
 
