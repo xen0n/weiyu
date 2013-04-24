@@ -64,7 +64,7 @@ def is_ip_whitelisted(ip):
 @renderable('dummy')
 @view
 def on_gh_post_receive(request):
-    conf = regrequest('site')['github']['post-receive']
+    repos = regrequest('site')['github']['post-receive']
 
     if not is_ip_whitelisted(request.remote_addr):
         return _dummy(403)
@@ -84,14 +84,17 @@ def on_gh_post_receive(request):
         return _dummy(400)
 
     repo_name, ref = payload['repository']['name'], payload['ref']
-    if repo_name != conf['name'] or ref not in conf['refs']:
+    if repo_name not in repos:
+        return _dummy(403)
+
+    if ref not in repos[repo_name]:
         return _dummy(403)
 
     # Push accepted, execute the command given in configuration
     # Write the payload into the configured file, in effect also touching
     # it
     # FIXME: This is best done via some established deferred mechanism
-    with open(conf['refs'][ref], 'wb') as fp:
+    with open(repos[repo_name][ref], 'wb') as fp:
         fp.write(payload_json)
 
     return _dummy(204)

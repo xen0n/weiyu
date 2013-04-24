@@ -3,8 +3,7 @@
     "$$nodup": true,
     "github": {
       "post-receive": {
-        "name": "weiyu",
-        "refs": {
+        "weiyu": {
           "refs/heads/github-webhook": "/tmp/github-post-receive-worked"
         }
       }
