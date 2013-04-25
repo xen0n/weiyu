@@ -85,7 +85,7 @@ def on_gh_post_receive(request):
 
     repo_name, owner_name, ref = (
             payload['repository']['name'],
-            payload['owner']['name'],
+            payload['repository']['owner']['name'],
             payload['ref'],
             )
 
