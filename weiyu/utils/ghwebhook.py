@@ -83,18 +83,30 @@ def on_gh_post_receive(request):
     except ValueError:
         return _dummy(400)
 
-    repo_name, ref = payload['repository']['name'], payload['ref']
-    if repo_name not in repos:
+    repo_name, owner_name, ref = (
+            payload['repository']['name'],
+            payload['owner']['name'],
+            payload['ref'],
+            )
+
+    # format config key
+    if '/' in owner_name or '/' in repo_name:
+        # Malformed names!
+        return _dummy(400)
+
+    conf_key = '%s/%s' % (owner_name, repo_name, )
+
+    if conf_key not in repos:
         return _dummy(403)
 
-    if ref not in repos[repo_name]:
+    if ref not in repos[conf_key]:
         return _dummy(403)
 
     # Push accepted, execute the command given in configuration
     # Write the payload into the configured file, in effect also touching
     # it
     # FIXME: This is best done via some established deferred mechanism
-    with open(repos[repo_name][ref], 'wb') as fp:
+    with open(repos[conf_key][ref], 'wb') as fp:
         fp.write(payload_json)
 
     return _dummy(204)
