@@ -34,11 +34,12 @@ def socketio_bridge_view(request):
             request,
             )
 
-    # XXX does this ever return?
+    # The handler DOES return, after finishing all operations.
+    # Tell reflex to cancel further responses.
     return (
             204,
             {},
-            {},
+            {'request_vanished': True, },
             )
 
 
