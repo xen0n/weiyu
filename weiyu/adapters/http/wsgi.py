@@ -100,6 +100,10 @@ class WSGIReflex(BaseHTTPReflex):
         return super(WSGIReflex, self)._do_translate_request(request)
 
     def _do_deliver_response(self, response):
+        if response._vanished:
+            # We've been hijacked. Nothing should be done.
+            return
+
         content = response.content
         status_code = response.status
         enc = response.encoding
