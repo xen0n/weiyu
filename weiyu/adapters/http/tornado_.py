@@ -135,6 +135,9 @@ class TornadoReflex(BaseHTTPReflex):
             return send_content_iter(content, enc)
 
     def _do_deliver_response(self, response):
+        if response._vanished:
+            return
+
         req = response.request._native_request
         writer = req.write
         iterable = self._start_response(response)

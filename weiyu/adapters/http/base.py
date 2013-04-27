@@ -84,6 +84,16 @@ class BaseHTTPReflex(BaseReflex):
         render_in = cont = mime = None
         dont_render = False
 
+        # are we hijacked by some other library (e.g. socketio)?
+        if ctx.get('request_vanished', False):
+            # All further actions starting from accepting request are
+            # performed by the other library, so we can't do anything
+            # in this case. Just bail out.
+            response._vanished = True
+            return response
+
+        response._vanished = False
+
         # is this a raw file push request?
         response.is_raw_file = ctx.get('is_raw_file', False)
         if response.is_raw_file and 'sendfile_fp' in response.content:
