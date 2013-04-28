@@ -7,7 +7,7 @@ functionalities for the developer's convenience.
 
 ## Licenses
 
-* GPL-3
+* GPLv3+
 * Public domain for `examples/`
 
 
