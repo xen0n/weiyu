@@ -111,4 +111,26 @@ def cli_server_tornado(server=None, port=None, hostname=None):
     ioloop.IOLoop.instance().start()
 
 
+@expose_flavor('socketio')
+def cli_server_socketio(listener, application=None, *args, **kwargs):
+    try:
+        from socketio.server import SocketIOServer
+    except ImportError:
+        print(
+                'import of socketio.server failed, bailing',
+                file=sys.stderr,
+                )
+        sys.exit(1)
+
+    if application is None:
+        # inspect the caller
+        outer_frame = inspect.getouterframes(inspect.currentframe())[2][0]
+        app = outer_frame.f_globals['application']
+    else:
+        app = application
+
+    server = SocketIOServer(listener, app, *args, **kwargs)
+    server.serve_forever()
+
+
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

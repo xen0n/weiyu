@@ -25,8 +25,8 @@ from weiyu.db.mapper.base import Document
 from weiyu.session.beakerbackend import BeakerSession
 from weiyu.session import session_hub
 
-# DEBUG: hooks
-from weiyu.hooks.decorator import *
+# DEBUG: signal
+from weiyu.signals import signal_hub
 
 # DEBUG: static file
 from weiyu.utils.views import staticfile_view
@@ -87,7 +87,10 @@ def encode2(obj):
 
 
 # DEBUG: session
-def session_test(session):
+@signal_hub.append_listener_to('signal-test')
+def session_test(request):
+    session = request.session
+
     if 'visited' in session:
         session['visited'] += 1
     else:
@@ -114,10 +117,9 @@ def get_response(request):
 
 @http('index')
 @renderable('mako', 'env.html')
-@hookable('test-app')
 @view
 def env_test_worker(request):
-    session_test(request.session)
+    signal_hub.fire('signal-test', request)
 
     return (
             200,
@@ -134,7 +136,7 @@ def env_test_worker(request):
 @renderable('json')
 @view
 def multiformat_test_view(request, val):
-    session_test(request.session)
+    signal_hub.fire('signal-test', request)
 
     try:
         val = int(val)
@@ -185,14 +187,6 @@ def ajax_dbtest(request):
             {'result': list(result), },
             {'mimetype': 'application/json', },
             )
-
-
-## DEBUG: hook & session
-#session_backend = BeakerSession(request('site')['session'])
-#session_obj = WSGISession(session_backend)
-#
-#hook_before('test-app')(session_obj.pre_hook)
-#hook_after('test-app')(session_obj.post_hook)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

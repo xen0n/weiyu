@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / hooking mechanism / package
+# weiyu / async / views
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,10 +19,28 @@
 
 from __future__ import unicode_literals, division
 
+from socketio import socketio_manage
 
-# force registry initialization
-from . import registry
-del registry
+from . import async_hub
+from ..shortcuts import http, view
+
+
+@http('socketio-handler')
+@view
+def socketio_bridge_view(request):
+    socketio_manage(
+            request.env,
+            async_hub.get_namespaces('socketio'),
+            request,
+            )
+
+    # The handler DOES return, after finishing all operations.
+    # Tell reflex to cancel further responses.
+    return (
+            204,
+            {},
+            {'request_vanished': True, },
+            )
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
