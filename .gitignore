@@ -43,3 +43,6 @@ pip-log.txt
 
 # luohua, possibly housed inside
 luohua/
+
+# development virtualenvs
+venv/
