@@ -23,11 +23,10 @@ __all__ = [
             'WeiyuWSGIAdapter',
             ]
 
+from .. import adapter_hub
 
 from ...helpers.misc import smartstr
-
 from ...registry.provider import request as reg_request
-
 from ...reflex.classes import ReflexRequest
 
 from .base import BaseHTTPReflex
@@ -97,12 +96,14 @@ class WSGIReflex(BaseHTTPReflex):
 
         # TODO: add more ubiquitous HTTP request headers
 
-        # Session injection
-        self.session.preprocess(request)
-
-        return request
+        # do session injection in baseclass
+        return super(WSGIReflex, self)._do_translate_request(request)
 
     def _do_deliver_response(self, response):
+        if response._vanished:
+            # We've been hijacked. Nothing should be done.
+            return
+
         content = response.content
         status_code = response.status
         enc = response.encoding
@@ -136,6 +137,11 @@ class WeiyuWSGIAdapter(object):
 
     def __call__(self, env, start_response):
         return self.reflex.stimulate(env, start_response)
+
+
+@adapter_hub.register_handler('wsgi')
+def wsgi_adapter_factory(hub):
+    return WeiyuWSGIAdapter()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

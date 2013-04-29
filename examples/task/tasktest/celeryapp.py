@@ -2,30 +2,14 @@
 # -*- coding: utf-8 -*-
 # weiyu / examples / Task queue integration - Celery file
 #
-# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# This file is in public domain.
 
 from __future__ import unicode_literals, division
 
-from weiyu.registry.loader import JSONConfig
+from weiyu.shortcuts import load_config
 from weiyu.tasks import task_hub
 
-# load up registries
-conf = JSONConfig('conf.json')
-conf.populate_central_regs()
-
+load_config('conf.json')
 celery = task_hub.get_app('tasktest')
 
 

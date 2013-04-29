@@ -29,11 +29,8 @@ try:
 except ImportError:
     import ipaddr as ipaddress
 
-from weiyu.reflex.classes import ReflexResponse
-
-from weiyu.registry.provider import request as regrequest
-from weiyu.rendering.decorator import renderable
-from weiyu.router import router_hub
+from ..registry.provider import request as regrequest
+from ..shortcuts import *
 
 # Valid GitHub callback IP ranges
 GH_IP_WHITELIST = (
@@ -48,14 +45,13 @@ GH_IP_WHITELIST = (
 GH_NETWORKS = [ipaddress.IPv4Network(i) for i in GH_IP_WHITELIST]
 
 
-def dummy_response(status, request):
-    return ReflexResponse(
+def _dummy(status):
+    return (
             status,
             None,
             {
-                'mimetpe': 'text/plain',
+                'mimetype': 'text/plain',
                 },
-            request,
             )
 
 
@@ -64,41 +60,56 @@ def is_ip_whitelisted(ip):
     return any(addr in net for net in GH_NETWORKS)
 
 
-@router_hub.endpoint('http', 'gh-webhook-post-receive')
+@http('gh-webhook-post-receive')
 @renderable('dummy')
+@view
 def on_gh_post_receive(request):
-    conf = regrequest('site')['github']['post-receive']
-    dummy = lambda status: dummy_response(status, request)
+    repos = regrequest('site')['github']['post-receive']
 
     if not is_ip_whitelisted(request.remote_addr):
-        return dummy(403)
+        return _dummy(403)
 
     if request.method != 'POST':
         # TODO: a limit method decorator would be better
-        return dummy(400)
+        return _dummy(400)
 
     try:
         payload_json = request.form['payload']
     except KeyError:
-        return dummy(400)
+        return _dummy(400)
 
     try:
         payload = json.loads(payload_json)
     except ValueError:
-        return dummy(400)
+        return _dummy(400)
 
-    repo_name, ref = payload['repository']['name'], payload['ref']
-    if repo_name != conf['name'] or ref not in conf['refs']:
-        return dummy(403)
+    repo_name, owner_name, ref = (
+            payload['repository']['name'],
+            payload['repository']['owner']['name'],
+            payload['ref'],
+            )
+
+    # format config key
+    if '/' in owner_name or '/' in repo_name:
+        # Malformed names!
+        return _dummy(400)
+
+    conf_key = '%s/%s' % (owner_name, repo_name, )
+
+    if conf_key not in repos:
+        return _dummy(403)
+
+    if ref not in repos[conf_key]:
+        return _dummy(403)
 
     # Push accepted, execute the command given in configuration
     # Write the payload into the configured file, in effect also touching
     # it
     # FIXME: This is best done via some established deferred mechanism
-    with open(conf['refs'][ref], 'wb') as fp:
+    with open(repos[conf_key][ref], 'wb') as fp:
         fp.write(payload_json)
 
-    return dummy(204)
+    return _dummy(204)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

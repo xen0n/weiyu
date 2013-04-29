@@ -19,7 +19,7 @@
 
 from __future__ import unicode_literals, division
 
-from __version__ import *
+from .__version__ import *
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

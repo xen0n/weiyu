@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / adapter / http / Tornado adapter
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,26 +23,30 @@ __all__ = [
             'WeiyuTornadoAdapter',
             ]
 
+try:
+    from tornado.wsgi import WSGIContainer
+    from tornado.httpserver import HTTPServer
+except ImportError:
+    # later used to check if Tornado is actually installed,
+    # raising exception if it isn't the case.
+    HTTPServer = object
 
-from tornado.wsgi import WSGIContainer
-from tornado.httpserver import HTTPServer
+from .. import adapter_hub
 
 from ...helpers.misc import smartstr
-
 from ...registry.provider import request as reg_request
-
 from ...reflex.classes import ReflexRequest
 
 from .base import BaseHTTPReflex
 from .util import status_to_str, dummy_file_wrapper, send_content_iter
 from .util import parse_form, gen_http_headers
 
-_env_from_req = WSGIContainer.environ
-
 
 class TornadoRequest(ReflexRequest):
     def __init__(self, tornado_req, site_conf):
-        super(TornadoRequest, self).__init__(_env_from_req(tornado_req))
+        super(TornadoRequest, self).__init__(
+                WSGIContainer.environ(tornado_req)
+                )
         self._native_request = tornado_req
 
         self.site = site_conf
@@ -95,10 +99,8 @@ class TornadoReflex(BaseHTTPReflex):
 
         # TODO: add more ubiquitous HTTP request headers
 
-        # Session injection
-        self.session.preprocess(request)
-
-        return request
+        # do session injection in baseclass
+        return super(TornadoReflex, self)._do_translate_request(request)
 
     def _start_response(self, response):
         content = response.content
@@ -133,6 +135,9 @@ class TornadoReflex(BaseHTTPReflex):
             return send_content_iter(content, enc)
 
     def _do_deliver_response(self, response):
+        if response._vanished:
+            return
+
         req = response.request._native_request
         writer = req.write
         iterable = self._start_response(response)
@@ -143,6 +148,10 @@ class TornadoReflex(BaseHTTPReflex):
 
 class WeiyuTornadoAdapter(HTTPServer):
     def __init__(self):
+        if HTTPServer is object:
+            # Well... the real HTTPServer is not there.
+            raise RuntimeError('tornado.httpserver.HTTPServer not found')
+
         self.__reflex = TornadoReflex()
 
         # the stimulate method is the callback
@@ -151,6 +160,11 @@ class WeiyuTornadoAdapter(HTTPServer):
                 self.__reflex.stimulate,
                 no_keep_alive=True,
                 )
+
+
+@adapter_hub.register_handler('tornado')
+def tornado_adapter_factory(hub):
+    return WeiyuTornadoAdapter()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
