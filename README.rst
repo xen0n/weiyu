@@ -1,6 +1,12 @@
 weiyu
 =====
 
+.. image:: https://pypip.in/v/weiyu/badge.png
+    :target: https://pypi.python.org/pypi/weiyu/
+
+.. image:: https://pypip.in/d/weiyu/badge.png
+    :target: https://pypi.python.org/pypi/weiyu/
+
 **weiyu** is a Web development framework for Python. Highly modular and
 configurable, ``weiyu`` tries hard to integrate common functionalities
 for the developer's convenience. It features integration with the following
