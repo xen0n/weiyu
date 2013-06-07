@@ -39,6 +39,9 @@ Licenses
 * GPLv3+
 * Public domain for ``examples/``
 
+The URL reverser contains code from Django (the ``helpers/regex_helper.py``
+file); copyright notice is attached to the source.
+
 
 Installation
 ------------

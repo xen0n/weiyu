@@ -27,7 +27,13 @@ __all__ = [
             'STATUS_NOROUTE',
             ]
 
+from collections import OrderedDict
+
 STATUS_REACHED, STATUS_FORWARD, STATUS_NOROUTE = range(3)
+
+
+def is_router(tgt):
+    return isinstance(tgt, (RouterBase, ))
 
 
 class DispatchError(Exception):
@@ -37,12 +43,23 @@ class DispatchError(Exception):
 # XXX Make up clearer names for all those "target"s!
 
 class RouterBase(object):
-    def __init__(self, target_initializers, name=None):
-        self.name = name
+    def __init__(
+            self,
+            target_initializers,
+            name=None,
+            parent=None,
+            scope='',
+            ):
+        self.name, self.scope, self.parent = name, scope, parent
         self.route_table = [
-                self.__class__.target_type(*i)
+                self.__class__.target_type(router=self, *i)
                 for i in target_initializers
                 ]
+
+        # Fix sub-routers' parents.
+        for tgt in self.route_table:
+            if tgt.target_is_router:
+                tgt.target.parent = tgt
 
     def lookup(self, querystr, prev_args=None, prev_kwargs=None):
         # XXX is this needed, or am I overly sensitive?
@@ -80,9 +97,10 @@ class RouterBase(object):
         hit, target, more_args, kwargs, data = self.lookup(querystr)
 
         if not hit:
-            raise DispatchError("query string %s: nowhere to dispatch"
-                                % repr(querystr)
-                                )
+            raise DispatchError(
+                    "query string %s: nowhere to dispatch" % (
+                        repr(querystr),
+                        ))
 
         # append resolved positional args to args passed in
         extended_args = list(args)
@@ -94,13 +112,42 @@ class RouterBase(object):
         target, ext_args, kwargs, data = self.dry_dispatch(querystr, *args)
         return target(*ext_args, **kwargs)
 
+    def build_reverse_map(self):
+        scope = self.scope
+        map_ = {scope: {}}  # OrderedDict()
+        this_scope = map_[scope]
+
+        # According to the ctor, route_table is guaranteed to be a list,
+        # so reversing using slicing syntax is fine.
+        for entry in self.route_table[::-1]:
+            if entry.target_is_router:
+                chld_map = entry.target.reverse_map
+                for chld_scope, chld_scopemap in chld_map.iteritems():
+                    if chld_scope in map_:
+                        map_[chld_scope].update(chld_scopemap)
+                    else:
+                        map_[chld_scope] = chld_scopemap
+            else:
+                tgt_spec = entry.data.get('target_spec', None)
+                this_scope[tgt_spec] = entry.reverse_pattern
+
+        return map_
+
+    @property
+    def reverse_map(self):
+        try:
+            return self._reverse_map
+        except AttributeError:
+            map_ = self._reverse_map = self.build_reverse_map()
+            return map_
+
 
 class RouterTargetBase(object):
-    def __init__(self, target, extra_data=None):
-        self.target, self.data = target, extra_data
+    def __init__(self, target, extra_data=None, router=None):
+        self.target, self.data, self.router = target, extra_data, router
 
         # for nested processing
-        self.target_is_router = issubclass(type(target), RouterBase)
+        self.target_is_router = is_router(target)
 
     def check(self, querystr):
         # return is assumed to be in the form of
@@ -132,6 +179,28 @@ class RouterTargetBase(object):
         raise DispatchError('Impossible check result %s, bug detected'
                 % repr((status, args, kwargs, new_qs, ))
                 )
+
+    @property
+    def reverse_pattern(self):
+        try:
+            return self._reverse_pattern
+        except AttributeError:
+            pat = self._get_reverse_pattern()
+            if self.router.parent is not None:
+                parent_pat = self.router.parent.reverse_pattern
+            else:
+                # no parent target, use an empty one
+                parent_pat = ('', set(), )
+
+            # merge the parent's reverse pattern
+            pat_str = parent_pat[0] + pat[0]
+            pat_vars = set(parent_pat[1])
+            pat_vars.update(pat[1])
+            self._reverse_pattern = (pat_str, pat_vars, )
+            return self._reverse_pattern
+
+    def _get_reverse_pattern(self):
+        return
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
