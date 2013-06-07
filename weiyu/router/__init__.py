@@ -109,6 +109,67 @@ class RouterHub(BaseHub):
         # TODO: is it really useful to allow passing kwargs also?
         return self.do_handling(typ, querystr, *args)
 
+    def reverser_for(self, typ, __cache={}):
+        try:
+            return __cache[typ]
+        except KeyError:
+            pass
+
+        router = self._routers[typ]
+        map = router.reverse_map
+        pat_cache = {}
+
+        def reverser(endpoint, **kwargs):
+            # look up the endpoint, memoized.
+            try:
+                pat_str, pat_vars = pat_cache[endpoint]
+            except KeyError:
+                # split the possibly scoped endpoint name into components
+                try:
+                    colon = endpoint.index(':')
+                    scope, name = endpoint[:colon], endpoint[colon + 1:]
+                except ValueError:
+                    scope, name = '', endpoint
+
+                # look up the scope first
+                try:
+                    scope_map = map[scope]
+                except KeyError:
+                    # TODO: a NoReverseMatch here, as Django did?
+                    raise ValueError(
+                            "No scope named '%s' in router type '%s'" % (
+                                scope,
+                                typ,
+                                ))
+
+                try:
+                    pat_str, pat_vars = scope_map[name]
+                except KeyError:
+                    raise ValueError(
+                            "No endpoint '%s' exposed in scope '%s' of "
+                            "router type '%s'" % (
+                                name,
+                                scope,
+                                typ,
+                                ))
+
+                # memoize the result
+                pat_cache[endpoint] = (pat_str, pat_vars, )
+
+            # verify the parameters
+            given_vars = set(kwargs.iterkeys())
+            if given_vars != pat_vars:
+                # parameter mismatch
+                raise ValueError('Parameter mismatch')
+
+            # successful match, construct the result
+            return pat_str % kwargs
+
+        # memoize the reverser instance
+        __cache[typ] = reverser
+
+        return reverser
+
     def _do_init_router(self, typ, routing_rules, lvl, parent_info):
         # recursive algorithm, watch out d-:
         # typ is not really useful except checking against endpoint reg
