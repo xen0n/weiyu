@@ -34,6 +34,7 @@ setup(
             'memcached': ['python-memcached>=1.48', ],
             'redis': ['redis>=2.7.0', 'hiredis>=0.1.1', ],
             'ujson': ['ujson>=1.19', ],
+            'yaml': ['PyYAML>=3.10', ],
             'ghwebhook': ['ipaddr>=2.1.10', ],
             },
         packages=find_packages(exclude=['examples', 'tests']),
