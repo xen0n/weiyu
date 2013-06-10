@@ -11,3 +11,4 @@ redis>=2.7.0
 hiredis>=0.1.1
 ujson>=1.19
 ipaddr>=2.1.10
+PyYAML>=3.10
