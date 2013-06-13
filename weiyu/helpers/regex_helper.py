@@ -41,6 +41,11 @@ from __future__ import unicode_literals
 
 from itertools import izip as zip
 
+try:
+    range = xrange
+except NameError:
+    pass
+
 # Mapping of an escape character to a representative of that class. So, e.g.,
 # "\w" is replaced by "x" in a reverse URL. A value of None means to ignore
 # this sequence. Any missing key is mapped to itself.
