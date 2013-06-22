@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / db drivers / base class
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,56 +19,65 @@
 
 from __future__ import unicode_literals, division
 
-from functools import wraps
-
-from . import exc
+import abc
 
 
-def ensure_conn(fn):
-    '''Check if the database connection has already been established.
+class BaseDriver(object):
+    '''Baseclass for database drivers.'''
 
-    Raises ``NotConnectedError`` if a connection object is not present.
+    __metaclass__ = abc.ABCMeta
 
-    .. warning::
-        This is an internal function, not meant for outside use. **Do not**
-        use it.
+    def __enter__(self):
+        self.connect()
+        return self
 
-    '''
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.finish()
+        pass
 
-    @wraps(fn)
-    def __wrapper__(self, *args, **kwargs):
-        if self.connection is None:
-            raise exc.NotConnectedError
-        # fn is a bound method, so don't pass self around
-        return fn(self, *args, **kwargs)
-    return __wrapper__
+    @abc.abstractmethod
+    def connect(self):
+        '''Establish a database connection.'''
+        pass
 
+    @abc.abstractmethod
+    def finish(self):
+        '''Be done with the connection.
 
-def ensure_disconn(fn):
-    '''Check if the database connection has not yet been established.
+        The connection may be returned to some kind of pools, or closed.
 
-    Raises ``AlreadyConnectedError`` if a connection object is present.
+        '''
 
-    .. warning::
-        This is an internal function, not meant for outside use. **Do not**
-        use it.
+        pass
 
-    '''
+    @abc.abstractmethod
+    def insert(self, bucket, v, k=None):
+        '''Insert an entity.
 
-    @wraps(fn)
-    def __wrapper__(self, *args, **kwargs):
-        if self.connection is not None:
-            raise exc.AlreadyConnectedError
-        # fn is a bound method, so don't pass self around
-        return fn(self, *args, **kwargs)
-    return __wrapper__
+        For backends that auto-generates a key for the entity, ``k`` may be
+        ``None``.
 
+        '''
 
-class DBDriverBase(object):
-    '''Baseclass of database drivers.'''
+        pass
 
-    def __init__(self):
-        self.connection = self.ops = self.storage = None
+    @abc.abstractmethod
+    def find(self, bucket, criteria):
+        '''Query entities in the designated bucket.'''
+
+        pass
+
+    @abc.abstractmethod
+    def update(self, bucket, v, k):
+        '''Update an entity with the new value.'''
+
+        pass
+
+    @abc.abstractmethod
+    def remove(self, bucket, k):
+        '''Remove an entity from bucket.'''
+
+        pass
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

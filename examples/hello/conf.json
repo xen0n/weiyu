@@ -27,12 +27,10 @@
 		"databases": {
 			"test": {
 				"driver": "pymongo",
-				"options": {
-					"host": "127.0.0.1",
-					"port": 27017,
-					"is_replica": false,
-					"path": "test"
-				}
+				"host": "127.0.0.1",
+				"port": 27017,
+				"is_replica": false,
+				"path": "test"
 			}
 		}
 	},
@@ -40,7 +38,7 @@
 		"storage": {
 			"teststruct": {
 				"db": "test",
-				"collection": "test"
+				"bucket": "test"
 			}
 		}
 	}
