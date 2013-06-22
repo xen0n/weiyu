@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / object-nonrelational mapping / package
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -63,9 +63,6 @@ class MapperHub(BaseHub):
             # [{ver1: encoder1, ver2: encoder2, ...}, max_version]
             self._encoders[name] = [{}, -1]
 
-        # curry struct id into our mapper shim, then register it
-        self.register_handler(name)(partial(_mapper_shim_, name=name))
-
     def get_version(self, obj):
         try:
             return obj[VERSION_FIELD]
@@ -74,11 +71,11 @@ class MapperHub(BaseHub):
                         'object %s has no version field' % (repr(obj), )
                         )
 
-    def decode(self, name, obj, version=None):
-        return self.do_handling(name, OP_DECODE, obj, version)
+    def decode(self, name, pk, obj, version=None):
+        return self._do_decode(name, pk, obj, version)
 
     def encode(self, name, obj, version=None):
-        return self.do_handling(name, OP_ENCODE, obj, version)
+        return self._do_encode(name, obj, version)
 
     def get_storage_conf(self, name):
         try:
@@ -90,12 +87,10 @@ class MapperHub(BaseHub):
 
     def get_storage(self, name):
         storage_conf = self.get_storage_conf(name)
-        db_name, coll = storage_conf['db'], storage_conf['collection']
+        db_name, bucket = storage_conf['db'], storage_conf['bucket']
+        drv = db_hub.get_database(db_name)
 
-        conn = db_hub.get_database(db_name)
-        path = getattr(conn.storage, coll)
-
-        return conn, path
+        return drv, bucket
 
     def decoder_for(self, name, version):
         # you aren't registering negative versions, huh?
@@ -140,7 +135,7 @@ class MapperHub(BaseHub):
             return fn
         return _decorator_
 
-    def _do_decode(self, name, obj, ver):
+    def _do_decode(self, name, pk, obj, ver):
         decoders = self._decoders[name]
 
         use_ver = ver if ver is not None else self.get_version(obj)
@@ -155,7 +150,7 @@ class MapperHub(BaseHub):
                         )
                     )
 
-        return decoder(obj)
+        return decoder(pk, obj)
 
     def _do_encode(self, name, obj, ver):
         # Always encode in the latest version unless explicitly specified
@@ -178,15 +173,6 @@ class MapperHub(BaseHub):
 
 
 mapper_hub = MapperHub()
-
-
-# Mapper shim
-def _mapper_shim_(hub, op, obj, ver, name):
-    if op == OP_DECODE:
-        return hub._do_decode(name, obj, ver)
-    elif op == OP_ENCODE:
-        return hub._do_encode(name, obj, ver)
-    raise RuntimeError('Impossible codepath!')
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

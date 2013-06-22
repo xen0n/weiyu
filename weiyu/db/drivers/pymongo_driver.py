@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / db drivers / pymongo driver
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,18 +30,12 @@ from __future__ import unicode_literals, division
 from functools import wraps
 
 import pymongo
-_DuplicateKeyError = pymongo.errors.DuplicateKeyError
 
 from .. import db_hub
-from .baseclass import *
-from ...helpers import PathBuilderBase, CallReflector
+from .baseclass import BaseDriver
 
 
-class CollectionPath(PathBuilderBase):
-    delim = u'.'
-
-
-class PymongoDriver(DBDriverBase):
+class PymongoDriver(BaseDriver):
     '''``pymongo`` driver class.'''
 
     def __init__(self, host, port, path, is_replica=False):
@@ -58,60 +52,54 @@ class PymongoDriver(DBDriverBase):
 
         self.host, self.port, self.path = host, port, path
 
-        # this path object can be created anytime without side effects
-        self.storage = CollectionPath()
-
-        self._conn_type = (pymongo.ReplicaSetConnection
+        _conn_type = (pymongo.MongoReplicaSetClient
                            if is_replica
-                           else pymongo.Connection
+                           else pymongo.MongoClient
                            )
-
-    @ensure_disconn
-    def connect(self):
-        '''Connect to the database specified in constructor.
-
-        Raises ``AlreadyConnectedError`` if connected.
-
-        '''
-
-        # XXX Atomicity needs to be guaranteed!!
-        self.connection = self._conn_type(self.host, self.port)
-        self.ops = CallReflector(
-                self.connection.__getattr__(self.path),
-                CollectionPath,
+        self.conn = _conn_type(
+                self.host,
+                self.port,
+                auto_start_request=False,
                 )
+        self.db = self.conn[self.path]
+        self._buckets = {}
 
-    @ensure_conn
-    def disconnect(self):
-        '''Disconnect from database.
+    def connect(self):
+        self.conn.start_request()
 
-        Raises ``NotConnectedError`` if not connected.
+    def finish(self):
+        self.conn.end_request()
 
-        '''
+    def _get_bucket(self, name):
+        try:
+            return self._buckets[name]
+        except KeyError:
+            bucket = getattr(self.db, name)
+            self._buckets[name] = bucket
 
-        # XXX Atomicity!!
-        self.connection.close()
-        self.connection = self.ops = self.storage = None
+        return self._buckets[name]
 
-    @ensure_disconn
-    def __enter__(self):
-        '''Context manager protocol function.
+    def insert(self, bucket, v, k=None):
+        b = self._get_bucket(bucket)
 
-        This function establishes the db connection for you.
+        if k is not None:
+            v['_id'] = k
 
-        '''
+        return b.insert(v)
 
-        self.connect()
-        return self
+    def find(self, bucket, criteria):
+        b = self._get_bucket(bucket)
+        for doc in b.find(criteria):
+            pk = doc.pop('_id')
+            yield pk, doc
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        '''Contect manager protocol function.
+    def update(self, bucket, v, k):
+        b = self._get_bucket(bucket)
+        return b.update({'_id': k, }, v)
 
-        Automatically closes the db connection.
-
-        '''
-
-        self.disconnect()
+    def remove(self, bucket, k):
+        b = self._get_bucket(bucket)
+        return b.remove({'_id': k, })
 
 
 @db_hub.register_handler('pymongo')

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / db / package
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,6 +28,8 @@ from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
 
+DBCONF_KEY, DRVOBJ_KEY = 'databases', 'drvobjs'
+
 
 class DatabaseHub(BaseHub):
     registry_name = 'weiyu.db'
@@ -38,33 +40,40 @@ class DatabaseHub(BaseHub):
         super(DatabaseHub, self).__init__(*args, **kwargs)
 
         # register an empty database dict if it isn't there
-        if 'databases' not in self._reg:
-            self._reg['databases'] = {}
+        if DBCONF_KEY not in self._reg:
+            self._reg[DBCONF_KEY] = {}
+
+        self._drvobjs = self._reg[DRVOBJ_KEY] = {}
 
     def get_database(self, name):
         # only fetch resource by name
         # NOTE: args and kwargs are removed for the moment; we'll see if
         # they're really necessary for the "flexibility" they're supposed
         # to provide.
-        return self.do_handling('__name', name)
+        try:
+            return self._drvobjs[name]
+        except KeyError:
+            drv = self.do_handling('__name', name)
+            self._drvobjs[name] = drv
+            return drv
 
 
 db_hub = DatabaseHub()
 
 
 # reference-by-name handler
+# driver objects are memoized in db_hub.get_database()
 @db_hub.register_handler('__name')
 def name_resolver(hub, name):
     dbconf = request('weiyu.db')
     # NOTE: exception is not caught as any request for an unmentioned
     # database SHOULD fail
-    db_cfg = dbconf['databases'][unicode(name)]
+    db_cfg = dbconf[DBCONF_KEY][unicode(name)]
 
     # driver type and kwargs for constructing db object
-    drv_type = db_cfg['driver']
-    drv_kwargs = db_cfg['options']
+    drv_type = db_cfg.pop('driver')
 
-    return hub.do_handling(drv_type, **drv_kwargs)
+    return hub.do_handling(drv_type, **db_cfg)
 
 
 # expose document mapper here to prevent circular dependency
