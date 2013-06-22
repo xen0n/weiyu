@@ -65,15 +65,13 @@ class TestStruct(Document):
 
 
 @mapper_hub.decoder_for(_STRUCT_NAME, 1)
-def decode1(obj):
-    _id = obj.get('_id', None)
-    return TestStruct(val=obj['v1'] - 2, _id=_id)
+def decode1(pk, obj):
+    return TestStruct(pk, val=obj['v1'] - 2)
 
 
 @mapper_hub.decoder_for(_STRUCT_NAME, 2)
-def decode2(obj):
-    _id = obj.get('_id', None)
-    return TestStruct(val=obj['v2'] >> 1, _id=_id)
+def decode2(pk, obj):
+    return TestStruct(pk, val=obj['v2'] >> 1)
 
 
 @mapper_hub.encoder_for(_STRUCT_NAME, 1)
