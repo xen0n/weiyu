@@ -24,6 +24,8 @@ __all__ = [
         'mapper_hub',
         ]
 
+import importlib
+
 from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
@@ -72,6 +74,10 @@ def name_resolver(hub, name):
 
     # driver type and kwargs for constructing db object
     drv_type = db_cfg.pop('driver')
+
+    # import driver module
+    assert '.' not in drv_type
+    importlib.import_module('.%s_driver' % (drv_type, ), 'weiyu.db.drivers')
 
     return hub.do_handling(drv_type, **db_cfg)
 
