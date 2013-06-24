@@ -64,42 +64,20 @@ class PymongoDriver(BaseDriver):
         self.db = self.conn[self.path]
         self._buckets = {}
 
-    def connect(self):
+    def start(self):
         self.conn.start_request()
 
     def finish(self):
         self.conn.end_request()
 
-    def _get_bucket(self, name):
+    def get_bucket(self, bucket):
         try:
-            return self._buckets[name]
+            return self._buckets[bucket]
         except KeyError:
-            bucket = getattr(self.db, name)
-            self._buckets[name] = bucket
+            b = getattr(self.db, bucket)
+            self._buckets[bucket] = b
 
-        return self._buckets[name]
-
-    def insert(self, bucket, v, k=None):
-        b = self._get_bucket(bucket)
-
-        if k is not None:
-            v['_id'] = k
-
-        return b.insert(v)
-
-    def find(self, bucket, criteria):
-        b = self._get_bucket(bucket)
-        for doc in b.find(criteria):
-            pk = doc.pop('_id')
-            yield pk, doc
-
-    def update(self, bucket, v, k):
-        b = self._get_bucket(bucket)
-        return b.update({'_id': k, }, v)
-
-    def remove(self, bucket, k):
-        b = self._get_bucket(bucket)
-        return b.remove({'_id': k, })
+        return self._buckets[bucket]
 
 
 @db_hub.register_handler('pymongo')

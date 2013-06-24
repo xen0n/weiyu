@@ -71,12 +71,6 @@ class MapperHub(BaseHub):
                         'object %s has no version field' % (repr(obj), )
                         )
 
-    def decode(self, name, pk, obj, version=None):
-        return self._do_decode(name, pk, obj, version)
-
-    def encode(self, name, obj, version=None):
-        return self._do_encode(name, obj, version)
-
     def get_storage_conf(self, name):
         try:
             return self._storage[name]
@@ -90,7 +84,7 @@ class MapperHub(BaseHub):
         db_name, bucket = storage_conf['db'], storage_conf['bucket']
         drv = db_hub.get_database(db_name)
 
-        return drv, bucket
+        return drv(bucket)
 
     def decoder_for(self, name, version):
         # you aren't registering negative versions, huh?
@@ -135,10 +129,10 @@ class MapperHub(BaseHub):
             return fn
         return _decorator_
 
-    def _do_decode(self, name, pk, obj, ver):
+    def decode(self, name, obj, version=None):
         decoders = self._decoders[name]
 
-        use_ver = ver if ver is not None else self.get_version(obj)
+        use_ver = version if version is not None else self.get_version(obj)
 
         try:
             decoder = decoders[use_ver]
@@ -150,12 +144,12 @@ class MapperHub(BaseHub):
                         )
                     )
 
-        return decoder(pk, obj)
+        return decoder(obj)
 
-    def _do_encode(self, name, obj, ver):
+    def encode(self, name, obj, version=None):
         # Always encode in the latest version unless explicitly specified
         encoders, maxver = self._encoders[name]
-        use_ver = maxver if ver is None else ver
+        use_ver = maxver if version is None else version
 
         try:
             encoder = encoders[use_ver]
