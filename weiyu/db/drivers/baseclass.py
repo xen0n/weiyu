@@ -27,22 +27,15 @@ class BaseDriver(object):
 
     __metaclass__ = abc.ABCMeta
 
-    def __enter__(self):
-        self.connect()
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.finish()
-        pass
-
     @abc.abstractmethod
-    def connect(self):
-        '''Establish a database connection.'''
+    def start(self):
+        '''Prepare for database operations.'''
+
         pass
 
     @abc.abstractmethod
     def finish(self):
-        '''Be done with the connection.
+        '''Be done with the database.
 
         The connection may be returned to some kind of pools, or closed.
 
@@ -50,34 +43,36 @@ class BaseDriver(object):
 
         pass
 
-    @abc.abstractmethod
-    def insert(self, bucket, v, k=None):
-        '''Insert an entity.
+    def __call__(self, bucket):
+        '''Get a database connection for the selected bucket of data.
 
-        For backends that auto-generates a key for the entity, ``k`` may be
-        ``None``.
+        This connection is driver-specific, for the developers to fully
+        leverage the details of underlying database infrastructure.
+
+        '''
+
+        return DBOperationContext(self, bucket)
+
+    @abc.abstractmethod
+    def get_bucket(self, bucket):
+        '''Get a driver-specific bucket/collection/table object to operate
+        on.
 
         '''
 
         pass
 
-    @abc.abstractmethod
-    def find(self, bucket, criteria):
-        '''Query entities in the designated bucket.'''
 
-        pass
+class DBOperationContext(object):
+    def __init__(self, driver, bucket):
+        self.driver, self.bucket = driver, bucket
 
-    @abc.abstractmethod
-    def update(self, bucket, v, k):
-        '''Update an entity with the new value.'''
+    def __enter__(self):
+        self.driver.start()
+        return self.driver.get_bucket(self.bucket)
 
-        pass
-
-    @abc.abstractmethod
-    def remove(self, bucket, k):
-        '''Remove an entity from bucket.'''
-
-        pass
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.driver.finish()
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
