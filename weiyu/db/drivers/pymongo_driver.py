@@ -38,27 +38,42 @@ from .baseclass import BaseDriver
 class PymongoDriver(BaseDriver):
     '''``pymongo`` driver class.'''
 
-    def __init__(self, host, port, path, is_replica=False):
+    def __init__(
+            self,
+            path,
+            host,
+            port,
+            is_replica,
+            max_pool_size,
+            tz_aware,
+            ):
         '''Constructor function.
 
-        The database is specified through the parameters ``host`` and ``port``.
+        The database server is specified through the parameters ``host`` and
+        ``port``; individual database is selected by ``path``.
 
         If the database to connect to is actually a replica set, set
-        ``is_replica`` to ``True``.
+        ``is_replica`` to ``True``. This will make the connection a
+        ``MongoReplicaSetClient`` instead of ``MongoClient``.
+
+        Other parameters have the same meanings as in PyMongo.
 
         '''
 
         super(PymongoDriver, self).__init__()
 
         self.host, self.port, self.path = host, port, path
+        self.max_pool_size, self.tz_aware = self.max_pool_size, self.tz_aware
 
         _conn_type = (pymongo.MongoReplicaSetClient
                            if is_replica
                            else pymongo.MongoClient
                            )
         self.conn = _conn_type(
-                self.host,
-                self.port,
+                host=host,
+                port=port,
+                max_pool_size=max_pool_size,
+                tz_aware=tz_aware,
                 auto_start_request=False,
                 )
         self.db = self.conn[self.path]
@@ -81,8 +96,23 @@ class PymongoDriver(BaseDriver):
 
 
 @db_hub.register_handler('pymongo')
-def pymongo_handler(hub, host, port, path, is_replica):
-    return PymongoDriver(host, port, path, is_replica)
+def pymongo_handler(
+        hub,
+        path,
+        host='127.0.0.1',
+        port=27017,
+        is_replica=False,
+        max_pool_size=10,
+        tz_aware=False,
+        ):
+    return PymongoDriver(
+            path,
+            host,
+            port,
+            is_replica,
+            max_pool_size,
+            tz_aware,
+            )
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
