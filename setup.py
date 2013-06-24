@@ -27,6 +27,7 @@ setup(
             'beaker': ['Beaker>=1.6.3', ],
             'mako': ['Mako>=0.7.1', ],
             'mongodb': ['pymongo>=2.2.1', ],
+            'riak': ['riak>=1.5.2', ],
             'cherrypy': ['cherrypy>=3.2', ],
             'tornado': ['tornado>=2.4', ],
             'socketio': ['gevent-socketio>=0.3.5-rc2', ],
