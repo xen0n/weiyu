@@ -359,4 +359,15 @@ class PickleConfig(BaseConfig):
         return pickle.loads(s, *args, **kwargs)
 
 
+@handler_for_ext('.yml')
+@handler_for_ext('.yaml')
+class YAMLConfig(BaseConfig):
+    '''YAML config backend.'''
+
+    def _do_loads(self, s, *args, **kwargs):
+        import yaml
+        # TODO: optionally utilize C acceleration if available
+        return yaml.load(s, *args, **kwargs)
+
+
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

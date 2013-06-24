@@ -109,6 +109,67 @@ class RouterHub(BaseHub):
         # TODO: is it really useful to allow passing kwargs also?
         return self.do_handling(typ, querystr, *args)
 
+    def reverser_for(self, typ, __cache={}):
+        try:
+            return __cache[typ]
+        except KeyError:
+            pass
+
+        router = self._routers[typ]
+        map = router.reverse_map
+        pat_cache = {}
+
+        def reverser(endpoint, **kwargs):
+            # look up the endpoint, memoized.
+            try:
+                pat_str, pat_vars = pat_cache[endpoint]
+            except KeyError:
+                # split the possibly scoped endpoint name into components
+                try:
+                    colon = endpoint.index(':')
+                    scope, name = endpoint[:colon], endpoint[colon + 1:]
+                except ValueError:
+                    scope, name = '', endpoint
+
+                # look up the scope first
+                try:
+                    scope_map = map[scope]
+                except KeyError:
+                    # TODO: a NoReverseMatch here, as Django did?
+                    raise ValueError(
+                            "No scope named '%s' in router type '%s'" % (
+                                scope,
+                                typ,
+                                ))
+
+                try:
+                    pat_str, pat_vars = scope_map[name]
+                except KeyError:
+                    raise ValueError(
+                            "No endpoint '%s' exposed in scope '%s' of "
+                            "router type '%s'" % (
+                                name,
+                                scope,
+                                typ,
+                                ))
+
+                # memoize the result
+                pat_cache[endpoint] = (pat_str, pat_vars, )
+
+            # verify the parameters
+            given_vars = set(kwargs.iterkeys())
+            if given_vars != pat_vars:
+                # parameter mismatch
+                raise ValueError('Parameter mismatch')
+
+            # successful match, construct the result
+            return pat_str % kwargs
+
+        # memoize the reverser instance
+        __cache[typ] = reverser
+
+        return reverser
+
     def _do_init_router(self, typ, routing_rules, lvl, parent_info):
         # recursive algorithm, watch out d-:
         # typ is not really useful except checking against endpoint reg
@@ -120,7 +181,10 @@ class RouterHub(BaseHub):
 
         # Attribute processing.
         attrib_list = routing_rules[0]
-        inherited_renderer = parent_info['inherited_renderer']
+        inherited_renderer, scope = (
+                parent_info['inherited_renderer'],
+                parent_info['scope'],
+                )
         include_path, cls_name = None, None
 
         if isinstance(attrib_list, _list_types):
@@ -133,18 +197,20 @@ class RouterHub(BaseHub):
             for attrib in attrib_list[1:]:
                 k, v = attrib.split('=', 1)
 
-                # case: renderer=xxx
                 if k == 'renderer':
+                    # case: renderer=xxx
                     # record the renderer to inherit
                     inherited_renderer = v
-
-                # case: include=xxx
-                if k == 'include':
+                elif k == 'include':
+                    # case: include=xxx
                     # it must appear as the only attribute, if used!
                     # throw an exception.
                     raise RuntimeError(
                             'include directive must appear on its own'
                             )
+                elif k == 'scope':
+                    # case: scope=xxx
+                    scope = v
         else:
             # only one attribute.
             # it is either the router class spec, or an include directive
@@ -187,6 +253,7 @@ class RouterHub(BaseHub):
                 # of it
                 my_info = {
                         'inherited_renderer': inherited_renderer,
+                        'scope': scope,
                         }
                 tgt = self._do_init_router(typ, target_spec, lvl + 1, my_info)
             elif isinstance(target_spec, _str_types):
@@ -200,18 +267,27 @@ class RouterHub(BaseHub):
                 tgt = target_spec
 
             # process special data
-            # render_in
             if extra_data is not None:
+                # render_in
                 if extra_data.get('render_in', None) == 'inherit':
                     # inherit renderer from parent
                     extra_data['render_in'] = inherited_renderer
+            else:
+                extra_data = {}
+
+            # remember the target spec for the URL reverser
+            extra_data['target_spec'] = target_spec
 
             # add a rule
             result_rules.append((pattern, tgt, extra_data, ))
 
         # construct a XxxRouter object with the routing rules just created
         # if toplevel router, assign it a name equal to typ
-        return cls(result_rules, name=typ if lvl == 0 else None)
+        return cls(
+                result_rules,
+                name=typ if lvl == 0 else None,
+                scope=scope,
+                )
 
     def init_router(self, typ, routing_rules):
         return self._do_init_router(
@@ -220,6 +296,7 @@ class RouterHub(BaseHub):
                 0,
                 {
                     'inherited_renderer': None,
+                    'scope': '',
                     },
                 )
 

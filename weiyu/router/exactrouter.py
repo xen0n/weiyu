@@ -44,8 +44,8 @@ class ExactRouterTarget(RouterTargetBase):
 
     '''
 
-    def __init__(self, pattern, target, extra_data=None):
-        super(ExactRouterTarget, self).__init__(target, extra_data)
+    def __init__(self, pattern, target, extra_data=None, router=None):
+        super(ExactRouterTarget, self).__init__(target, extra_data, router)
 
         self.pattern = unicode(pattern)
         self._pat_len = len(self.pattern)
@@ -68,6 +68,9 @@ class ExactRouterTarget(RouterTargetBase):
 
         # and indicate this status.
         return (STATUS_FORWARD, prev_args, prev_kwargs, new_qs, )
+
+    def _get_reverse_pattern(self):
+        return (self.pattern, set(), )
 
 
 @router_hub.register_router_class('exact')

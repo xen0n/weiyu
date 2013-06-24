@@ -55,25 +55,15 @@ mapper_hub.register_struct(_STRUCT_NAME)
 class TestStruct(Document):
     struct_id = _STRUCT_NAME
 
-    def __init__(self, *args, **kwargs):
-        super(TestStruct, self).__init__(*args, **kwargs)
-
-        try:
-            self.pop('_id')
-        except KeyError:
-            pass
-
 
 @mapper_hub.decoder_for(_STRUCT_NAME, 1)
 def decode1(obj):
-    _id = obj.get('_id', None)
-    return TestStruct(val=obj['v1'] - 2, _id=_id)
+    return {'val': obj['v1'] - 2, }
 
 
 @mapper_hub.decoder_for(_STRUCT_NAME, 2)
 def decode2(obj):
-    _id = obj.get('_id', None)
-    return TestStruct(val=obj['v2'] >> 1, _id=_id)
+    return {'val': obj['v2'] >> 1, }
 
 
 @mapper_hub.encoder_for(_STRUCT_NAME, 1)
