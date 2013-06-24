@@ -9,14 +9,31 @@ weiyu
 
 **weiyu** is a Web development framework for Python. Highly modular and
 configurable, ``weiyu`` tries hard to integrate common functionalities
-for the developer's convenience. It features integration with the following
-popular packages:
+for the developer's convenience and productivity.
+
+
+Features
+========
+
+* Configuration driven
+* NoSQL storage
+    - MongoDB
+    - Riak
+* Flexible URL routing
+    - Route with either regexes or exact ``startswith`` matches
+    - Concise URLconf definition syntax
+    - Support for reverse resolution
+* Cache integration
+* Task queue integration
+
+The framework provides integration with the following packages:
 
 * Caches
     - python-memcached
     - redis
 * Database
     - pymongo
+    - riak
 * Server interfaces
     - WSGI
     - tornado
