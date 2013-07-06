@@ -13,11 +13,27 @@
       }
     }
   },
+  "weiyu.db": {
+    "databases": {
+      "cache-redis": {
+        "driver": "redis",
+        "host": "127.0.0.1"
+      }
+    }
+  },
+  "weiyu.db.mapper": {
+    "storage": {
+      "cache-redis": {
+        "db": "cache-redis",
+        "bucket": 0
+      }
+    }
+  },
   "weiyu.cache": {
     "caches": {
       "main-redis": {
         "driver": "redis",
-        "host": "127.0.0.1"
+        "struct_id": "cache-redis"
       },
       "main-mc": {
         "driver": "memcached",

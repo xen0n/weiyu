@@ -18,6 +18,7 @@ Features
 * Configuration driven
 * NoSQL storage
     - MongoDB
+    - Redis
     - Riak
 * Flexible URL routing
     - Route with either regexes or exact ``startswith`` matches
