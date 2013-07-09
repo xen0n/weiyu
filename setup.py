@@ -3,9 +3,9 @@
 
 from __future__ import unicode_literals, division
 
-from distribute_setup import use_setuptools
-use_setuptools()
-
+# distribute and setuptools have merged since setuptools-0.7,
+# so no more distribute_setup stuff here.
+# Rest of the script should continue to work without modification.
 from setuptools import setup
 from setuptools import find_packages
 
