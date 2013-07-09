@@ -29,6 +29,8 @@ import re
 from . import router_hub
 from .base import *
 
+from ..helpers.regex_helper import normalize
+
 
 def args_from_match(match, named_groups):
     kwargs = match.groupdict()
@@ -41,8 +43,8 @@ def args_from_match(match, named_groups):
 class RegexRouterTarget(RouterTargetBase):
     # __slots__ = ['name', 'pattern', 'target', '_namedgrps', ]
 
-    def __init__(self, pattern, target, extra_data=None):
-        super(RegexRouterTarget, self).__init__(target, extra_data)
+    def __init__(self, pattern, target, extra_data=None, router=None):
+        super(RegexRouterTarget, self).__init__(target, extra_data, router)
 
         self.pattern = re.compile(unicode(pattern))
         self._namedgrps = [i - 1 for i in self.pattern.groupindex.values()]
@@ -74,6 +76,13 @@ class RegexRouterTarget(RouterTargetBase):
 
         # and indicate this status.
         return (STATUS_FORWARD, args, kwargs, new_qs, )
+
+    def _get_reverse_pattern(self):
+        # self.pattern is a compiled pattern
+        pat = normalize(self.pattern.pattern)
+        assert len(pat) == 1
+        pat_str, pat_vars = pat[0]
+        return (pat_str, set(pat_vars), )
 
 
 @router_hub.register_router_class('regex')

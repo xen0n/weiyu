@@ -9,6 +9,12 @@ from __future__ import unicode_literals, division
 from weiyu.shortcuts import inject_app
 from weiyu.utils.server import cli_server
 
+# For YAML config do this instead:
+# inject_app(conf_path='conf.yml')
+# NOTE: Currently PyYAML exclusively return bytestrings instead of
+# Unicode strings for string elements, at least on Python 2.x, so
+# don't be surprised if your config file contains Unicode characters
+# and the config seems to be garbled.
 inject_app()
 
 
