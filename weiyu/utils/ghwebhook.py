@@ -33,11 +33,8 @@ from ..registry.provider import request as regrequest
 from ..shortcuts import *
 
 # Valid GitHub callback IP ranges
+# TODO: according to GitHub, implement HTTP Basic auth as well
 GH_IP_WHITELIST = (
-        '207.97.227.253/32',
-        '50.57.128.197/32',
-        '108.171.174.178/32',
-        '50.57.231.61/32',
         '204.232.175.64/27',
         '192.30.252.0/22',
         )

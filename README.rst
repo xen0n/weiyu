@@ -9,14 +9,32 @@ weiyu
 
 **weiyu** is a Web development framework for Python. Highly modular and
 configurable, ``weiyu`` tries hard to integrate common functionalities
-for the developer's convenience. It features integration with the following
-popular packages:
+for the developer's convenience and productivity.
+
+
+Features
+========
+
+* Configuration driven
+* NoSQL storage
+    - MongoDB
+    - Redis
+    - Riak
+* Flexible URL routing
+    - Route with either regexes or exact ``startswith`` matches
+    - Concise URLconf definition syntax
+    - Support for reverse resolution
+* Cache integration
+* Task queue integration
+
+The framework provides integration with the following packages:
 
 * Caches
     - python-memcached
     - redis
 * Database
     - pymongo
+    - riak
 * Server interfaces
     - WSGI
     - tornado
@@ -39,8 +57,16 @@ Licenses
 * GPLv3+
 * Public domain for ``examples/``
 
-The URL reverser contains code from Django (the ``helpers/regex_helper.py``
-file); copyright notice is attached to the source.
+The project contains code from other libraries; copyright notices are attached
+to the respective source files.
+
+* ``helpers/regex_helper.py``: Taken from Django_, BSD-licensed.
+* ``helpers/metaprogramming.py``: Contains code from formencode_, PSF-licensed.
+  Also contains user-contributed code from StackOverflow which is licensed
+  under cc-by-sa 3.0 according to StackOverflow policy.
+
+.. _Django: https://www.djangoproject.com/
+.. _formencode: https://github.com/formencode/formencode
 
 
 Installation
@@ -97,7 +123,7 @@ Community
 Why the name?
 -------------
 
-The two names come from *Lin Jiang Xian* (trad: 臨江仙/simp: 临江仙) by Yan
+The name comes from *Lin Jiang Xian* (trad: 臨江仙/simp: 临江仙) by Yan
 Jidao, a poet of the Song dynasty. The referenced sentence is
 ``去年春恨卻來時，落花人獨立，微雨燕雙飛``.
 

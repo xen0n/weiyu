@@ -3,9 +3,9 @@
 
 from __future__ import unicode_literals, division
 
-from distribute_setup import use_setuptools
-use_setuptools()
-
+# distribute and setuptools have merged since setuptools-0.7,
+# so no more distribute_setup stuff here.
+# Rest of the script should continue to work without modification.
 from setuptools import setup
 from setuptools import find_packages
 
@@ -27,12 +27,14 @@ setup(
             'beaker': ['Beaker>=1.6.3', ],
             'mako': ['Mako>=0.7.1', ],
             'mongodb': ['pymongo>=2.2.1', ],
+            'riak': ['riak>=1.5.2', ],
             'cherrypy': ['cherrypy>=3.2', ],
             'tornado': ['tornado>=2.4', ],
             'socketio': ['gevent-socketio>=0.3.5-rc2', ],
             'celery': ['celery>3.0', ],
             'memcached': ['python-memcached>=1.48', ],
-            'redis': ['redis>=2.7.0', 'hiredis>=0.1.1', ],
+            'redis': ['redis>=2.7.0', ],
+            'hiredis': ['hiredis>=0.1.1', ],
             'ujson': ['ujson>=1.19', ],
             'yaml': ['PyYAML>=3.10', ],
             'ghwebhook': ['ipaddr>=2.1.10', ],
