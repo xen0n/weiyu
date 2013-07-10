@@ -8,7 +8,6 @@ from __future__ import unicode_literals, division
 
 import re
 
-from weiyu.registry.loader import JSONConfig
 from weiyu.shortcuts import *
 
 from weiyu.__version__ import VERSION_STR
@@ -17,19 +16,14 @@ from weiyu.registry.provider import request, _registries as REGS
 OUTPUT_ENC = 'utf-8'
 
 # DEBUG: db & mapper
-from weiyu.db.drivers.pymongo_driver import PymongoDriver
 from weiyu.db import db_hub, mapper_hub
 from weiyu.db.mapper.base import Document
 
 # DEBUG: session
-from weiyu.session.beakerbackend import BeakerSession
 from weiyu.session import session_hub
 
 # DEBUG: signal
 from weiyu.signals import signal_hub
-
-# DEBUG: static file
-from weiyu.utils.views import staticfile_view
 
 
 # funny thing: add color representing commit revision!
