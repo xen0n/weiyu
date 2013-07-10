@@ -63,7 +63,7 @@ class PymongoDriver(BaseDriver):
         super(PymongoDriver, self).__init__()
 
         self.host, self.port, self.path = host, port, path
-        self.max_pool_size, self.tz_aware = self.max_pool_size, self.tz_aware
+        self.max_pool_size, self.tz_aware = max_pool_size, tz_aware
 
         _conn_type = (pymongo.MongoReplicaSetClient
                            if is_replica
