@@ -61,7 +61,7 @@ class RedisDriver(BaseDriver):
         return self._buckets[bucket]
 
     def __repr__(self):
-        return b'<weiyu.db/redis: %s:%d>' % (self.host, self.port, ))
+        return b'<weiyu.db/redis: %s:%d>' % (self.host, self.port, )
 
 
 @db_hub.register_handler('redis')
