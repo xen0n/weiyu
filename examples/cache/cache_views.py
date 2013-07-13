@@ -17,15 +17,13 @@ def gen_cache_key(a, b):
 
 
 @http('cached-add-redis')
-@renderable('json')
-@view
+@jsonview
 def redis_add(request, r_a, r_b):
     return do_add(request, r_a, r_b, 'main-redis')
 
 
 @http('cached-add-memcached')
-@renderable('json')
-@view
+@jsonview
 def mc_add(request, r_a, r_b):
     return do_add(request, r_a, r_b, 'main-mc')
 
