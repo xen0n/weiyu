@@ -140,8 +140,7 @@ def multiformat_test_view(request, val):
 
 # a simple Ajax servicing routine
 @http('ajax-doubler')
-@renderable('json')
-@view
+@jsonview
 def ajax_doubler(request, number):
     num = None
     try:
@@ -161,8 +160,7 @@ def ajax_doubler(request, number):
 
 # benchmark purpose: json w/ db access
 @http('ajax-dbtest')
-@renderable('json')
-@view
+@jsonview
 def ajax_dbtest(request):
     result = TestStruct.findall()
 
