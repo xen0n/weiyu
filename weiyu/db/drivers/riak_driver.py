@@ -70,6 +70,14 @@ class RiakDriver(BaseDriver):
 
         return self._buckets[bucket]
 
+    def __repr__(self):
+        return b'<weiyu.db/riak: %s:%d, prefix=%s, mapred_prefix=%s>' % (
+                self.host,
+                self.port,
+                self.prefix,
+                self.mapred_prefix,
+                )
+
 
 @db_hub.register_handler('riak')
 def riak_handler(

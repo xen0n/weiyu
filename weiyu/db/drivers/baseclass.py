@@ -74,5 +74,11 @@ class DBOperationContext(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.driver.finish()
 
+    def __repr__(self):
+        return b'<DBOperationContext: driver=%s, bucket=%s>' % (
+                repr(self.driver),
+                self.bucket,
+                )
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
