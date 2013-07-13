@@ -67,6 +67,13 @@ def view(fn):
 
 
 @expose
+def jsonview(fn):
+    '''Short for doing ``@renderable('json')`` and ``@view`` in a row.'''
+
+    return renderable('json')(view(fn))
+
+
+@expose
 def http(name):
     '''Convenient form of ``@router_hub.endpoint('http', name)``.'''
 
