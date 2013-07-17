@@ -31,6 +31,7 @@ from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
 
 DBCONF_KEY, DRVOBJ_KEY = 'databases', 'drvobjs'
+STORAGE_KEY = 'storage'
 
 
 class DatabaseHub(BaseHub):
@@ -45,7 +46,12 @@ class DatabaseHub(BaseHub):
         if DBCONF_KEY not in self._reg:
             self._reg[DBCONF_KEY] = {}
 
+        # and storage configuration
+        if STORAGE_KEY not in self._reg:
+            self._reg[STORAGE_KEY] = {}
+
         self._drvobjs = self._reg[DRVOBJ_KEY] = {}
+        self._storage = self._reg[STORAGE_KEY]
 
     def get_database(self, name):
         # only fetch resource by name
@@ -58,6 +64,21 @@ class DatabaseHub(BaseHub):
             drv = self.do_handling('__name', name)
             self._drvobjs[name] = drv
             return drv
+
+    def get_storage_conf(self, name):
+        try:
+            return self._storage[name]
+        except KeyError:
+            raise TypeError(
+            "struct id '%s' does not have storage configured" % name
+            )
+
+    def get_storage(self, name):
+        storage_conf = self.get_storage_conf(name)
+        db_name, bucket = storage_conf['db'], storage_conf['bucket']
+        drv = self.get_database(db_name)
+
+        return drv(bucket)
 
 
 db_hub = DatabaseHub()
