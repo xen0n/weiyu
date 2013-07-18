@@ -84,13 +84,13 @@ class DatabaseHub(BaseHub):
             "struct id '%s' does not have storage configured" % name
             )
 
-        if isinstanceof(cfg, dict):
+        if isinstance(cfg, dict):
             # custom config, pass as-is
             cfg_dict = cfg
-        elif isinstanceof(cfg, (str, unicode, )):
+        elif isinstance(cfg, (str, unicode, )):
             # shorthand for the vast majority of db/bucket setup
             # the config dict is created here
-            if isinstanceof(cfg, str):
+            if isinstance(cfg, str):
                 cfg = cfg.decode('utf-8')
 
             db, bucket = cfg.split('/', 1)
