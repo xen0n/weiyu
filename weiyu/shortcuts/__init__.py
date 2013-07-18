@@ -26,6 +26,7 @@ import inspect
 from functools import wraps
 
 from ..adapters import adapter_hub
+from ..db import db_hub
 from ..router import router_hub
 from ..rendering.decorator import renderable
 from ..reflex.classes import ReflexResponse
@@ -90,7 +91,13 @@ def load_router(typ, filename):
 
 @expose
 def load_config(path):
-    return BaseConfig.get_config(path).populate_central_regs()
+    ret = BaseConfig.get_config(path).populate_central_regs()
+
+    # Refresh the hubs' internal cached references, this MUST be done
+    # after config has loaded.
+    db_hub._init_refresh_map()
+
+    return ret
 
 
 @expose
