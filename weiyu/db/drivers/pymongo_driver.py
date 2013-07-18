@@ -94,6 +94,13 @@ class PymongoDriver(BaseDriver):
 
         return self._buckets[bucket]
 
+    def __repr__(self):
+        return b'<weiyu.db/pymongo: %s:%d, path=%s>' % (
+                self.host,
+                self.port,
+                self.path,
+                )
+
 
 @db_hub.register_handler('pymongo')
 def pymongo_handler(

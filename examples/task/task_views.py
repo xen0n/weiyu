@@ -13,8 +13,7 @@ from tasktest.tasks import add
 
 
 @http('delayed-add')
-@renderable('json')
-@view
+@jsonview
 def add_view(request, r_a, r_b):
     a, b = int(r_a), int(r_b)
     r = add.delay(a, b)

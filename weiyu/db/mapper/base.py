@@ -47,7 +47,7 @@ class Document(dict):
         '''
 
         assert cls.struct_id is not None
-        return mapper_hub.get_storage(cls.struct_id)
+        return db_hub.get_storage(cls.struct_id)
 
     @classinstancemethod
     def encode(self, cls, obj=None, version=None):
