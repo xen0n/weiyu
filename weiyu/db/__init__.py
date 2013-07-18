@@ -42,6 +42,13 @@ class DatabaseHub(BaseHub):
     def __init__(self, *args, **kwargs):
         super(DatabaseHub, self).__init__(*args, **kwargs)
 
+        self._drvobjs = self._reg[DRVOBJ_KEY] = {}
+        self._storage_cache = self._reg[STORAGE_CACHE_KEY] = {}
+
+    # This association MUST be done AFTER central registry is fully
+    # populated with user config, or the registry mechanism will
+    # prevent user config values from being loaded.
+    def _init_refresh_map(self):
         # register an empty database dict if it isn't there
         if DBCONF_KEY not in self._reg:
             self._reg[DBCONF_KEY] = {}
@@ -49,9 +56,6 @@ class DatabaseHub(BaseHub):
         # and storage configuration
         if STORAGE_KEY not in self._reg:
             self._reg[STORAGE_KEY] = {}
-
-        self._drvobjs = self._reg[DRVOBJ_KEY] = {}
-        self._storage_cache = self._reg[STORAGE_CACHE_KEY] = {}
         self._storage = self._reg[STORAGE_KEY]
 
     def get_database(self, name):
@@ -80,13 +84,13 @@ class DatabaseHub(BaseHub):
             "struct id '%s' does not have storage configured" % name
             )
 
-        if isinstanceof(cfg, dict):
+        if isinstance(cfg, dict):
             # custom config, pass as-is
             cfg_dict = cfg
-        elif isinstanceof(cfg, (str, unicode, )):
+        elif isinstance(cfg, (str, unicode, )):
             # shorthand for the vast majority of db/bucket setup
             # the config dict is created here
-            if isinstanceof(cfg, str):
+            if isinstance(cfg, str):
                 cfg = cfg.decode('utf-8')
 
             db, bucket = cfg.split('/', 1)
