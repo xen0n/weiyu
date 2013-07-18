@@ -111,7 +111,6 @@ class DatabaseHub(BaseHub):
         self._storage_cache[name] = cfg_dict
         return cfg_dict
 
-
     def get_storage(self, name):
         storage_conf = self.get_storage_conf(name)
         db_name, bucket = storage_conf['db'], storage_conf['bucket']
