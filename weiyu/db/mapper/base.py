@@ -36,6 +36,12 @@ class Document(dict):
     # configuration file
     struct_id = None
 
+    def __repr__(self):
+        return b'<%s: %s>' % (
+                self.struct_id,
+                super(Document, self).__repr__(),
+                )
+
     @classproperty
     def storage(cls):
         '''Get the driver-specific object for operating the underlying
