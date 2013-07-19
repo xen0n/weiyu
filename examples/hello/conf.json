@@ -31,9 +31,7 @@
 				"port": 27017,
 				"path": "test"
 			}
-		}
-	},
-	"weiyu.db.mapper": {
+		},
 		"storage": {
 			"teststruct": {
 				"db": "test",

@@ -31,6 +31,7 @@ from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
 
 DBCONF_KEY, DRVOBJ_KEY = 'databases', 'drvobjs'
+STORAGE_KEY, STORAGE_CACHE_KEY = 'storage', '_storage_cache'
 
 
 class DatabaseHub(BaseHub):
@@ -41,11 +42,21 @@ class DatabaseHub(BaseHub):
     def __init__(self, *args, **kwargs):
         super(DatabaseHub, self).__init__(*args, **kwargs)
 
+        self._drvobjs = self._reg[DRVOBJ_KEY] = {}
+        self._storage_cache = self._reg[STORAGE_CACHE_KEY] = {}
+
+    # This association MUST be done AFTER central registry is fully
+    # populated with user config, or the registry mechanism will
+    # prevent user config values from being loaded.
+    def _init_refresh_map(self):
         # register an empty database dict if it isn't there
         if DBCONF_KEY not in self._reg:
             self._reg[DBCONF_KEY] = {}
 
-        self._drvobjs = self._reg[DRVOBJ_KEY] = {}
+        # and storage configuration
+        if STORAGE_KEY not in self._reg:
+            self._reg[STORAGE_KEY] = {}
+        self._storage = self._reg[STORAGE_KEY]
 
     def get_database(self, name):
         # only fetch resource by name
@@ -58,6 +69,54 @@ class DatabaseHub(BaseHub):
             drv = self.do_handling('__name', name)
             self._drvobjs[name] = drv
             return drv
+
+    def get_storage_conf(self, name):
+        # First let's do a cached lookup...
+        try:
+            return self._storage_cache[name]
+        except KeyError:
+            pass
+
+        try:
+            cfg = self._storage[name]
+        except KeyError:
+            raise TypeError(
+            "struct id '%s' does not have storage configured" % name
+            )
+
+        if isinstance(cfg, dict):
+            # custom config, pass as-is
+            cfg_dict = cfg
+        elif isinstance(cfg, (str, unicode, )):
+            # shorthand for the vast majority of db/bucket setup
+            # the config dict is created here
+            if isinstance(cfg, str):
+                cfg = cfg.decode('utf-8')
+
+            db, bucket = cfg.split('/', 1)
+
+            # coerce bucket param, needed e.g. by Redis
+            if bucket.startswith('(int)'):
+                bucket = int(bucket[5:])
+
+            cfg_dict = {'db': db, 'bucket': bucket, }
+        else:
+            raise ValueError(
+            "struct id '%s': Don't know how to handle config %s" % (
+                name,
+                repr(cfg),
+                )
+            )
+
+        self._storage_cache[name] = cfg_dict
+        return cfg_dict
+
+    def get_storage(self, name):
+        storage_conf = self.get_storage_conf(name)
+        db_name, bucket = storage_conf['db'], storage_conf['bucket']
+        drv = self.get_database(db_name)
+
+        return drv(bucket)
 
 
 db_hub = DatabaseHub()
