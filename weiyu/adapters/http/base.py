@@ -143,7 +143,8 @@ class BaseHTTPReflex(BaseReflex):
                 # Allow renderers to override mimetype
                 mime = extras['mimetype']
             else:
-                mime = ctx.get('mimetype', 'text/html') if mime is None else mime
+                if mime is None:
+                    mime = ctx.get('mimetype', 'text/html')
 
             # encode content, if it's a Unicode thing
             response.content = smartbytes(cont, enc, 'replace')
