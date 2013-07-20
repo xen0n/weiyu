@@ -132,8 +132,9 @@ def gen_http_headers(response):
     # ensure all header contents are bytes
     headers = []
 
-    # insert a Content-Length along if response is not raw file
-    if not response.is_raw_file:
+    # insert a Content-Length along if response is not raw file and contains
+    # a body
+    if not response.is_raw_file and not response._dont_render:
         headers.append((b'Content-Length', str(len(response.content)), ))
 
     for k, v in response.http_headers:

@@ -56,6 +56,8 @@ def renderable(handler, *args, **kwargs):
             render_info = get_annotation(thing, 'rendering')
         except AttributeError:
             render_info = {}
+        except KeyError:
+            render_info = {}
 
         render_info[handler] = (args, kwargs, )
 
