@@ -183,13 +183,19 @@ class RedisSessionObject(dict):
             conn.hdel(self.id, key)
             conn.expire(self.id, self.ttl)
 
-        super(RedisSessionObject, self).__delitem__(key)
+        try:
+            super(RedisSessionObject, self).__delitem__(key)
+        except KeyError:
+            pass
 
     def __contains__(self, key):
         with self._drv as conn:
             existence = conn.hexists(self.id, key)
             if not existence:
-                super(RedisSessionObject, self).__delitem__(key)
+                try:
+                    super(RedisSessionObject, self).__delitem__(key)
+                except KeyError:
+                    pass
 
             return existence
 
