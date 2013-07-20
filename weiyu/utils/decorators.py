@@ -26,6 +26,7 @@ __all__ = [
 
 from functools import wraps
 
+from ..reflex.classes import ReflexResponse
 from ..helpers.annotation import annotate
 
 
@@ -56,7 +57,7 @@ def only_methods(methods=None):
 
     '''
 
-    methods = ['GET', ] if method is None else methods
+    methods = ['GET', ] if methods is None else methods
 
     def _decorator_(fn):
         # Although the actual binding of methods list occurs in
@@ -66,7 +67,7 @@ def only_methods(methods=None):
 
         @wraps(fn)
         def _wrapped_(request, *args, **kwargs):
-            if request['method'] not in methods:
+            if request.method not in methods:
                 # method not allowed
                 # set an Allow header
                 allowed_hdr = ', '.join(methods).encode('utf-8')
