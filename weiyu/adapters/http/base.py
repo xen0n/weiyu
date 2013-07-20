@@ -33,6 +33,11 @@ from ...session import session_hub
 from ...signals import signal_hub
 from ...rendering.view import render_view_func
 
+# Status codes that cannot have response body
+# Used to prevent rendering code from being invoked
+# TODO: add more of them
+NO_RESP_BODY_STATUSES = {405, }
+
 
 class BaseHTTPReflex(BaseReflex):
     def __init__(self):
@@ -94,6 +99,9 @@ class BaseHTTPReflex(BaseReflex):
 
         response._vanished = False
 
+        # encoding
+        enc = response.encoding = ctx.get('enc', 'utf-8')
+
         # is this a raw file push request?
         response.is_raw_file = ctx.get('is_raw_file', False)
         if response.is_raw_file and 'sendfile_fp' in response.content:
@@ -106,6 +114,11 @@ class BaseHTTPReflex(BaseReflex):
             # file, we cannot safely assume the data stream is of type
             # text/html then...
             mime = ctx.get('mimetype', 'application/octet-stream')
+
+        # is this an error response which cannot have response body?
+        # TODO: add more status codes
+        if response.status in NO_RESP_BODY_STATUSES:
+            dont_render = True
 
         if not dont_render:
             if issubclass(type(request.route_data), dict):
@@ -126,16 +139,14 @@ class BaseHTTPReflex(BaseReflex):
                     render_in,
                     )
 
-        enc = ctx.get('enc', 'utf-8')
-        response.encoding = enc
-        if 'mimetype' in extras:
-            # Allow renderers to override mimetype
-            mime = extras['mimetype']
-        else:
-            mime = ctx.get('mimetype', 'text/html') if mime is None else mime
+            if 'mimetype' in extras:
+                # Allow renderers to override mimetype
+                mime = extras['mimetype']
+            else:
+                mime = ctx.get('mimetype', 'text/html') if mime is None else mime
 
-        # encode content, if it's a Unicode thing
-        response.content = smartbytes(cont, enc, 'replace')
+            # encode content, if it's a Unicode thing
+            response.content = smartbytes(cont, enc, 'replace')
 
         # TODO: convert more context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
@@ -155,6 +166,7 @@ class BaseHTTPReflex(BaseReflex):
             hdrs.append((b'Allow', ctx['allowed_methods'], ))
 
         response.http_headers = hdrs
+        response._dont_render = dont_render
 
         return response
 
