@@ -25,6 +25,14 @@ from ..helpers.annotation import annotate
 
 
 def only_methods(methods=None):
+    '''Decorator to only allow certain types of HTTP methods.
+
+    Defaults to ``GET`` only.
+
+    Must occur *after* the ``@view`` decorator.
+
+    '''
+
     methods = ['GET', ] if method is None else methods
 
     def _decorator_(fn):
@@ -37,8 +45,14 @@ def only_methods(methods=None):
         def _wrapped_(request, *args, **kwargs):
             if request['method'] not in methods:
                 # method not allowed
-                # TODO: raise a Not Allowed here
-                pass
+                # set an Allow header
+                allowed_hdr = ', '.join(methods).encode('utf-8')
+                return (
+                        405,
+                        {},
+                        {'allowed_methods': allowed_hdr, },
+                        )
+
             return fn(request, *args, **kwargs)
         return _wrapped_
     return _decorator_

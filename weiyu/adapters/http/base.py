@@ -150,6 +150,10 @@ class BaseHTTPReflex(BaseReflex):
         for cookie_line in ctx.get('cookies', []):
             hdrs.append((b'Set-Cookie', cookie_line, ))
 
+        # 405 Not Allowed header
+        if response.status == 405:
+            hdrs.append((b'Allow', ctx['allowed_methods'], ))
+
         response.http_headers = hdrs
 
         return response
