@@ -25,6 +25,8 @@ from weiyu.session import session_hub
 # DEBUG: signal
 from weiyu.signals import signal_hub
 
+from weiyu.utils.decorators import only_methods
+
 
 # funny thing: add color representing commit revision!
 def get_git_rev_color(_re_pat=re.compile(r'Git-([0-9A-Fa-f]{6,})$')):
@@ -102,6 +104,7 @@ def get_response(request):
 @http('index')
 @renderable('mako', 'env.html')
 @view
+@only_methods(['GET', 'POST', ])
 def env_test_worker(request):
     signal_hub.fire('signal-test', request)
 
