@@ -190,9 +190,6 @@ class RedisSessionObject(dict):
             existence = conn.hexists(self.id, key)
             if not existence:
                 super(RedisSessionObject, self).__delitem__(key)
-                if not conn.exists(self.id):
-                    # Session expired, do not refresh any more
-                    return False
 
             return existence
 
