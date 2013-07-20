@@ -33,11 +33,8 @@ from ..registry.provider import request as regrequest
 from ..shortcuts import *
 
 # Valid GitHub callback IP ranges
+# TODO: according to GitHub, implement HTTP Basic auth as well
 GH_IP_WHITELIST = (
-        '207.97.227.253/32',
-        '50.57.128.197/32',
-        '108.171.174.178/32',
-        '50.57.231.61/32',
         '204.232.175.64/27',
         '192.30.252.0/22',
         )
@@ -64,7 +61,7 @@ def is_ip_whitelisted(ip):
 @renderable('dummy')
 @view
 def on_gh_post_receive(request):
-    conf = regrequest('site')['github']['post-receive']
+    repos = regrequest('site')['github']['post-receive']
 
     if not is_ip_whitelisted(request.remote_addr):
         return _dummy(403)
@@ -83,15 +80,30 @@ def on_gh_post_receive(request):
     except ValueError:
         return _dummy(400)
 
-    repo_name, ref = payload['repository']['name'], payload['ref']
-    if repo_name != conf['name'] or ref not in conf['refs']:
+    repo_name, owner_name, ref = (
+            payload['repository']['name'],
+            payload['repository']['owner']['name'],
+            payload['ref'],
+            )
+
+    # format config key
+    if '/' in owner_name or '/' in repo_name:
+        # Malformed names!
+        return _dummy(400)
+
+    conf_key = '%s/%s' % (owner_name, repo_name, )
+
+    if conf_key not in repos:
+        return _dummy(403)
+
+    if ref not in repos[conf_key]:
         return _dummy(403)
 
     # Push accepted, execute the command given in configuration
     # Write the payload into the configured file, in effect also touching
     # it
     # FIXME: This is best done via some established deferred mechanism
-    with open(conf['refs'][ref], 'wb') as fp:
+    with open(repos[conf_key][ref], 'wb') as fp:
         fp.write(payload_json)
 
     return _dummy(204)

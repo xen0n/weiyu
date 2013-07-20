@@ -99,10 +99,8 @@ class TornadoReflex(BaseHTTPReflex):
 
         # TODO: add more ubiquitous HTTP request headers
 
-        # Session injection
-        self.session.preprocess(request)
-
-        return request
+        # do session injection in baseclass
+        return super(TornadoReflex, self)._do_translate_request(request)
 
     def _start_response(self, response):
         content = response.content
@@ -137,6 +135,9 @@ class TornadoReflex(BaseHTTPReflex):
             return send_content_iter(content, enc)
 
     def _do_deliver_response(self, response):
+        if response._vanished:
+            return
+
         req = response.request._native_request
         writer = req.write
         iterable = self._start_response(response)

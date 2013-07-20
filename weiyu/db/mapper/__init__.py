@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / object-nonrelational mapping / package
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,8 +29,7 @@ from ...helpers.hub import BaseHub
 from ...registry.classes import UnicodeRegistry
 
 
-OP_DECODE, OP_ENCODE = range(2)
-DECODERS_KEY, ENCODERS_KEY, STORAGE_KEY = 'decoders', 'encoders', 'storage'
+DECODERS_KEY, ENCODERS_KEY = 'decoders', 'encoders'
 
 # don't conflict w/ single-letter props to reduce number of surprises...
 VERSION_FIELD = '_V'
@@ -47,14 +46,6 @@ class MapperHub(BaseHub):
         self._decoders = self._reg[DECODERS_KEY] = {}
         self._encoders = self._reg[ENCODERS_KEY] = {}
 
-        if STORAGE_KEY not in self._reg:
-            self._reg[STORAGE_KEY] = {}
-
-        # this must be done separately, or the attribute won't be bound
-        # if storage association is done before mapper_hub get the chance
-        # to init
-        self._storage = self._reg[STORAGE_KEY]
-
     def register_struct(self, name):
         if name not in self._decoders:
             self._decoders[name] = {}
@@ -63,9 +54,6 @@ class MapperHub(BaseHub):
             # [{ver1: encoder1, ver2: encoder2, ...}, max_version]
             self._encoders[name] = [{}, -1]
 
-        # curry struct id into our mapper shim, then register it
-        self.register_handler(name)(partial(_mapper_shim_, name=name))
-
     def get_version(self, obj):
         try:
             return obj[VERSION_FIELD]
@@ -73,29 +61,6 @@ class MapperHub(BaseHub):
             raise TypeError(
                         'object %s has no version field' % (repr(obj), )
                         )
-
-    def decode(self, name, obj, version=None):
-        return self.do_handling(name, OP_DECODE, obj, version)
-
-    def encode(self, name, obj, version=None):
-        return self.do_handling(name, OP_ENCODE, obj, version)
-
-    def get_storage_conf(self, name):
-        try:
-            return self._storage[name]
-        except KeyError:
-            raise TypeError(
-            "struct id '%s' does not have storage configured" % name
-            )
-
-    def get_storage(self, name):
-        storage_conf = self.get_storage_conf(name)
-        db_name, coll = storage_conf['db'], storage_conf['collection']
-
-        conn = db_hub.get_database(db_name)
-        path = getattr(conn.storage, coll)
-
-        return conn, path
 
     def decoder_for(self, name, version):
         # you aren't registering negative versions, huh?
@@ -140,10 +105,10 @@ class MapperHub(BaseHub):
             return fn
         return _decorator_
 
-    def _do_decode(self, name, obj, ver):
+    def decode(self, name, obj, version=None):
         decoders = self._decoders[name]
 
-        use_ver = ver if ver is not None else self.get_version(obj)
+        use_ver = version if version is not None else self.get_version(obj)
 
         try:
             decoder = decoders[use_ver]
@@ -157,10 +122,10 @@ class MapperHub(BaseHub):
 
         return decoder(obj)
 
-    def _do_encode(self, name, obj, ver):
+    def encode(self, name, obj, version=None):
         # Always encode in the latest version unless explicitly specified
         encoders, maxver = self._encoders[name]
-        use_ver = maxver if ver is None else ver
+        use_ver = maxver if version is None else version
 
         try:
             encoder = encoders[use_ver]
@@ -178,15 +143,6 @@ class MapperHub(BaseHub):
 
 
 mapper_hub = MapperHub()
-
-
-# Mapper shim
-def _mapper_shim_(hub, op, obj, ver, name):
-    if op == OP_DECODE:
-        return hub._do_decode(name, obj, ver)
-    elif op == OP_ENCODE:
-        return hub._do_encode(name, obj, ver)
-    raise RuntimeError('Impossible codepath!')
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

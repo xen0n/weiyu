@@ -32,8 +32,8 @@ import weiyu as __this_pkg
 
 # Version information.
 VERSION_MAJOR = 0
-VERSION_MINOR = 0
-VERSION_REV = 8
+VERSION_MINOR = 1
+VERSION_REV = 0
 
 VERSION = (VERSION_MAJOR, VERSION_MINOR, VERSION_REV, 'alpha', 0)
 

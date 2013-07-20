@@ -41,5 +41,8 @@ pip-log.txt
 *.e4p
 .eric4project
 
-# luohua, possibly housed inside
-luohua/
+# distribute or some other tarballs
+*.tar.gz
+
+# development virtualenvs
+venv/

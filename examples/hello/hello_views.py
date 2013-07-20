@@ -8,7 +8,6 @@ from __future__ import unicode_literals, division
 
 import re
 
-from weiyu.registry.loader import JSONConfig
 from weiyu.shortcuts import *
 
 from weiyu.__version__ import VERSION_STR
@@ -17,19 +16,14 @@ from weiyu.registry.provider import request, _registries as REGS
 OUTPUT_ENC = 'utf-8'
 
 # DEBUG: db & mapper
-from weiyu.db.drivers.pymongo_driver import PymongoDriver
 from weiyu.db import db_hub, mapper_hub
 from weiyu.db.mapper.base import Document
 
 # DEBUG: session
-from weiyu.session.beakerbackend import BeakerSession
 from weiyu.session import session_hub
 
-# DEBUG: hooks
-from weiyu.hooks.decorator import *
-
-# DEBUG: static file
-from weiyu.utils.views import staticfile_view
+# DEBUG: signal
+from weiyu.signals import signal_hub
 
 
 # funny thing: add color representing commit revision!
@@ -55,25 +49,15 @@ mapper_hub.register_struct(_STRUCT_NAME)
 class TestStruct(Document):
     struct_id = _STRUCT_NAME
 
-    def __init__(self, *args, **kwargs):
-        super(TestStruct, self).__init__(*args, **kwargs)
-
-        try:
-            self.pop('_id')
-        except KeyError:
-            pass
-
 
 @mapper_hub.decoder_for(_STRUCT_NAME, 1)
 def decode1(obj):
-    _id = obj.get('_id', None)
-    return TestStruct(val=obj['v1'] - 2, _id=_id)
+    return {'val': obj['v1'] - 2, }
 
 
 @mapper_hub.decoder_for(_STRUCT_NAME, 2)
 def decode2(obj):
-    _id = obj.get('_id', None)
-    return TestStruct(val=obj['v2'] >> 1, _id=_id)
+    return {'val': obj['v2'] >> 1, }
 
 
 @mapper_hub.encoder_for(_STRUCT_NAME, 1)
@@ -87,7 +71,10 @@ def encode2(obj):
 
 
 # DEBUG: session
-def session_test(session):
+@signal_hub.append_listener_to('signal-test')
+def session_test(request):
+    session = request.session
+
     if 'visited' in session:
         session['visited'] += 1
     else:
@@ -114,10 +101,9 @@ def get_response(request):
 
 @http('index')
 @renderable('mako', 'env.html')
-@hookable('test-app')
 @view
 def env_test_worker(request):
-    session_test(request.session)
+    signal_hub.fire('signal-test', request)
 
     return (
             200,
@@ -134,7 +120,7 @@ def env_test_worker(request):
 @renderable('json')
 @view
 def multiformat_test_view(request, val):
-    session_test(request.session)
+    signal_hub.fire('signal-test', request)
 
     try:
         val = int(val)
@@ -154,8 +140,7 @@ def multiformat_test_view(request, val):
 
 # a simple Ajax servicing routine
 @http('ajax-doubler')
-@renderable('json')
-@view
+@jsonview
 def ajax_doubler(request, number):
     num = None
     try:
@@ -175,8 +160,7 @@ def ajax_doubler(request, number):
 
 # benchmark purpose: json w/ db access
 @http('ajax-dbtest')
-@renderable('json')
-@view
+@jsonview
 def ajax_dbtest(request):
     result = TestStruct.findall()
 
@@ -185,14 +169,6 @@ def ajax_dbtest(request):
             {'result': list(result), },
             {'mimetype': 'application/json', },
             )
-
-
-## DEBUG: hook & session
-#session_backend = BeakerSession(request('site')['session'])
-#session_obj = WSGISession(session_backend)
-#
-#hook_before('test-app')(session_obj.pre_hook)
-#hook_after('test-app')(session_obj.post_hook)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

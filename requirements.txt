@@ -1,10 +1,15 @@
+ply>=3.4
 Beaker>=1.6.3
 Mako>=0.7.1
 pymongo>=2.2.1
-ply>=3.4
+cherrypy>=3.2
 tornado>=2.4
-ipaddr>=2.1.10
+gevent-socketio>=0.3.5-rc2
 celery>3.0
 python-memcached>=1.48
 redis>=2.7.0
 hiredis>=0.1.1
+ujson>=1.19
+ipaddr>=2.1.10
+PyYAML>=3.10
+riak>=1.5.2
