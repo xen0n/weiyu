@@ -19,9 +19,32 @@
 
 from __future__ import unicode_literals, division
 
+__all__ = [
+        'view',
+        'only_methods',
+        ]
+
 from functools import wraps
 
 from ..helpers.annotation import annotate
+
+
+def view(fn):
+    '''View decorator to avoid having to
+    ``from weiyu.reflex.classes import ReflexResponse`` everywhere.
+
+    '''
+
+    @wraps(fn)
+    def _view_func_(request, *args, **kwargs):
+        status, content, context = fn(request, *args, **kwargs)
+        return ReflexResponse(
+                status,
+                content,
+                context,
+                request,
+                )
+    return _view_func_
 
 
 def only_methods(methods=None):

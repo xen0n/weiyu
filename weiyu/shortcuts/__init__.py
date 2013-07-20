@@ -31,6 +31,7 @@ from ..router import router_hub
 from ..rendering.decorator import renderable
 from ..reflex.classes import ReflexResponse
 from ..registry.loader import BaseConfig
+from ..utils.decorators import view
 from ..utils.viewloader import ViewLoader
 
 
@@ -43,28 +44,10 @@ def expose(fn):
 
 # Expose convenient aliases.
 expose(renderable)
+expose(view)
 
 make_app = adapter_hub.make_app
 expose(make_app)
-
-
-@expose
-def view(fn):
-    '''View decorator to avoid having to
-    ``from weiyu.reflex.classes import ReflexResponse`` everywhere.
-
-    '''
-
-    @wraps(fn)
-    def _view_func_(request, *args, **kwargs):
-        status, content, context = fn(request, *args, **kwargs)
-        return ReflexResponse(
-                status,
-                content,
-                context,
-                request,
-                )
-    return _view_func_
 
 
 @expose
