@@ -156,7 +156,9 @@ class BaseHTTPReflex(BaseReflex):
             contenttype = mime
         else:
             contenttype = '%s; charset=%s' % (mime, enc, )
-        hdrs.append((b'Content-Type', contenttype, ))
+
+        if not dont_render:
+            hdrs.append((b'Content-Type', contenttype, ))
 
         # generate Set-Cookie from cookies
         for cookie_line in ctx.get('cookies', []):
