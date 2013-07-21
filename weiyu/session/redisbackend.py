@@ -27,6 +27,8 @@ __all__ = [
 import time
 import uuid
 
+import redis
+
 # I don't feel like reinventing the wheel, so...
 import Cookie
 
@@ -76,7 +78,7 @@ class RedisSessionObject(dict):
         if self.id is None:
             # Generate a new ID, and (indirectly) instruct the session
             # middleware to Set-Cookie.
-            self._new_id()
+            self.new_id()
 
         self._drv = db_hub.get_storage(sid)
         # Unlike Beaker, which deals with a file backend without automatic
@@ -91,11 +93,55 @@ class RedisSessionObject(dict):
             if conn.exists(self.id):
                 conn.expire(self.id, self.ttl)
             else:
-                self._new_id()
+                self.new_id()
 
     # helper methods
-    def _new_id(self):
+    def new_id(self):
+        old_id = self.id
         self.id, self._do_set_cookie = _generate_sessid(), True
+
+        # migrate the session in DB
+        if old_id is not None:
+            with self._drv as conn:
+                old_content = conn.hgetall(old_id)
+
+                # A hash cannot be empty in Redis, so if it indeed is
+                # empty it must not exist.
+                if old_content:
+                    # the probability of UUID conflicts is ~0,
+                    # so why do we have to say while True here?
+                    result = False
+                    for i in xrange(4):
+                        try:
+                            result = conn.renamenx(old_id, self.id)
+                            if result:
+                                # rename successful
+                                break
+                            # rename failed because target key exists
+                            self.id = _generate_sessid()
+                        except redis.exceptions.ResponseError:
+                            # rename failed because source and destination
+                            # are the SAME... or because the source has
+                            # VANISHED in operation!
+                            self.id = _generate_sessid()
+
+                            if not conn.exists(old_id):
+                                # well, the session expired during <<1ms of
+                                # execution.
+                                # Lucky we have old_content... Just assign it
+                                # to self.id. Another edge case is that the
+                                # newly-generated id happens to conflict with
+                                # something else... Oh well. Let's not go that
+                                # far.
+                                conn.hmset(self.id, old_content)
+                                result = True
+                                break
+
+                    if not result:
+                        # That many *UUID conflicts* ?
+                        # Better go buy some lotteries...
+                        raise RuntimeError('Session UUID conflicts!')
+
         self.set_cookie_prop()
 
     def _full_refresh(self):
@@ -138,6 +184,8 @@ class RedisSessionObject(dict):
                     expire_time,
                     )
             entry['expires'] = expire_str
+
+        self._do_set_cookie = True
 
     def generate_cookie_header(self):
         if not self._do_set_cookie:
