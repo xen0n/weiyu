@@ -185,6 +185,8 @@ class RedisSessionObject(dict):
                     )
             entry['expires'] = expire_str
 
+        self._do_set_cookie = True
+
     def generate_cookie_header(self):
         if not self._do_set_cookie:
             # the cookie doesn't want to be refreshed
