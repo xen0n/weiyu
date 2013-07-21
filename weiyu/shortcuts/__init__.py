@@ -28,7 +28,7 @@ from functools import wraps
 from ..adapters import adapter_hub
 from ..db import db_hub
 from ..router import router_hub
-from ..rendering.decorator import renderable
+from ..rendering.decorators import renderable
 from ..registry.loader import BaseConfig
 from ..utils.decorators import view
 from ..utils.viewloader import ViewLoader

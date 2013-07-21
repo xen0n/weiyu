@@ -26,10 +26,13 @@ __all__ = [
 
 from functools import wraps
 
+import decorator
+
 from ..reflex.classes import ReflexResponse
 from ..helpers.annotation import annotate
 
 
+@decorator.decorator
 def view(fn):
     '''View decorator to avoid having to
     ``from weiyu.reflex.classes import ReflexResponse`` everywhere.
@@ -59,6 +62,7 @@ def only_methods(methods=None):
 
     methods = ['GET', ] if methods is None else methods
 
+    @decorator.decorator
     def _decorator_(fn):
         # Although the actual binding of methods list occurs in
         # closure scope, we keep a reference of it in annotation
