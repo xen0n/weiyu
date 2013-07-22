@@ -24,31 +24,30 @@ __all__ = [
         'only_methods',
         ]
 
-from functools import wraps
-
 import decorator
 
 from ..reflex.classes import ReflexResponse
 from ..helpers.annotation import annotate
 
 
-@decorator.decorator
+def _view_func_(fn, request, *args, **kwargs):
+    status, content, context = fn(request, *args, **kwargs)
+    return ReflexResponse(
+            status,
+            content,
+            context,
+            request,
+            )
+
+
 def view(fn):
     '''View decorator to avoid having to
     ``from weiyu.reflex.classes import ReflexResponse`` everywhere.
 
     '''
 
-    @wraps(fn)
-    def _view_func_(request, *args, **kwargs):
-        status, content, context = fn(request, *args, **kwargs)
-        return ReflexResponse(
-                status,
-                content,
-                context,
-                request,
-                )
-    return _view_func_
+    return decorator.decorator(_view_func_, fn)
+
 
 
 def only_methods(methods=None):
@@ -62,15 +61,13 @@ def only_methods(methods=None):
 
     methods = ['GET', ] if methods is None else methods
 
-    @decorator.decorator
     def _decorator_(fn):
         # Although the actual binding of methods list occurs in
         # closure scope, we keep a reference of it in annotation
         # for clarity.
         annotate(fn, allowed_methods=methods)
 
-        @wraps(fn)
-        def _wrapped_(request, *args, **kwargs):
+        def _wrapped_(fn, request, *args, **kwargs):
             if request.method not in methods:
                 # method not allowed
                 # set an Allow header
@@ -82,7 +79,7 @@ def only_methods(methods=None):
                         )
 
             return fn(request, *args, **kwargs)
-        return _wrapped_
+        return decorator.decorator(_wrapped_, fn)
     return _decorator_
 
 
