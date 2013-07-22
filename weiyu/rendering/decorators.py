@@ -29,8 +29,6 @@ __all__ = [
         'renderable',
         ]
 
-import decorator
-
 from ..helpers.annotation import annotate, get_annotation
 
 
@@ -53,7 +51,6 @@ def renderable(handler, *args, **kwargs):
 
     handler = unicode(handler)
 
-    @decorator.decorator
     def _decorator_(thing):
         try:
             render_info = get_annotation(thing, 'rendering')
