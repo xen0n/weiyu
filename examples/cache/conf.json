@@ -19,9 +19,7 @@
         "driver": "redis",
         "host": "127.0.0.1"
       }
-    }
-  },
-  "weiyu.db.mapper": {
+    },
     "storage": {
       "cache-redis": {
         "db": "cache-redis",

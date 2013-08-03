@@ -21,7 +21,7 @@ from __future__ import unicode_literals, division
 
 import redis
 
-from ...db.mapper import mapper_hub
+from ...db import db_hub
 from .. import cache_hub
 from .baseclass import BaseCache
 
@@ -48,7 +48,7 @@ class RedisCache(BaseCache):
 @cache_hub.register_handler('redis')
 def redis_handler(hub, opts):
     struct_id = opts['struct_id']
-    storage = mapper_hub.get_storage(struct_id)
+    storage = db_hub.get_storage(struct_id)
 
     return RedisCache(storage)
 
