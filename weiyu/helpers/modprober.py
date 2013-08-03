@@ -27,13 +27,14 @@ import importlib
 
 
 class ModProber(object):
-    def __init__(self, package, name_template):
+    def __init__(self, package, name_template, package_map=None):
         self.package = package
         self.name_template = name_template
+        self.package_map = package_map or {}
 
     def get_relative_path(self, name):
         assert '.' not in name
-        return '.' + self.name_template % (name, )
+        return '.' + self.name_template % (self.package_map.get(name, name), )
 
     def modprobe(self, name):
         return importlib.import_module(
