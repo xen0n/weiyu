@@ -38,6 +38,7 @@ setup(
             'ujson': ['ujson>=1.19', ],
             'yaml': ['PyYAML>=3.10', ],
             'ghwebhook': ['ipaddr>=2.1.10', ],
+            'scss': ['pyScss>=1.1.5', ],
             },
         packages=find_packages(exclude=['examples', 'tests']),
         classifiers=[

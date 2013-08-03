@@ -1,0 +1,3 @@
+--regex
+
+^/css/(?P<path>.*)$ scss-bridge scss

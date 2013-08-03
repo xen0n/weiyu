@@ -14,3 +14,4 @@ ujson>=1.19
 ipaddr>=2.1.10
 PyYAML>=3.10
 riak>=1.5.2
+pyScss>=1.1.5

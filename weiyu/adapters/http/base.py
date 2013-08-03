@@ -31,7 +31,7 @@ from ...reflex.classes import BaseReflex
 from ...router import router_hub
 from ...session import session_hub
 from ...signals import signal_hub
-from ...rendering.view import render_view_func
+from ...rendering import render_hub
 
 # Status codes that cannot have response body
 # Used to prevent rendering code from being invoked
@@ -132,7 +132,7 @@ class BaseHTTPReflex(BaseReflex):
                         )
 
             # rendering is not suppressed, do it now
-            cont, extras = render_view_func(
+            cont, extras = render_hub.render_view(
                     request.callback_info[0],
                     response.content,
                     ctx,
