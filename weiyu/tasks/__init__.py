@@ -24,11 +24,14 @@ __all__ = [
         ]
 
 from ..helpers.hub import BaseHub
+from ..helpers.modprober import ModProber
 from ..registry.classes import UnicodeRegistry
 
 TASK_DRIVERS_KEY = 'drivers'
 APP_OBJECTS_KEY = 'app_objects'
 APP_CONF_KEY = 'conf'
+
+PROBER = ModProber('weiyu.tasks', '%sdriver')
 
 
 class TaskHub(BaseHub):
@@ -47,6 +50,9 @@ class TaskHub(BaseHub):
         # Read app configuration.
         dct = self._reg[APP_CONF_KEY][name]
         drv, conf, extras = dct['driver'], dct['conf'], dct['extras']
+
+        # Load driver.
+        PROBER.modprobe(drv)
 
         # Build app object.
         app_obj = self.do_handling(drv).build_app(conf, extras)
@@ -76,11 +82,6 @@ class TaskHub(BaseHub):
 
 
 task_hub = TaskHub()
-
-
-# Force loading of task backends
-from . import _reg
-del _reg
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
