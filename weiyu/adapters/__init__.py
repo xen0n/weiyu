@@ -24,9 +24,19 @@ __all__ = [
         ]
 
 from ..helpers.hub import BaseHub
+from ..helpers.modprober import ModProber
 from ..registry.classes import UnicodeRegistry
 
 ADAPTERS_KEY = 'adapters'
+
+PROBER = ModProber(
+        'weiyu.adapters',
+        '%s',
+        {
+            'wsgi': 'http.wsgi',
+            'tornado': 'http.tornado_',
+            },
+        )
 
 
 class AdapterHub(BaseHub):
@@ -38,15 +48,11 @@ class AdapterHub(BaseHub):
         super(AdapterHub, self).__init__()
 
     def make_app(self, adapter):
+        PROBER.modprobe(adapter)
         return self.do_handling(adapter)
 
 
 adapter_hub = AdapterHub()
-
-
-# Force loading of adapters
-from . import _reg
-del _reg
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
