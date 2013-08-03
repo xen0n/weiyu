@@ -24,8 +24,11 @@ __all__ = [
         ]
 
 from ..helpers.hub import BaseHub
+from ..helpers.modprober import ModProber
 from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
+
+PROBER = ModProber('weiyu.session', '%sbackend')
 
 
 class SessionHub(BaseHub):
@@ -33,13 +36,14 @@ class SessionHub(BaseHub):
     registry_class = UnicodeRegistry
     handlers_key = 'backends'
 
+    def do_handling(self, typ, *args, **kwargs):
+        # load the selected session backend
+        PROBER.modprobe(typ)
+
+        return super(SessionHub, self).do_handling(typ, *args, **kwargs)
+
 
 session_hub = SessionHub()
-
-
-# force class load
-from . import _reg
-del _reg
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
