@@ -23,14 +23,15 @@ __all__ = [
         'render_hub',
         ]
 
-import importlib
-
 from ..helpers.hub import BaseHub
+from ..helpers.modprober import ModProber
 from ..helpers.annotation import get_annotation
 from ..registry.classes import UnicodeRegistry
 
 from .exc import RenderingError
 from .base import RenderContext
+
+PROBER = ModProber('weiyu.rendering', '%srenderer')
 
 
 class RenderHub(BaseHub):
@@ -42,11 +43,7 @@ class RenderHub(BaseHub):
     def get_template(self, typ, name=None, *args, **kwargs):
         if typ not in self._handlers:
             # Do delayed loading of renderer module
-            assert '.' not in typ
-            importlib.import_module(
-                    '.%srenderer' % (typ, ),
-                    'weiyu.rendering',
-                    )
+            PROBER.modprobe(typ)
 
         # name=None is here so those templateless renderers (like JSON)
         # can be used w/o a dummy parameter
