@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / rendering / view renderer
+# weiyu / rendering / bridging views
 #
 # Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -20,7 +20,24 @@
 from __future__ import unicode_literals, division
 
 __all__ = [
+        'scss_bridge_view',
         ]
+
+from .decorators import renderable
+from ..shortcuts import http, view
+
+
+@http('scss-bridge')
+@renderable('scss')
+@view
+def scss_bridge_view(request, path):
+    return (
+            200,
+            {},
+            {
+                'scss_file': path,
+                },
+            )
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
