@@ -24,14 +24,15 @@ __all__ = [
         'mapper_hub',
         ]
 
-import importlib
-
 from ..helpers.hub import BaseHub
+from ..helpers.modprober import ModProber
 from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
 
 DBCONF_KEY, DRVOBJ_KEY = 'databases', 'drvobjs'
 STORAGE_KEY, STORAGE_CACHE_KEY = 'storage', '_storage_cache'
+
+PROBER = ModProber('weiyu.db.drivers', '%s_driver')
 
 
 class DatabaseHub(BaseHub):
@@ -135,8 +136,7 @@ def name_resolver(hub, name):
     drv_type = db_cfg.pop('driver')
 
     # import driver module
-    assert '.' not in drv_type
-    importlib.import_module('.%s_driver' % (drv_type, ), 'weiyu.db.drivers')
+    PROBER.modprobe(drv_type)
 
     return hub.do_handling(drv_type, **db_cfg)
 
