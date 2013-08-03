@@ -52,7 +52,7 @@ class RenderHub(BaseHub):
         # can be used w/o a dummy parameter
         return self.do_handling(typ, name, *args, **kwargs)
 
-    def render_view(renderable_fn, result, context, typ):
+    def render_view(self, renderable_fn, result, context, typ):
         render_info = get_annotation(renderable_fn, 'rendering')
 
         if typ not in render_info:
