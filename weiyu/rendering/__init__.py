@@ -26,7 +26,11 @@ __all__ = [
 import importlib
 
 from ..helpers.hub import BaseHub
+from ..helpers.annotation import get_annotation
 from ..registry.classes import UnicodeRegistry
+
+from .exc import RenderingError
+from .base import RenderContext
 
 
 class RenderHub(BaseHub):
@@ -47,6 +51,21 @@ class RenderHub(BaseHub):
         # name=None is here so those templateless renderers (like JSON)
         # can be used w/o a dummy parameter
         return self.do_handling(typ, name, *args, **kwargs)
+
+    def render_view(renderable_fn, result, context, typ):
+        render_info = get_annotation(renderable_fn, 'rendering')
+
+        if typ not in render_info:
+            # this format is not supported by view
+            # TODO: maybe specialize this exception's type
+            raise RenderingError(
+                    'This format ("%s") is not supported by view' % typ
+                    )
+
+        ctx = RenderContext(context)
+        handler_args, handler_kwargs = render_info[typ]
+        tmpl = self.get_template(typ, *handler_args, **handler_kwargs)
+        return tmpl.render(result, ctx)
 
 
 render_hub = RenderHub()
