@@ -1,6 +1,9 @@
 site:
   $$nodup: true
 
+  scss-bridge:
+    root: ./css
+
 weiyu.rendering:
   scss:
     opts:
