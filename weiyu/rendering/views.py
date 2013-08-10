@@ -23,6 +23,9 @@ __all__ = [
         'scss_bridge_view',
         ]
 
+from os.path import exists, normcase, normpath, realpath, abspath, sep
+from os.path import join as pathjoin
+
 from .decorators import renderable
 from ..shortcuts import http, view
 
@@ -31,11 +34,26 @@ from ..shortcuts import http, view
 @renderable('scss')
 @view
 def scss_bridge_view(request, path):
+    conf = request.site['scss-bridge']
+    SCSS_ROOT = normcase(conf['root'])
+
+    # TODO: extract this path manipulation code out (which is the same as
+    # that in staticfile_view)
+    norm_relpath = normpath('/' + path).lstrip(sep)
+    real_path = normcase(realpath(abspath(pathjoin(SCSS_ROOT, norm_relpath))))
+
+    if not exists(real_path):
+        return (
+                404,
+                {},
+                {},
+                )
+
     return (
             200,
             {},
             {
-                'scss_file': path,
+                'scss_file': real_path,
                 },
             )
 
