@@ -1,5 +1,26 @@
-a {
-  color: red + green;
+@import 'base';
+
+
+#header {
+  > .navitem {
+    background-color: rgba(255, 127, 0, 0.6);
+
+    @media (min-width: 1024px) {
+      @include rounded(top, left, 32px);
+    }
+
+    @media (min-width: 800px) and (max-width: 1023px) {
+      @include rounded(top, left, 24px);
+    }
+
+    @media (max-width: 799px) {
+      @include rounded(top, left, 16px);
+    }
+  }
+
+  > a {
+    color: red + green;
+  }
 }
 
 

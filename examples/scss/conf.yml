@@ -6,6 +6,8 @@ site:
 
 weiyu.rendering:
   scss:
+    LOAD_PATHS: ./css
+
     opts:
       # compress defaults to True
       debug_info: true
