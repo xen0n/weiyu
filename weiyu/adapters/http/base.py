@@ -70,11 +70,19 @@ class BaseHTTPReflex(BaseReflex):
     def _do_translate_request(self, request):
         # Session injection
         signal_hub.fire_nullok('http-session-pre', self, request)
+
+        # Middleware
+        # TODO: ability to skip response generation?
+        signal_hub.fire_nullok('http-middleware-pre', request)
+
         return request
 
     def _do_generate_response(self, request):
         fn, args, kwargs = request.callback_info
         response = fn(request, *args, **kwargs)
+
+        # Middleware
+        signal_hub.fire_nullok('http-middleware-post', response)
 
         # Session persistence is part of generation; may be moved tho
         signal_hub.fire_nullok('http-session-post', self, response)
