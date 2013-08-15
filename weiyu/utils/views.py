@@ -26,7 +26,7 @@ from mimetypes import guess_type
 from ..shortcuts import http, view
 
 
-@http('staticfile')
+@http
 @view
 def staticfile_view(request, path):
     # TODO: caching
