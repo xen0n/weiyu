@@ -30,7 +30,7 @@ from .decorators import renderable
 from ..shortcuts import http, view
 
 
-@http('scss-bridge')
+@http
 @renderable('scss')
 @view
 def scss_bridge_view(request, path):

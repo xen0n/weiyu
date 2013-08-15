@@ -118,7 +118,7 @@ def env_test_worker(request):
             )
 
 
-@http('multiformat-test')
+@http
 @renderable('mako', 'multifmt.txt')
 @renderable('json')
 @view
@@ -142,7 +142,7 @@ def multiformat_test_view(request, val):
 
 
 # a simple Ajax servicing routine
-@http('ajax-doubler')
+@http
 @jsonview
 def ajax_doubler(request, number):
     num = None
@@ -162,7 +162,7 @@ def ajax_doubler(request, number):
 
 
 # benchmark purpose: json w/ db access
-@http('ajax-dbtest')
+@http
 @jsonview
 def ajax_dbtest(request):
     result = TestStruct.findall()

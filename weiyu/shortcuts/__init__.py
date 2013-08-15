@@ -56,12 +56,33 @@ def jsonview(fn):
     return renderable('json')(view(fn))
 
 
+def _transform_view_name(name):
+    tmpname = name[:-5] if name.endswith('_view') else name
+    return tmpname.replace('_', '-')
+
+
 @expose
-def http(name):
-    '''Convenient form of ``@router_hub.endpoint('http', name)``.'''
+def http(name=None):
+    '''Register a view for the HTTP router.
+
+    If ``name`` is given as a string, this is a convenient form of
+    ``@router_hub.endpoint('http', name)``. If ``name`` is not given
+    (``@http()``), or if the decorator is used directly (``@http``), view
+    name is derived from the function name by removing a ``_view`` suffix
+    if present, and then replacing all underscores with hyphens.
+
+    '''
 
     def _decorator_(fn):
-        return router_hub.endpoint('http', name)(fn)
+        view_name = name or _transform_view_name(fn.func_name)
+        return router_hub.endpoint('http', view_name)(fn)
+
+    if callable(name):
+        # Quick and dirty check to see if name is actually a function
+        # (the @http case).
+        fn, name = name, None
+        return _decorator_(fn)
+
     return _decorator_
 
 
