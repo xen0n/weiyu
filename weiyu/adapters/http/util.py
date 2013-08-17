@@ -30,6 +30,11 @@ __all__ = [
 from functools import partial
 from urlparse import parse_qs
 
+try:
+    import ujson as json
+except ImportError:
+    import json
+
 from ...helpers.misc import smartbytes
 
 
@@ -82,6 +87,23 @@ STATUS_CODES_MAP = {
 # hopefully reduce repetitive tuple building...?
 STR_CLASSES = (str, unicode, )
 
+# Content types that can be parsed into a form
+_FORM_CONTENT_HANDLERS = {}
+
+
+def _form_content_handler(content_type):
+    def _decorator_(fn):
+        if content_type in _FORM_CONTENT_HANDLERS:
+            raise ValueError(
+                    "'%s' already registered as handler!" % (
+                        content_type,
+                        )
+                    )
+
+        _FORM_CONTENT_HANDLERS[content_type] = fn
+        return fn
+    return _decorator_
+
 
 def status_to_str(status):
     '''Converts status code to its description.
@@ -110,7 +132,15 @@ def send_content_iter(content, enc):
             yield smartbytes(chunk, enc, 'replace')
 
 
-def parse_form(content):
+def parse_form(ctype, content):
+    if ctype in _FORM_CONTENT_HANDLERS:
+        return _FORM_CONTENT_HANDLERS[ctype](content)
+
+    return None
+
+
+@_form_content_handler('application/x-www-form-urlencoded')
+def _parse_urlencoded_form(content):
     form = parse_qs(content)
 
     # eliminate all those 1-element lists
@@ -119,6 +149,11 @@ def parse_form(content):
             form[k] = form[k][0]
 
     return form
+
+
+@_form_content_handler('application/json')
+def _parse_json_form(content):
+    return json.loads(content)
 
 
 def gen_http_headers(response):
