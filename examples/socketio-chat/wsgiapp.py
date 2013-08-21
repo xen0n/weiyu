@@ -7,7 +7,7 @@
 from gevent import monkey
 monkey.patch_all()
 
-from weiyu.shortcuts import inject_app
+from weiyu.init import inject_app
 from weiyu.utils.server import cli_server
 
 inject_app()

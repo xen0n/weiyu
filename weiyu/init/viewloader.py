@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / utilities / view loader
+# weiyu / framework-level initialization / view loader
 #
 # Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -28,10 +28,15 @@ import json
 
 
 class ViewLoader(object):
-    def __init__(self, path):
+    def __init__(self, config=None):
+        self.config = config or {}
+
+    def fileconfig(self, path):
         with open(path, 'rb') as fp:
             content = fp.read()
         self.config = json.loads(content)
+
+        return self
 
     def __call__(self):
         cfg = self.config
