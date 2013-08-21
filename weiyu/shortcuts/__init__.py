@@ -25,13 +25,11 @@ __all__ = [
 import inspect
 from functools import wraps
 
+from .. import init
 from ..adapters import adapter_hub
-from ..db import db_hub
 from ..router import router_hub
 from ..rendering.decorators import renderable
-from ..registry.loader import BaseConfig
 from ..utils.decorators import view
-from ..utils.viewloader import ViewLoader
 
 
 def expose(fn):
@@ -47,6 +45,16 @@ expose(view)
 
 make_app = adapter_hub.make_app
 expose(make_app)
+
+boot, inject_app = init.boot, init.inject_app
+expose(boot)
+expose(inject_app)
+
+# Special case: the former load_all() got renamed to boot(), we need to
+# preserve its name for compatibility (actually that's because I'm too lazy
+# to rename all these occurences in my apps...)
+load_all = init.boot
+__all__.append(b'load_all')
 
 
 @expose
@@ -85,51 +93,6 @@ def http(name=None):
 
     return _decorator_
 
-
-@expose
-def load_router(typ, filename):
-    router = router_hub.init_router_from_config(typ, filename)
-    return router_hub.register_router(router)
-
-
-@expose
-def load_config(path):
-    ret = BaseConfig.get_config(path).populate_central_regs()
-
-    # Refresh the hubs' internal cached references, this MUST be done
-    # after config has loaded.
-    db_hub._init_refresh_map()
-
-    return ret
-
-
-@expose
-def load_views(path):
-    return ViewLoader(path)()
-
-
-@expose
-def load_all(
-        conf_path='conf.json',
-        views_path='views.json',
-        router_type='http',
-        root_router_file='urls.txt',
-        ):
-    # initialize registries, views, router, in that order
-    load_config(conf_path)
-    load_views(views_path)
-    load_router(router_type, root_router_file)
-
-
-@expose
-def inject_app(app_type='wsgi', var='application', *args, **kwargs):
-    # Make app
-    load_all(*args, **kwargs)
-    app = make_app(app_type)
-
-    # Then inject the object into the caller's global namespace
-    parentframe = inspect.getouterframes(inspect.currentframe())[1][0]
-    parentframe.f_globals[var] = app
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
