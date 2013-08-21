@@ -68,6 +68,22 @@ def boot(
     load_views(views_path)
     load_router(router_type, root_router_file)
 
+    # make an empty site registry if not present
+    reg_site = regrequest('site', autocreate=True, klass=UnicodeRegistry)
+
+    # register middlewares according to config
+    middleware_decl = reg_site['middlewares'] if 'middlewares' in reg_site else {}
+
+    def call_register_middleware(kind):
+        middlewares = middleware_decl.get(kind, [])
+        adapter_hub.register_middleware_chain(
+                '%s-middleware-%s' % (router_type, kind, ),
+                middlewares,
+                )
+
+    call_register_middleware('pre')
+    call_register_middleware('post')
+
 
 def inject_app(app_type='wsgi', var='application', *args, **kwargs):
     # Make app
