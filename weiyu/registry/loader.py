@@ -371,7 +371,7 @@ class YAMLConfig(BaseConfig):
         # Force Unicode string output according to this SO question
         # 2890146/how-to-force-pyyaml-to-load-strings-as-unicode-objects
         def construct_yaml_str(self, node):
-            # Override the default string handling function 
+            # Override the default string handling function
             # to always return unicode objects
             return self.construct_scalar(node)
 

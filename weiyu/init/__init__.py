@@ -73,10 +73,19 @@ def boot(
     load_router(router_type, root_router_file)
 
     # make an empty site registry if not present
-    reg_site = regrequest('site', autocreate=True, nodup=False, klass=UnicodeRegistry)
+    reg_site = regrequest(
+            'site',
+            autocreate=True,
+            nodup=False,
+            klass=UnicodeRegistry,
+            )
 
     # register middlewares according to config
-    middleware_decl = reg_site['middlewares'] if 'middlewares' in reg_site else {}
+    middleware_decl = (
+            reg_site['middlewares']
+            if 'middlewares' in reg_site
+            else {}
+            )
 
     def call_register_middleware(kind):
         middlewares = middleware_decl.get(kind, [])
