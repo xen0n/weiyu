@@ -366,6 +366,19 @@ class YAMLConfig(BaseConfig):
 
     def _do_loads(self, s, *args, **kwargs):
         import yaml
+        from yaml import Loader, SafeLoader
+
+        # Force Unicode string output according to this SO question
+        # 2890146/how-to-force-pyyaml-to-load-strings-as-unicode-objects
+        def construct_yaml_str(self, node):
+            # Override the default string handling function 
+            # to always return unicode objects
+            return self.construct_scalar(node)
+
+        _STR_TAG = 'tag:yaml.org,2002:str'
+        Loader.add_constructor(_STR_TAG, construct_yaml_str)
+        SafeLoader.add_constructor(_STR_TAG, construct_yaml_str)
+
         # TODO: optionally utilize C acceleration if available
         return yaml.load(s, *args, **kwargs)
 
