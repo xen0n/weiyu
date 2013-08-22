@@ -9,8 +9,8 @@ from __future__ import unicode_literals, division
 from weiyu.init import inject_app
 from weiyu.utils.server import cli_server
 
-# For YAML config do this instead:
-# inject_app(conf_path='conf.yml')
+# For JSON or other config formats, do something like this instead:
+# inject_app(conf_path='conf.json')
 inject_app()
 
 

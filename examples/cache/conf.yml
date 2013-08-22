@@ -1,0 +1,21 @@
+weiyu.db:
+  databases:
+    cache-redis:
+      driver: redis
+      host: 127.0.0.1
+
+  storage:
+    cache-redis: cache-redis/(int)0
+
+weiyu.cache:
+  caches:
+    main-redis:
+      driver: redis
+      struct_id: cache-redis
+    main-mc:
+      driver: memcached
+      servers: 
+        - 127.0.0.1:11211
+
+
+# vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:

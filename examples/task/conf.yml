@@ -1,0 +1,14 @@
+weiyu.tasks:
+  conf:
+    tasktest:
+      driver: celery
+      conf:
+        main: weiyu.example.task.celery
+        broker: amqp://test:test@localhost:5672/test_vhost
+        backend: amqp://test:test@localhost:5672/test_vhost
+        include:
+          - tasktest.tasks
+      extras: {}
+
+
+# vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:
