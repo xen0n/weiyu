@@ -1,0 +1,11 @@
+site:
+  $$nodup: true
+
+  github:
+    post-receive:
+      # replace this with your repo to be monitored
+      xen0n/weiyu:
+        refs/heads/github-webhook: /tmp/github-post-receive-worked
+
+
+# vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:
