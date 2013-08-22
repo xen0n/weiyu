@@ -62,7 +62,7 @@ def load_views(path):
 
 
 def boot(
-        conf_path='conf.json',
+        conf_path='conf.yml',
         views_path='views.json',
         router_type='http',
         root_router_file='urls.txt',
