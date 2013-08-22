@@ -30,6 +30,7 @@ from ..signals import signal_hub
 
 ADAPTERS_KEY = 'adapters'
 KNOWN_MIDDLEWARE_KEY = 'known_middlewares'
+USED_MIDDLEWARE_KEY = 'used_middlewares'
 
 PROBER = ModProber(
         'weiyu.adapters',
@@ -49,6 +50,7 @@ class AdapterHub(BaseHub):
     def __init__(self):
         super(AdapterHub, self).__init__()
         self._middlewares = self._reg[KNOWN_MIDDLEWARE_KEY] = {}
+        self._middleware_in_use = self._reg[USED_MIDDLEWARE_KEY] = {}
 
     def make_app(self, adapter):
         PROBER.modprobe(adapter)
@@ -67,10 +69,19 @@ class AdapterHub(BaseHub):
             return obj
         return _decorator_
 
-    def register_middleware_chain(self, signal_name, middleware_names):
+    def register_middleware_chain(self, router_type, kind, middleware_names):
+        signal_name = '%s-middleware-%s' % (router_type, kind, )
+
         for name in middleware_names:
-            middleware = self._middlewares[name]
-            signal_hub.append_listener_to(signal_name)(middleware)
+            # Instantiate each middleware object only once
+            try:
+                middleware = self._middleware_in_use[name]
+            except KeyError:
+                middleware_cls = self._middlewares[name]
+                middleware = self._middleware_in_use[name] = middleware_cls()
+
+            method = getattr(middleware, 'do_%s' % (kind, ))
+            signal_hub.append_listener_to(signal_name)(method)
 
 
 adapter_hub = AdapterHub()

@@ -37,6 +37,10 @@ from ..registry.provider import request as regrequest
 from ..utils.decorators import view
 from .viewloader import ViewLoader
 
+# XXX Force load of HTTPSessionMiddleware
+from ..adapters.http import base
+del base
+
 
 def load_router(typ, filename):
     router = router_hub.init_router_from_config(typ, filename)
@@ -69,7 +73,7 @@ def boot(
     load_router(router_type, root_router_file)
 
     # make an empty site registry if not present
-    reg_site = regrequest('site', autocreate=True, klass=UnicodeRegistry)
+    reg_site = regrequest('site', autocreate=True, nodup=False, klass=UnicodeRegistry)
 
     # register middlewares according to config
     middleware_decl = reg_site['middlewares'] if 'middlewares' in reg_site else {}
@@ -77,7 +81,8 @@ def boot(
     def call_register_middleware(kind):
         middlewares = middleware_decl.get(kind, [])
         adapter_hub.register_middleware_chain(
-                '%s-middleware-%s' % (router_type, kind, ),
+                router_type,
+                kind,
                 middlewares,
                 )
 
