@@ -69,8 +69,8 @@ class AdapterHub(BaseHub):
             return obj
         return _decorator_
 
-    def register_middleware_chain(self, router_type, kind, middleware_names):
-        signal_name = '%s-middleware-%s' % (router_type, kind, )
+    def register_middleware_chain(self, router_type, chain, middleware_names):
+        signal_name = '%s-middleware-%s' % (router_type, chain, )
 
         for name in middleware_names:
             # Instantiate each middleware object only once
@@ -80,7 +80,7 @@ class AdapterHub(BaseHub):
                 middleware_cls = self._middlewares[name]
                 middleware = self._middleware_in_use[name] = middleware_cls()
 
-            method = getattr(middleware, 'do_%s' % (kind, ))
+            method = getattr(middleware, 'do_%s' % (chain, ))
             signal_hub.append_listener_to(signal_name)(method)
 
 
