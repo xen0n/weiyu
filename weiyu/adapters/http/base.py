@@ -33,10 +33,32 @@ from ...session import session_hub
 from ...signals import signal_hub
 from ...rendering import render_hub
 
+from .. import adapter_hub
+
 # Status codes that cannot have response body
 # Used to prevent rendering code from being invoked
 # TODO: add more of them
 NO_RESP_BODY_STATUSES = {405, }
+
+
+@adapter_hub.declare_middleware('session')
+class HTTPSessionMiddleware(object):
+    def __init__(self):
+        # get options
+        site = reg_request('site')
+
+        # assume session config is present if this middleware is used
+        ses_conf = site['session']
+        ses_backend, ses_opts = ses_conf['backend'], ses_conf['options']
+
+        # request a session backend
+        self._backend = session_hub.do_handling(ses_backend, ses_opts)
+
+    def do_pre(self, request):
+        self._backend.preprocess(request)
+
+    def do_post(self, response):
+        self._backend.postprocess(response)
 
 
 class BaseHTTPReflex(BaseReflex):
@@ -49,28 +71,7 @@ class BaseHTTPReflex(BaseReflex):
         # behavior is documented here anyway.
         self._do_routing = router_hub.get_handler('http')
 
-        # session
-        # maybe this should be in some sort of "middleware" instead...?
-        # XXX Tornado is not WSGI-compatible in general, we need to do more
-        # work
-        if 'session' in self.SITE_CONF:
-            ses_conf = self.SITE_CONF['session']
-            ses_backend, ses_opts = ses_conf['backend'], ses_conf['options']
-            self.session = session_hub.do_handling(ses_backend, ses_opts)
-
-            # register (synchronous) signal listeners
-            @signal_hub.append_listener_to('http-session-pre')
-            def _http_session_preprocess(reflex, request):
-                reflex.session.preprocess(request)
-
-            @signal_hub.prepend_listener_to('http-session-post')
-            def _http_session_postprocess(reflex, response):
-                reflex.session.postprocess(response)
-
     def _do_translate_request(self, request):
-        # Session injection
-        signal_hub.fire_nullok('http-session-pre', self, request)
-
         # Middleware
         # TODO: ability to skip response generation?
         signal_hub.fire_nullok('http-middleware-pre', request)
@@ -83,9 +84,6 @@ class BaseHTTPReflex(BaseReflex):
 
         # Middleware
         signal_hub.fire_nullok('http-middleware-post', response)
-
-        # Session persistence is part of generation; may be moved tho
-        signal_hub.fire_nullok('http-session-post', self, response)
 
         return response
 
