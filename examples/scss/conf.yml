@@ -1,6 +1,10 @@
 site:
   $$nodup: true
 
+  views:
+    modules:
+      - weiyu.rendering.views
+
   scss-bridge:
     root: ./css
 
