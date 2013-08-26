@@ -21,19 +21,19 @@ from __future__ import unicode_literals, division
 
 import redis
 
+from ...db import db_hub
 from .. import cache_hub
 from .baseclass import BaseCache
 
-DEFAULT_PORT = 6379
-DEFAULT_DB = 0
-
 
 class RedisCache(BaseCache):
-    def __init__(self, host, port, db):
+    def __init__(self, storage):
         super(RedisCache, self).__init__()
 
-        # TODO: proper connection pooling
-        self._conn = redis.StrictRedis(host=host, port=port, db=db)
+        # XXX: Very primitive persistent connection impl
+        # This relies on the Redis driver's internal state-lessness
+        # The driver's start() and finish() methods will NOT be called
+        self._conn = storage.driver.get_bucket(storage.bucket)
 
     def get(self, k):
         return self._conn.get(k)
@@ -47,11 +47,10 @@ class RedisCache(BaseCache):
 
 @cache_hub.register_handler('redis')
 def redis_handler(hub, opts):
-    host = opts['host']
-    port = opts.get('port', DEFAULT_PORT)
-    db = opts.get('db', DEFAULT_DB)
+    struct_id = opts['struct_id']
+    storage = db_hub.get_storage(struct_id)
 
-    return RedisCache(host, port, db)
+    return RedisCache(storage)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

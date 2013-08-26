@@ -21,11 +21,11 @@ from __future__ import unicode_literals, division
 
 import abc
 
+import six
 
-class BaseDriver(object):
+
+class BaseDriver(six.with_metaclass(abc.ABCMeta)):
     '''Baseclass for database drivers.'''
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def start(self):
@@ -73,6 +73,12 @@ class DBOperationContext(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.driver.finish()
+
+    def __repr__(self):
+        return b'<DBOperationContext: driver=%s, bucket=%s>' % (
+                repr(self.driver),
+                self.bucket,
+                )
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

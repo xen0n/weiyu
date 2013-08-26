@@ -88,9 +88,7 @@ class WSGIReflex(BaseHTTPReflex):
 
             # parse the POSTed data
             ctype = request.content_type = env.get('CONTENT_TYPE', None)
-            if ctype == 'application/x-www-form-urlencoded':
-                # decode the response for the view
-                request.form = parse_form(request.content)
+            request.form = parse_form(ctype, request.content)
         else:
             request.content = None
 

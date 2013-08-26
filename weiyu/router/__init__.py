@@ -23,6 +23,8 @@ __all__ = [
         'router_hub',
         ]
 
+import six
+
 from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
 
@@ -157,7 +159,7 @@ class RouterHub(BaseHub):
                 pat_cache[endpoint] = (pat_str, pat_vars, )
 
             # verify the parameters
-            given_vars = set(kwargs.iterkeys())
+            given_vars = set(six.iterkeys(kwargs))
             if given_vars != pat_vars:
                 # parameter mismatch
                 raise ValueError('Parameter mismatch')
@@ -177,7 +179,6 @@ class RouterHub(BaseHub):
         # let's construct the desired target initializer out of the
         # pattern-to-(endpoint-or-router) list
         _list_types = (list, tuple, )
-        _str_types = (str, unicode, )
 
         # Attribute processing.
         attrib_list = routing_rules[0]
@@ -256,12 +257,12 @@ class RouterHub(BaseHub):
                         'scope': scope,
                         }
                 tgt = self._do_init_router(typ, target_spec, lvl + 1, my_info)
-            elif isinstance(target_spec, _str_types):
+            elif isinstance(target_spec, six.string_types):
                 # target is endpoint... check against endpoint registry
                 # this is where typ is used
                 # enforce a little bit of encoding requirement, to make
                 # messed up encoding problem surface fast
-                tgt = self._endpoints[typ][unicode(target_spec)]
+                tgt = self._endpoints[typ][six.text_type(target_spec)]
             else:
                 # unrecognized target specification, pass it thru as is
                 tgt = target_spec

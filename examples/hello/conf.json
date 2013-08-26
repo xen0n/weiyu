@@ -2,6 +2,20 @@
 	"site": {
 		"$$nodup": true,
 		"name": "weiyu hello site",
+		"views": {
+			"modules": [
+				"weiyu.utils.views",
+				"hello_views"
+				]
+			},
+		"middlewares": {
+			"pre": [
+				"session"
+				],
+			"post": [
+				"session"
+				]
+			},
 		"session": {
 			"backend": "beaker",
 			"options": {
@@ -31,9 +45,7 @@
 				"port": 27017,
 				"path": "test"
 			}
-		}
-	},
-	"weiyu.db.mapper": {
+		},
 		"storage": {
 			"teststruct": {
 				"db": "test",

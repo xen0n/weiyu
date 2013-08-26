@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / adapter / class registry helper
+# weiyu / helpers / module importer
 #
 # Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -19,10 +19,28 @@
 
 from __future__ import unicode_literals, division
 
-from .http import (
-        wsgi,
-        tornado_,
-        )
+__all__ = [
+        'ModProber',
+        ]
+
+import importlib
+
+
+class ModProber(object):
+    def __init__(self, package, name_template, package_map=None):
+        self.package = package
+        self.name_template = name_template
+        self.package_map = package_map or {}
+
+    def get_relative_path(self, name):
+        assert '.' not in name
+        return '.' + self.name_template % (self.package_map.get(name, name), )
+
+    def modprobe(self, name):
+        return importlib.import_module(
+                self.get_relative_path(name),
+                self.package,
+                )
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

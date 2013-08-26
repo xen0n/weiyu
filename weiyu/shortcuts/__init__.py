@@ -25,94 +25,79 @@ __all__ = [
 import inspect
 from functools import wraps
 
+import six
+
+from .. import init
 from ..adapters import adapter_hub
 from ..router import router_hub
-from ..rendering.decorator import renderable
-from ..reflex.classes import ReflexResponse
-from ..registry.loader import BaseConfig
-from ..utils.viewloader import ViewLoader
+from ..rendering.decorators import renderable
+from ..utils.decorators import view
 
 
 def expose(fn):
     '''``__all__`` registry helper.'''
 
-    __all__.append(fn.func_name)
+    __all__.append(fn.__name__)
     return fn
 
 
 # Expose convenient aliases.
 expose(renderable)
+expose(view)
 
 make_app = adapter_hub.make_app
 expose(make_app)
 
+boot, inject_app = init.boot, init.inject_app
+expose(boot)
+expose(inject_app)
+
+# Special case: the former load_all() got renamed to boot(), we need to
+# preserve its name for compatibility (actually that's because I'm too lazy
+# to rename all these occurences in my apps...)
+load_all = init.boot
+
+# NOTE: This str() call is correct as it IS the 'string' type recognized by
+# the IMPORT_STAR thing, and it isn't that easy to make one using six.
+__all__.append(str('load_all'))
+
 
 @expose
-def view(fn):
-    '''View decorator to avoid having to
-    ``from weiyu.reflex.classes import ReflexResponse`` everywhere.
+def jsonview(fn):
+    '''Short for doing ``@renderable('json')`` and ``@view`` in a row.'''
+
+    return renderable('json')(view(fn))
+
+
+def _transform_view_name(name):
+    tmpname = name[:-5] if name.endswith('_view') else name
+    return tmpname.replace('_', '-')
+
+
+@expose
+def http(name=None):
+    '''Register a view for the HTTP router.
+
+    If ``name`` is given as a string, this is a convenient form of
+    ``@router_hub.endpoint('http', name)``. If ``name`` is not given
+    (``@http()``), or if the decorator is used directly (``@http``), view
+    name is derived from the function name by removing a ``_view`` suffix
+    if present, and then replacing all underscores with hyphens.
 
     '''
 
-    @wraps(fn)
-    def _view_func_(request, *args, **kwargs):
-        status, content, context = fn(request, *args, **kwargs)
-        return ReflexResponse(
-                status,
-                content,
-                context,
-                request,
-                )
-    return _view_func_
-
-
-@expose
-def http(name):
-    '''Convenient form of ``@router_hub.endpoint('http', name)``.'''
-
     def _decorator_(fn):
-        return router_hub.endpoint('http', name)(fn)
+        view_name = name or _transform_view_name(fn.__name__)
+        return router_hub.endpoint('http', view_name)(fn)
+
+    if callable(name):
+        # Quick and dirty check to see if name is actually a function
+        # (the @http case).
+        fn, name = name, None
+        return _decorator_(fn)
+
     return _decorator_
 
-
-@expose
-def load_router(typ, filename):
-    router = router_hub.init_router_from_config(typ, filename)
-    return router_hub.register_router(router)
-
-
-@expose
-def load_config(path):
-    return BaseConfig.get_config(path).populate_central_regs()
-
-
-@expose
-def load_views(path):
-    return ViewLoader(path)()
-
-
-@expose
-def load_all(
-        conf_path='conf.json',
-        views_path='views.json',
-        router_type='http',
-        root_router_file='urls.txt',
-        ):
-    # initialize registries, views, router, in that order
-    load_config(conf_path)
-    load_views(views_path)
-    load_router(router_type, root_router_file)
-
-
-@expose
-def inject_app(app_type='wsgi', var='application', *args, **kwargs):
-    # Make app
-    load_all(*args, **kwargs)
-    app = make_app(app_type)
-
-    # Then inject the object into the caller's global namespace
-    parentframe = inspect.getouterframes(inspect.currentframe())[1][0]
-    parentframe.f_globals[var] = app
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

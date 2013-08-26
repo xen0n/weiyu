@@ -29,6 +29,10 @@ __all__ = [
 
 from collections import OrderedDict
 
+import six
+
+from ..helpers.misc import smartstr
+
 STATUS_REACHED, STATUS_FORWARD, STATUS_NOROUTE = range(3)
 
 
@@ -63,7 +67,7 @@ class RouterBase(object):
 
     def lookup(self, querystr, prev_args=None, prev_kwargs=None):
         # XXX is this needed, or am I overly sensitive?
-        querystr = unicode(querystr)
+        querystr = smartstr(querystr)
 
         if prev_args is None:
             prev_args = []
@@ -122,7 +126,7 @@ class RouterBase(object):
         for entry in self.route_table[::-1]:
             if entry.target_is_router:
                 chld_map = entry.target.reverse_map
-                for chld_scope, chld_scopemap in chld_map.iteritems():
+                for chld_scope, chld_scopemap in six.iteritems(chld_map):
                     if chld_scope in map_:
                         map_[chld_scope].update(chld_scopemap)
                     else:

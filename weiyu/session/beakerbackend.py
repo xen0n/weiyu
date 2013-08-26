@@ -19,6 +19,8 @@
 
 from __future__ import unicode_literals, division
 
+import six
+
 from beaker.session import Session, SessionObject
 
 # we must do option processing ourselves
@@ -44,7 +46,7 @@ class BeakerSession(object):
             # Simplify the filtering present in Beaker's implementation
             # This is also required to mimic the 'Assume all keys are
             # intended for cache if none are prefixed w/ "cache."' behavior
-            for k, v in options.iteritems():
+            for k, v in six.iteritems(options):
                 if k.startswith('session.'):
                     self.options[k[8:]] = v
 

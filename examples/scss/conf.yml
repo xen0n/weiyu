@@ -1,0 +1,20 @@
+site:
+  $$nodup: true
+
+  views:
+    modules:
+      - weiyu.rendering.views
+
+  scss-bridge:
+    root: ./css
+
+weiyu.rendering:
+  scss:
+    LOAD_PATHS: ./css
+
+    opts:
+      # compress defaults to True
+      debug_info: true
+
+
+# vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:

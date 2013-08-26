@@ -31,7 +31,34 @@ from ...reflex.classes import BaseReflex
 from ...router import router_hub
 from ...session import session_hub
 from ...signals import signal_hub
-from ...rendering.view import render_view_func
+from ...rendering import render_hub
+
+from .. import adapter_hub
+
+# Status codes that cannot have response body
+# Used to prevent rendering code from being invoked
+# TODO: add more of them
+NO_RESP_BODY_STATUSES = {405, }
+
+
+@adapter_hub.declare_middleware('session')
+class HTTPSessionMiddleware(object):
+    def __init__(self):
+        # get options
+        site = reg_request('site')
+
+        # assume session config is present if this middleware is used
+        ses_conf = site['session']
+        ses_backend, ses_opts = ses_conf['backend'], ses_conf['options']
+
+        # request a session backend
+        self._backend = session_hub.do_handling(ses_backend, ses_opts)
+
+    def do_pre(self, request):
+        self._backend.preprocess(request)
+
+    def do_post(self, response):
+        self._backend.postprocess(response)
 
 
 class BaseHTTPReflex(BaseReflex):
@@ -44,35 +71,19 @@ class BaseHTTPReflex(BaseReflex):
         # behavior is documented here anyway.
         self._do_routing = router_hub.get_handler('http')
 
-        # session
-        # maybe this should be in some sort of "middleware" instead...?
-        # XXX Tornado is not WSGI-compatible in general, we need to do more
-        # work
-        if 'session' in self.SITE_CONF:
-            ses_conf = self.SITE_CONF['session']
-            ses_backend, ses_opts = ses_conf['backend'], ses_conf['options']
-            self.session = session_hub.do_handling(ses_backend, ses_opts)
-
-            # register (synchronous) signal listeners
-            @signal_hub.append_listener_to('http-session-pre')
-            def _http_session_preprocess(reflex, request):
-                reflex.session.preprocess(request)
-
-            @signal_hub.prepend_listener_to('http-session-post')
-            def _http_session_postprocess(reflex, response):
-                reflex.session.postprocess(response)
-
     def _do_translate_request(self, request):
-        # Session injection
-        signal_hub.fire_nullok('http-session-pre', self, request)
+        # Middleware
+        # TODO: ability to skip response generation?
+        signal_hub.fire_nullok('http-middleware-pre', request)
+
         return request
 
     def _do_generate_response(self, request):
         fn, args, kwargs = request.callback_info
         response = fn(request, *args, **kwargs)
 
-        # Session persistence is part of generation; may be moved tho
-        signal_hub.fire_nullok('http-session-post', self, response)
+        # Middleware
+        signal_hub.fire_nullok('http-middleware-post', response)
 
         return response
 
@@ -94,6 +105,9 @@ class BaseHTTPReflex(BaseReflex):
 
         response._vanished = False
 
+        # encoding
+        enc = response.encoding = ctx.get('enc', 'utf-8')
+
         # is this a raw file push request?
         response.is_raw_file = ctx.get('is_raw_file', False)
         if response.is_raw_file and 'sendfile_fp' in response.content:
@@ -107,6 +121,11 @@ class BaseHTTPReflex(BaseReflex):
             # text/html then...
             mime = ctx.get('mimetype', 'application/octet-stream')
 
+        # is this an error response which cannot have response body?
+        # TODO: add more status codes
+        if response.status in NO_RESP_BODY_STATUSES:
+            dont_render = True
+
         if not dont_render:
             if issubclass(type(request.route_data), dict):
                 # mapping object, see if we could get the hint...
@@ -119,23 +138,22 @@ class BaseHTTPReflex(BaseReflex):
                         )
 
             # rendering is not suppressed, do it now
-            cont, extras = render_view_func(
+            cont, extras = render_hub.render_view(
                     request.callback_info[0],
                     response.content,
                     ctx,
                     render_in,
                     )
 
-        enc = ctx.get('enc', 'utf-8')
-        response.encoding = enc
-        if 'mimetype' in extras:
-            # Allow renderers to override mimetype
-            mime = extras['mimetype']
-        else:
-            mime = ctx.get('mimetype', 'text/html') if mime is None else mime
+            if 'mimetype' in extras:
+                # Allow renderers to override mimetype
+                mime = extras['mimetype']
+            else:
+                if mime is None:
+                    mime = ctx.get('mimetype', 'text/html')
 
-        # encode content, if it's a Unicode thing
-        response.content = smartbytes(cont, enc, 'replace')
+            # encode content, if it's a Unicode thing
+            response.content = smartbytes(cont, enc, 'replace')
 
         # TODO: convert more context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
@@ -144,13 +162,20 @@ class BaseHTTPReflex(BaseReflex):
             contenttype = mime
         else:
             contenttype = '%s; charset=%s' % (mime, enc, )
-        hdrs.append((b'Content-Type', contenttype, ))
+
+        if not dont_render:
+            hdrs.append((b'Content-Type', contenttype, ))
 
         # generate Set-Cookie from cookies
         for cookie_line in ctx.get('cookies', []):
             hdrs.append((b'Set-Cookie', cookie_line, ))
 
+        # 405 Not Allowed header
+        if response.status == 405:
+            hdrs.append((b'Allow', ctx['allowed_methods'], ))
+
         response.http_headers = hdrs
+        response._dont_render = dont_render
 
         return response
 

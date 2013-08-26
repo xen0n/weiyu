@@ -8,24 +8,24 @@ from __future__ import unicode_literals, division
 
 import time
 
+import six
+
 from weiyu.shortcuts import *
 from weiyu.cache import cache_hub
 
 
 def gen_cache_key(a, b):
-    return b'add_%s_%s' % (a, b, )
+    return six.b('add_%s_%s' % (a, b, ))
 
 
 @http('cached-add-redis')
-@renderable('json')
-@view
+@jsonview
 def redis_add(request, r_a, r_b):
     return do_add(request, r_a, r_b, 'main-redis')
 
 
 @http('cached-add-memcached')
-@renderable('json')
-@view
+@jsonview
 def mc_add(request, r_a, r_b):
     return do_add(request, r_a, r_b, 'main-mc')
 

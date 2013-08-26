@@ -1,4 +1,6 @@
+decorator>=3.4.0
 ply>=3.4
+six>=1.3.0
 Beaker>=1.6.3
 Mako>=0.7.1
 pymongo>=2.2.1
@@ -9,4 +11,5 @@ python-memcached>=1.48
 redis>=2.7.0
 ipaddr>=2.1.10
 PyYAML>=3.10
-riak>=1.5.2
+riak>=2.0.0
+pyScss>=1.1.5

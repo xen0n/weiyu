@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-u'''
+'''
 Configuration loader
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -99,12 +99,8 @@ from functools import wraps
 import abc
 import json
 
-try:
-    import cPickle as pickle
-except ImportError:
-    # at least there REALLY should be pickle, so I'm not going to catch
-    # any exception
-    import pickle
+import six
+from six.moves import cPickle as pickle
 
 from .classes import VALID_REGISTRY_TYPES
 from .provider import request
@@ -125,7 +121,7 @@ def handler_for_ext(ext):
     return _decorator_
 
 
-class BaseConfig(object):
+class BaseConfig(six.with_metaclass(abc.ABCMeta)):
     '''Base class for prepopulated config storages. It has an interface
     inspired by ``pickle``: methods such as :meth:`loads` and :meth:`load`
     exist and more or less behaves like the standard library counterpart.
@@ -134,8 +130,6 @@ class BaseConfig(object):
     way configuration files map to Python object in a subclass.
 
     '''
-
-    __metaclass__ = abc.ABCMeta
 
     @staticmethod
     def get_config(path):
@@ -267,7 +261,7 @@ class BaseConfig(object):
         '''
 
         self.ensure_data_presence()
-        for k, v in self.data.iteritems():
+        for k, v in six.iteritems(self.data):
             registry.register(k, v)
 
     def populate_central_regs(self):
@@ -278,7 +272,7 @@ class BaseConfig(object):
         '''
 
         self.ensure_data_presence()
-        for k, v in self.data.iteritems():
+        for k, v in six.iteritems(self.data):
             # k is registry name, v is a dict
             # v's format is as follows:
             # {['$$class': '<class name of registry (optional)>',]
@@ -288,7 +282,7 @@ class BaseConfig(object):
             #  etc: etc,
             #  }
             # first a little type sanity check
-            if not isinstance(k, (str, unicode, )):
+            if not isinstance(k, six.string_types):
                 raise ValueError(
                         'registry name must be string; got %s (of type %s)'
                         % (repr(k), repr(type(k)), )
@@ -314,7 +308,7 @@ class BaseConfig(object):
                 nodup = False
 
             # override field type check
-            if not isinstance(class_name, (str, unicode, )):
+            if not isinstance(class_name, six.string_types):
                 raise ValueError('registry class name not of string type')
 
             if not isinstance(nodup, bool):
@@ -337,7 +331,7 @@ class BaseConfig(object):
             # NOTE: We don't use update() here, because filling values one by
             # one would trigger validation and normalization for each of the
             # k-v pairs, and sanity is what we need.
-            for reg_k, reg_v in v.iteritems():
+            for reg_k, reg_v in six.iteritems(v):
                 reg[reg_k] = reg_v
 
 
@@ -366,6 +360,19 @@ class YAMLConfig(BaseConfig):
 
     def _do_loads(self, s, *args, **kwargs):
         import yaml
+        from yaml import Loader, SafeLoader
+
+        # Force Unicode string output according to this SO question
+        # 2890146/how-to-force-pyyaml-to-load-strings-as-unicode-objects
+        def construct_yaml_str(self, node):
+            # Override the default string handling function
+            # to always return unicode objects
+            return self.construct_scalar(node)
+
+        _STR_TAG = 'tag:yaml.org,2002:str'
+        Loader.add_constructor(_STR_TAG, construct_yaml_str)
+        SafeLoader.add_constructor(_STR_TAG, construct_yaml_str)
+
         # TODO: optionally utilize C acceleration if available
         return yaml.load(s, *args, **kwargs)
 

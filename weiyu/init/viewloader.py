@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / rendering / class registry helper
+# weiyu / framework-level initialization / view loader
 #
 # Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
@@ -19,9 +19,32 @@
 
 from __future__ import unicode_literals, division
 
-from . import dummy
-from . import jsonrenderer
-from . import makorenderer
+__all__ = [
+        'ViewLoader',
+        ]
+
+import importlib
+import json
+
+
+class ViewLoader(object):
+    def __init__(self, config=None):
+        self.config = config or {}
+
+    def fileconfig(self, path):
+        with open(path, 'rb') as fp:
+            content = fp.read()
+        self.config = json.loads(content)
+
+        return self
+
+    def __call__(self):
+        cfg = self.config
+        pkg_anchor = cfg.get('package', None)
+        modules = cfg.get('modules', [])
+
+        for name in modules:
+            importlib.import_module(name, pkg_anchor)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

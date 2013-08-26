@@ -8,7 +8,6 @@ from __future__ import unicode_literals, division
 
 import re
 
-from weiyu.registry.loader import JSONConfig
 from weiyu.shortcuts import *
 
 from weiyu.__version__ import VERSION_STR
@@ -17,19 +16,16 @@ from weiyu.registry.provider import request, _registries as REGS
 OUTPUT_ENC = 'utf-8'
 
 # DEBUG: db & mapper
-from weiyu.db.drivers.pymongo_driver import PymongoDriver
 from weiyu.db import db_hub, mapper_hub
 from weiyu.db.mapper.base import Document
 
 # DEBUG: session
-from weiyu.session.beakerbackend import BeakerSession
 from weiyu.session import session_hub
 
 # DEBUG: signal
 from weiyu.signals import signal_hub
 
-# DEBUG: static file
-from weiyu.utils.views import staticfile_view
+from weiyu.utils.decorators import only_methods
 
 
 # funny thing: add color representing commit revision!
@@ -108,6 +104,7 @@ def get_response(request):
 @http('index')
 @renderable('mako', 'env.html')
 @view
+@only_methods(['GET', 'POST', ])
 def env_test_worker(request):
     signal_hub.fire('signal-test', request)
 
@@ -121,7 +118,7 @@ def env_test_worker(request):
             )
 
 
-@http('multiformat-test')
+@http
 @renderable('mako', 'multifmt.txt')
 @renderable('json')
 @view
@@ -145,9 +142,8 @@ def multiformat_test_view(request, val):
 
 
 # a simple Ajax servicing routine
-@http('ajax-doubler')
-@renderable('json')
-@view
+@http
+@jsonview
 def ajax_doubler(request, number):
     num = None
     try:
@@ -166,9 +162,8 @@ def ajax_doubler(request, number):
 
 
 # benchmark purpose: json w/ db access
-@http('ajax-dbtest')
-@renderable('json')
-@view
+@http
+@jsonview
 def ajax_dbtest(request):
     result = TestStruct.findall()
 

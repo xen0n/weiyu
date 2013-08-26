@@ -24,11 +24,14 @@ __all__ = [
         ]
 
 from ..helpers.hub import BaseHub
+from ..helpers.modprober import ModProber
 from ..registry.classes import UnicodeRegistry
 
 CACHE_DRIVERS_KEY = 'drivers'
 CACHE_CONF_KEY = 'caches'
 DEFAULT_CACHE_NAME = 'main'
+
+PROBER = ModProber('weiyu.cache.drivers', '%s_driver')
 
 
 class CacheHub(BaseHub):
@@ -53,15 +56,13 @@ class CacheHub(BaseHub):
             drv = opts.pop('driver')
             self._cfg[name] = (drv, opts, )
 
+            # Load the cache backend
+            PROBER.modprobe(drv)
+
         return self.do_handling(drv, opts)
 
 
 cache_hub = CacheHub()
-
-
-# Force loading of cache backends
-from . import _reg
-del _reg
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

@@ -93,9 +93,7 @@ class TornadoReflex(BaseHTTPReflex):
                     'CONTENT_TYPE',
                     None,
                     )
-            if ctype == 'application/x-www-form-urlencoded':
-                # decode the response for the view
-                request.form = parse_form(content)
+            request.form = parse_form(ctype, content)
 
         # TODO: add more ubiquitous HTTP request headers
 

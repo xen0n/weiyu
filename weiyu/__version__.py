@@ -30,10 +30,12 @@ from sys import getfilesystemencoding
 import re
 import weiyu as __this_pkg
 
+import six
+
 # Version information.
 VERSION_MAJOR = 0
-VERSION_MINOR = 0
-VERSION_REV = 9
+VERSION_MINOR = 1
+VERSION_REV = 0
 
 VERSION = (VERSION_MAJOR, VERSION_MINOR, VERSION_REV, 'final', 0)
 
@@ -62,7 +64,7 @@ def get_vcs_revision(path=None):
     # try the handlers one by one, return the first successful
     # match of VCS info
     # cast path into unicode if necessary
-    if path is not None and not isinstance(path, unicode):
+    if path is not None and not isinstance(path, six.text_type):
         path = path.decode(getfilesystemencoding())
 
     for handler in _VCS_HANDLERS:

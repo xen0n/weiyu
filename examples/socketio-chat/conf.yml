@@ -1,0 +1,22 @@
+site:
+  $$nodup: true
+
+  views:
+    package: simplechat
+    modules:
+      - weiyu.utils.views
+      - weiyu.async.views
+      - .namespace
+      - .views
+
+  staticfile:
+    root: ./static/
+
+weiyu.rendering:
+  mako:
+    directories:
+      - ./templates
+    module_dir: /tmp/mako-modules
+
+
+# vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:

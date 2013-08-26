@@ -26,6 +26,7 @@ __all__ = [
 
 import re
 
+from ..helpers.misc import smartstr
 from . import router_hub
 from .base import *
 
@@ -47,7 +48,7 @@ class ExactRouterTarget(RouterTargetBase):
     def __init__(self, pattern, target, extra_data=None, router=None):
         super(ExactRouterTarget, self).__init__(target, extra_data, router)
 
-        self.pattern = unicode(pattern)
+        self.pattern = smartstr(pattern)
         self._pat_len = len(self.pattern)
 
     def check(self, querystr, prev_args, prev_kwargs):

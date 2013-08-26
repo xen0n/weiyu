@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-u'''
+'''
 ``pymongo`` Database Driver
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -63,7 +63,7 @@ class PymongoDriver(BaseDriver):
         super(PymongoDriver, self).__init__()
 
         self.host, self.port, self.path = host, port, path
-        self.max_pool_size, self.tz_aware = self.max_pool_size, self.tz_aware
+        self.max_pool_size, self.tz_aware = max_pool_size, tz_aware
 
         _conn_type = (pymongo.MongoReplicaSetClient
                            if is_replica
@@ -93,6 +93,13 @@ class PymongoDriver(BaseDriver):
             self._buckets[bucket] = b
 
         return self._buckets[bucket]
+
+    def __repr__(self):
+        return b'<weiyu.db/pymongo: %s:%d, path=%s>' % (
+                self.host,
+                self.port,
+                self.path,
+                )
 
 
 @db_hub.register_handler('pymongo')
