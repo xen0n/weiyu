@@ -27,6 +27,9 @@ __all__ = [
         ]
 
 import inspect
+import warnings
+
+import six
 
 from ..adapters import adapter_hub
 from ..db import db_hub
@@ -57,20 +60,23 @@ def load_config(path):
     return ret
 
 
-def load_views(path):
-    return ViewLoader().fileconfig(path)()
+def load_views(path_or_config):
+    if isinstance(path_or_config, six.string_types):
+        # this is a path to views.json
+        return ViewLoader().fileconfig(path_or_config)()
+
+    # direct config by dict
+    return ViewLoader(path_or_config)()
 
 
 def boot(
         conf_path='conf.yml',
-        views_path='views.json',
+        views_path=None,
         router_type='http',
-        root_router_file='urls.txt',
+        root_router_file=None,
         ):
     # initialize registries, views, router, in that order
     load_config(conf_path)
-    load_views(views_path)
-    load_router(router_type, root_router_file)
 
     # make an empty site registry if not present
     reg_site = regrequest(
@@ -79,6 +85,42 @@ def boot(
             nodup=False,
             klass=UnicodeRegistry,
             )
+
+    # determine if ViewLoader is configured by registry
+    if views_path is not None:
+        # external file configured by app stub
+        load_views(views_path)
+    else:
+        # extract config from site registry
+        if 'views' in reg_site:
+            view_config = reg_site['views']
+            load_views(view_config)
+        else:
+            # old behavior, which is an implicit (specified via default)
+            # views.json, kept for compatibility
+            warnings.warn(
+                    'Implicit views.json is discouraged, please put the '
+                    'view config directly into main config file',
+                    PendingDeprecationWarning,
+                    )
+            load_views('views.json')
+
+
+    # init router
+    if root_router_file is not None:
+        # configured by app stub
+        router_file_to_use = root_router_file
+    else:
+        if 'urls' in reg_site:
+            # configured by registry
+            router_file_to_use = reg_site['urls']
+        else:
+            # default value to use
+            # this is not deprecated because urls.txt has special syntax
+            # anyway
+            router_file_to_use = 'urls.txt'
+
+    load_router(router_type, router_file_to_use)
 
     # register middlewares according to config
     middleware_decl = (
