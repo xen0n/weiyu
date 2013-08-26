@@ -28,7 +28,13 @@ __all__ = [
             ]
 
 from functools import partial
-from urlparse import parse_qs
+
+try:
+    # Python 3
+    from urllib.parse import parse_qs
+except ImportError:
+    # Python 2
+    from urlparse import parse_qs
 
 try:
     import ujson as json
