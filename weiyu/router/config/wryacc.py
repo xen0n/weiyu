@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals, division
+from __future__ import unicode_literals, division, print_function
 
 __all__ = [
         'parser',
@@ -165,8 +165,10 @@ def p_combined_dedent(p):
 
 
 def p_error(tok):
+    import sys
+
     # TODO: proper error recovery
-    print '*** Error: %s' % (repr(tok), )
+    print('*** Error: %s' % (repr(tok), ), file=sys.stderr)
 
 
 # don't write parse table, the overhead is negligible when compared to
