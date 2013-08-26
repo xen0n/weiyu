@@ -26,8 +26,11 @@ __all__ = [
 from ..helpers.hub import BaseHub
 from ..helpers.modprober import ModProber
 from ..registry.classes import UnicodeRegistry
+from ..signals import signal_hub
 
 ADAPTERS_KEY = 'adapters'
+KNOWN_MIDDLEWARE_KEY = 'known_middlewares'
+USED_MIDDLEWARE_KEY = 'used_middlewares'
 
 PROBER = ModProber(
         'weiyu.adapters',
@@ -46,10 +49,39 @@ class AdapterHub(BaseHub):
 
     def __init__(self):
         super(AdapterHub, self).__init__()
+        self._middlewares = self._reg[KNOWN_MIDDLEWARE_KEY] = {}
+        self._middleware_in_use = self._reg[USED_MIDDLEWARE_KEY] = {}
 
     def make_app(self, adapter):
         PROBER.modprobe(adapter)
         return self.do_handling(adapter)
+
+    def declare_middleware(self, name):
+        def _decorator_(obj):
+            if name in self._middlewares:
+                raise ValueError(
+                        "middleware '%s' already declared" % (
+                            name,
+                            )
+                        )
+
+            self._middlewares[name] = obj
+            return obj
+        return _decorator_
+
+    def register_middleware_chain(self, router_type, chain, middleware_names):
+        signal_name = '%s-middleware-%s' % (router_type, chain, )
+
+        for name in middleware_names:
+            # Instantiate each middleware object only once
+            try:
+                middleware = self._middleware_in_use[name]
+            except KeyError:
+                middleware_cls = self._middlewares[name]
+                middleware = self._middleware_in_use[name] = middleware_cls()
+
+            method = getattr(middleware, 'do_%s' % (chain, ))
+            signal_hub.append_listener_to(signal_name)(method)
 
 
 adapter_hub = AdapterHub()

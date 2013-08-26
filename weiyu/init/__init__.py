@@ -37,6 +37,10 @@ from ..registry.provider import request as regrequest
 from ..utils.decorators import view
 from .viewloader import ViewLoader
 
+# XXX Force load of HTTPSessionMiddleware
+from ..adapters.http import base
+del base
+
 
 def load_router(typ, filename):
     router = router_hub.init_router_from_config(typ, filename)
@@ -58,7 +62,7 @@ def load_views(path):
 
 
 def boot(
-        conf_path='conf.json',
+        conf_path='conf.yml',
         views_path='views.json',
         router_type='http',
         root_router_file='urls.txt',
@@ -67,6 +71,32 @@ def boot(
     load_config(conf_path)
     load_views(views_path)
     load_router(router_type, root_router_file)
+
+    # make an empty site registry if not present
+    reg_site = regrequest(
+            'site',
+            autocreate=True,
+            nodup=False,
+            klass=UnicodeRegistry,
+            )
+
+    # register middlewares according to config
+    middleware_decl = (
+            reg_site['middlewares']
+            if 'middlewares' in reg_site
+            else {}
+            )
+
+    def call_register_middleware(kind):
+        middlewares = middleware_decl.get(kind, [])
+        adapter_hub.register_middleware_chain(
+                router_type,
+                kind,
+                middlewares,
+                )
+
+    call_register_middleware('pre')
+    call_register_middleware('post')
 
 
 def inject_app(app_type='wsgi', var='application', *args, **kwargs):

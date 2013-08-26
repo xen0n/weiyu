@@ -2,6 +2,14 @@
 	"site": {
 		"$$nodup": true,
 		"name": "weiyu hello site",
+		"middlewares": {
+			"pre": [
+				"session"
+				],
+			"post": [
+				"session"
+				]
+			},
 		"session": {
 			"backend": "beaker",
 			"options": {

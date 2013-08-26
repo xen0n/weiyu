@@ -49,7 +49,6 @@ def view(fn):
     return decorator.decorator(_view_func_, fn)
 
 
-
 def only_methods(methods=None):
     '''Decorator to only allow certain types of HTTP methods.
 
