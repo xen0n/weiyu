@@ -106,6 +106,8 @@ except ImportError:
     # any exception
     import pickle
 
+import six
+
 from .classes import VALID_REGISTRY_TYPES
 from .provider import request
 
@@ -125,7 +127,7 @@ def handler_for_ext(ext):
     return _decorator_
 
 
-class BaseConfig(object):
+class BaseConfig(six.with_metaclass(abc.ABCMeta)):
     '''Base class for prepopulated config storages. It has an interface
     inspired by ``pickle``: methods such as :meth:`loads` and :meth:`load`
     exist and more or less behaves like the standard library counterpart.
@@ -134,8 +136,6 @@ class BaseConfig(object):
     way configuration files map to Python object in a subclass.
 
     '''
-
-    __metaclass__ = abc.ABCMeta
 
     @staticmethod
     def get_config(path):

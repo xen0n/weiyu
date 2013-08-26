@@ -33,6 +33,8 @@ from __future__ import unicode_literals, division
 import abc
 from types import FunctionType, MethodType
 
+import six
+
 # this is to be extended by future declarations
 __all__ = ['VALID_REGISTRY_TYPES',
            'FunctionlikeTypes',
@@ -53,7 +55,7 @@ def export_registry(cls):
 
 
 @export_registry
-class RegistryBase(object):
+class RegistryBase(six.with_metaclass(abc.ABCMeta)):
     '''A simple registry base class with a ``dict``-like interface.
 
     The registries are meant for use as global singleton instances, keeping
@@ -66,8 +68,6 @@ class RegistryBase(object):
     behavior.
 
     '''
-
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self):
         self.__registry = {}

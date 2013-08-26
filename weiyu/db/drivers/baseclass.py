@@ -21,11 +21,11 @@ from __future__ import unicode_literals, division
 
 import abc
 
+import six
 
-class BaseDriver(object):
+
+class BaseDriver(six.with_metaclass(abc.ABCMeta)):
     '''Baseclass for database drivers.'''
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def start(self):

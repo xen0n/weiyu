@@ -32,6 +32,8 @@ from __future__ import unicode_literals, division
 
 import abc
 
+import six
+
 
 class ReflexRequest(dict):
     '''Class representing a protocol-independent request.'''
@@ -50,7 +52,7 @@ class ReflexResponse(dict):
         self.request = request
 
 
-class BaseReflex(object):
+class BaseReflex(six.with_metaclass(abc.ABCMeta)):
     '''Abstract reflex class.
 
     Responses are obtained by calling :meth:`stimulate`, which "excites" the
@@ -62,8 +64,6 @@ class BaseReflex(object):
     thus subclasses must provide implementations.
 
     '''
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def _do_accept_request(self, *args, **kwargs):
