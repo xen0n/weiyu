@@ -161,7 +161,7 @@ def _parse_json_form(content):
     return json.loads(content)
 
 
-def gen_http_headers(response):
+def gen_http_headers(response, __Content_Length=str('Content-Length')):
     status_code, enc = response.status, response.encoding
 
     status_line = str('%d %s' % (
@@ -176,12 +176,14 @@ def gen_http_headers(response):
     # a body
     if not response.is_raw_file and not response._dont_render:
         headers.append((
-                b'Content-Length',
-                six.b(str(len(response.content))),
+                __Content_Length,
+                str(len(response.content)),
                 ))
 
     for k, v in response.http_headers:
-        headers.append((smartbytes(k, enc), smartbytes(v, enc), ))
+        k_bytes, v_bytes = smartbytes(k, enc), smartbytes(v, enc)
+        k_str, v_str = str(k_bytes), str(v_bytes)
+        headers.append((k_str, v_str, ))
 
     return status_line, headers
 
