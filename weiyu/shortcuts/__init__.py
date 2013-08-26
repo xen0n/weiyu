@@ -25,6 +25,8 @@ __all__ = [
 import inspect
 from functools import wraps
 
+import six
+
 from .. import init
 from ..adapters import adapter_hub
 from ..router import router_hub
@@ -54,7 +56,10 @@ expose(inject_app)
 # preserve its name for compatibility (actually that's because I'm too lazy
 # to rename all these occurences in my apps...)
 load_all = init.boot
-__all__.append(b'load_all')
+
+# NOTE: This str() call is correct as it IS the 'string' type recognized by
+# the IMPORT_STAR thing, and it isn't that easy to make one using six.
+__all__.append(str('load_all'))
 
 
 @expose
