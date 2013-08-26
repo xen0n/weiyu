@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import unicode_literals, division
+from __future__ import unicode_literals, division, print_function
 
 import re
 from collections import OrderedDict
+
+import six
 
 
 class Token(object):
@@ -72,17 +74,17 @@ class Lexer(object):
 
         _rule_cache = OrderedDict(
                 (name, re.compile(rule), )
-                for name, rule in cls.RULES.iteritems()
+                for name, rule in six.iteritems(cls.RULES)
                 )
         _handlers = {
                 name: getattr(self, 't_%s' % name)
-                for name in _rule_cache.iterkeys()
+                for name in six.iterkeys(_rule_cache)
                 }
 
         self._tokens = []
         while self._pos <= self._length:
             matched = False
-            for name, rule in _rule_cache.iteritems():
+            for name, rule in six.iteritems(_rule_cache):
                 match = rule.match(self._input, self._pos)
                 if match is not None:
                     matched = True
@@ -132,7 +134,7 @@ class WRLexer(Lexer):
             ('EOF', r'$'),
             ])
 
-    tokens = list(RULES.iterkeys()) + ['INDENT', 'DEDENT', ]
+    tokens = list(six.iterkeys(RULES)) + ['INDENT', 'DEDENT', ]
     tokens.remove('SPACE')
     tokens = tuple(tokens)
 
@@ -224,7 +226,7 @@ if __name__ == b'__main__':
         tok = m.token()
         if tok is None:
             break
-        print tok
+        print(tok)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

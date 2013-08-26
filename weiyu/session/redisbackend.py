@@ -27,6 +27,7 @@ __all__ = [
 import time
 import uuid
 
+import six
 import redis
 
 # I don't feel like reinventing the wheel, so...
@@ -259,7 +260,7 @@ class RedisSessionObject(dict):
     def keys(self):
         # Not HKEYS, but forces a full refresh.
         self._full_refresh()
-        return super(RedisSessionObject, self).iterkeys()
+        return six.iterkeys(super(RedisSessionObject, self))
 
     def iterkeys(self):
         return self.keys()
@@ -267,14 +268,14 @@ class RedisSessionObject(dict):
     def values(self):
         # Not HVALS, but forces a full refresh.
         self._full_refresh()
-        return super(RedisSessionObject, self).itervalues()
+        return six.itervalues(super(RedisSessionObject, self))
 
     def itervalues(self):
         return self.values()
 
     def items(self):
         self._full_refresh()
-        return super(RedisSessionObject, self).iteritems()
+        return six.iteritems(super(RedisSessionObject, self))
 
     def iteritems(self):
         return self.items()

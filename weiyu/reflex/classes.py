@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-u'''
+'''
 Reflex-like request handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -31,6 +31,8 @@ be done on the subclasses.
 from __future__ import unicode_literals, division
 
 import abc
+
+import six
 
 
 class ReflexRequest(dict):
@@ -50,7 +52,7 @@ class ReflexResponse(dict):
         self.request = request
 
 
-class BaseReflex(object):
+class BaseReflex(six.with_metaclass(abc.ABCMeta)):
     '''Abstract reflex class.
 
     Responses are obtained by calling :meth:`stimulate`, which "excites" the
@@ -62,8 +64,6 @@ class BaseReflex(object):
     thus subclasses must provide implementations.
 
     '''
-
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def _do_accept_request(self, *args, **kwargs):

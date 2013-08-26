@@ -8,12 +8,14 @@ from __future__ import unicode_literals, division
 
 import time
 
+import six
+
 from weiyu.shortcuts import *
 from weiyu.cache import cache_hub
 
 
 def gen_cache_key(a, b):
-    return b'add_%s_%s' % (a, b, )
+    return six.b('add_%s_%s' % (a, b, ))
 
 
 @http('cached-add-redis')

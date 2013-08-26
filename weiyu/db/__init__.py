@@ -24,7 +24,10 @@ __all__ = [
         'mapper_hub',
         ]
 
+import six
+
 from ..helpers.hub import BaseHub
+from ..helpers.misc import smartstr
 from ..helpers.modprober import ModProber
 from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
@@ -88,10 +91,10 @@ class DatabaseHub(BaseHub):
         if isinstance(cfg, dict):
             # custom config, pass as-is
             cfg_dict = cfg
-        elif isinstance(cfg, (str, unicode, )):
+        elif isinstance(cfg, six.string_types):
             # shorthand for the vast majority of db/bucket setup
             # the config dict is created here
-            if isinstance(cfg, str):
+            if not isinstance(cfg, six.text_type):
                 cfg = cfg.decode('utf-8')
 
             db, bucket = cfg.split('/', 1)
@@ -130,7 +133,7 @@ def name_resolver(hub, name):
     dbconf = request('weiyu.db')
     # NOTE: exception is not caught as any request for an unmentioned
     # database SHOULD fail
-    db_cfg = dbconf[DBCONF_KEY][unicode(name)]
+    db_cfg = dbconf[DBCONF_KEY][smartstr(name)]
 
     # driver type and kwargs for constructing db object
     drv_type = db_cfg.pop('driver')

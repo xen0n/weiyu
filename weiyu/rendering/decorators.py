@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-u'''
+'''
 Decorator interface
 ~~~~~~~~~~~~~~~~~~~
 
@@ -28,6 +28,8 @@ from __future__ import unicode_literals, division
 __all__ = [
         'renderable',
         ]
+
+import six
 
 from ..helpers.annotation import annotate, get_annotation
 
@@ -49,7 +51,7 @@ def renderable(handler, *args, **kwargs):
 
     '''
 
-    handler = unicode(handler)
+    handler = six.text_type(handler)
 
     def _decorator_(thing):
         try:

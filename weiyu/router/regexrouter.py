@@ -26,10 +26,11 @@ __all__ = [
 
 import re
 
+from ..helpers.misc import smartstr
+from ..helpers.regex_helper import normalize
+
 from . import router_hub
 from .base import *
-
-from ..helpers.regex_helper import normalize
 
 
 def args_from_match(match, named_groups):
@@ -46,11 +47,11 @@ class RegexRouterTarget(RouterTargetBase):
     def __init__(self, pattern, target, extra_data=None, router=None):
         super(RegexRouterTarget, self).__init__(target, extra_data, router)
 
-        self.pattern = re.compile(unicode(pattern))
+        self.pattern = re.compile(smartstr(pattern))
         self._namedgrps = [i - 1 for i in self.pattern.groupindex.values()]
 
     def check(self, querystr, prev_args, prev_kwargs):
-        match = self.pattern.match(unicode(querystr))
+        match = self.pattern.match(smartstr(querystr))
 
         if not match:
             return (STATUS_NOROUTE, None, None, None, )

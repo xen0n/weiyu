@@ -24,6 +24,9 @@ __all__ = [
         ]
 
 from functools import partial
+
+import six
+
 from .. import db_hub
 from ...helpers.hub import BaseHub
 from ...registry.classes import UnicodeRegistry
@@ -73,7 +76,7 @@ class MapperHub(BaseHub):
                         "decoder for struct id '%s' ver %s already"
                         "exists: %s" % (
                             name,
-                            unicode(version),
+                            six.text_type(version),
                             repr(decoders[version]),
                             )
                         )
@@ -93,7 +96,7 @@ class MapperHub(BaseHub):
                         "encoder for struct id '%s' ver %s already"
                         "exists: %s" % (
                             name,
-                            unicode(version),
+                            six.text_type(version),
                             repr(encoders[version]),
                             )
                         )
@@ -116,7 +119,7 @@ class MapperHub(BaseHub):
             raise TypeError(
                     "no decoder for struct id '%s' version %s" % (
                         name,
-                        unicode(use_ver),
+                        six.text_type(use_ver),
                         )
                     )
 
@@ -133,7 +136,7 @@ class MapperHub(BaseHub):
             raise TypeError(
                     "no encoder for struct id '%s' version %s" % (
                         name,
-                        unicode(use_ver),
+                        six.text_type(use_ver),
                         )
                     )
 

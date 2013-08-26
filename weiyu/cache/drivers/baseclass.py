@@ -21,10 +21,10 @@ from __future__ import unicode_literals, division
 
 import abc
 
+import six
 
-class BaseCache(object):
-    __metaclass__ = abc.ABCMeta
 
+class BaseCache(six.with_metaclass(abc.ABCMeta)):
     def __init__(self):
         super(BaseCache, self).__init__()
 

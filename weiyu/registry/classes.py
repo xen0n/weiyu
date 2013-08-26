@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-u'''
+'''
 Registry classes
 ~~~~~~~~~~~~~~~~
 
@@ -32,6 +32,8 @@ from __future__ import unicode_literals, division
 
 import abc
 from types import FunctionType, MethodType
+
+import six
 
 # this is to be extended by future declarations
 __all__ = ['VALID_REGISTRY_TYPES',
@@ -53,7 +55,7 @@ def export_registry(cls):
 
 
 @export_registry
-class RegistryBase(object):
+class RegistryBase(six.with_metaclass(abc.ABCMeta)):
     '''A simple registry base class with a ``dict``-like interface.
 
     The registries are meant for use as global singleton instances, keeping
@@ -66,8 +68,6 @@ class RegistryBase(object):
     behavior.
 
     '''
-
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self):
         self.__registry = {}
@@ -145,13 +145,13 @@ class RegistryBase(object):
         return key in self.__registry
 
     def keys(self):
-        return self.__registry.iterkeys()
+        return six.iterkeys(self.__registry)
 
     def values(self):
-        return self.__registry.itervalues()
+        return six.itervalues(self.__registry)
 
     def items(self):
-        return self.__registry.iteritems()
+        return six.iteritems(self.__registry)
 
     def snapshot(self):
         '''Returns a snapshot of current internal state, obtained by calling
@@ -174,12 +174,12 @@ class UnicodeRegistry(RegistryBase):
     def normalize_key(self, key):
         type_key = type(key)
 
-        if issubclass(type_key, unicode):
+        if issubclass(type_key, six.text_type):
             return key
 
         # needs some form of conversion, or worse, decoding...
-        if not issubclass(type_key, str):
-            return unicode(key)
+        if not issubclass(type_key, six.string_types):
+            return six.text_type(key)
 
         # key is a bytestring. ugh. force a UTF-8 encoding
         # Punishment for those under Win32 and an editor not-so-decent,
@@ -231,7 +231,7 @@ class FunctionValueRegistry(UnicodeRegistry):
     def register(self, name=None):
         '''Convenient decorator for registering functions.
 
-        If  ``name`` is ``None``, the function's ``func_name`` is used
+        If  ``name`` is ``None``, the function's ``__name__`` is used
         as key. Otherwise the name specified is used.
 
         .. note::
@@ -242,7 +242,7 @@ class FunctionValueRegistry(UnicodeRegistry):
         '''
 
         def _decorator_(fn):
-            key = fn.func_name if name is None else name
+            key = fn.__name__ if name is None else name
             super(FunctionRegistry, self).register(key, fn)
 
             return fn

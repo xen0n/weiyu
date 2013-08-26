@@ -28,12 +28,20 @@ __all__ = [
             ]
 
 from functools import partial
-from urlparse import parse_qs
+
+try:
+    # Python 3
+    from urllib.parse import parse_qs
+except ImportError:
+    # Python 2
+    from urlparse import parse_qs
 
 try:
     import ujson as json
 except ImportError:
     import json
+
+import six
 
 from ...helpers.misc import smartbytes
 
@@ -41,51 +49,48 @@ from ...helpers.misc import smartbytes
 # This dict is pasted from Django's core/handlers/wsgi.py
 # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 STATUS_CODES_MAP = {
-        100: b'CONTINUE',
-        101: b'SWITCHING PROTOCOLS',
-        200: b'OK',
-        201: b'CREATED',
-        202: b'ACCEPTED',
-        203: b'NON-AUTHORITATIVE INFORMATION',
-        204: b'NO CONTENT',
-        205: b'RESET CONTENT',
-        206: b'PARTIAL CONTENT',
-        300: b'MULTIPLE CHOICES',
-        301: b'MOVED PERMANENTLY',
-        302: b'FOUND',
-        303: b'SEE OTHER',
-        304: b'NOT MODIFIED',
-        305: b'USE PROXY',
-        306: b'RESERVED',
-        307: b'TEMPORARY REDIRECT',
-        400: b'BAD REQUEST',
-        401: b'UNAUTHORIZED',
-        402: b'PAYMENT REQUIRED',
-        403: b'FORBIDDEN',
-        404: b'NOT FOUND',
-        405: b'METHOD NOT ALLOWED',
-        406: b'NOT ACCEPTABLE',
-        407: b'PROXY AUTHENTICATION REQUIRED',
-        408: b'REQUEST TIMEOUT',
-        409: b'CONFLICT',
-        410: b'GONE',
-        411: b'LENGTH REQUIRED',
-        412: b'PRECONDITION FAILED',
-        413: b'REQUEST ENTITY TOO LARGE',
-        414: b'REQUEST-URI TOO LONG',
-        415: b'UNSUPPORTED MEDIA TYPE',
-        416: b'REQUESTED RANGE NOT SATISFIABLE',
-        417: b'EXPECTATION FAILED',
-        500: b'INTERNAL SERVER ERROR',
-        501: b'NOT IMPLEMENTED',
-        502: b'BAD GATEWAY',
-        503: b'SERVICE UNAVAILABLE',
-        504: b'GATEWAY TIMEOUT',
-        505: b'HTTP VERSION NOT SUPPORTED',
+        100: 'CONTINUE',
+        101: 'SWITCHING PROTOCOLS',
+        200: 'OK',
+        201: 'CREATED',
+        202: 'ACCEPTED',
+        203: 'NON-AUTHORITATIVE INFORMATION',
+        204: 'NO CONTENT',
+        205: 'RESET CONTENT',
+        206: 'PARTIAL CONTENT',
+        300: 'MULTIPLE CHOICES',
+        301: 'MOVED PERMANENTLY',
+        302: 'FOUND',
+        303: 'SEE OTHER',
+        304: 'NOT MODIFIED',
+        305: 'USE PROXY',
+        306: 'RESERVED',
+        307: 'TEMPORARY REDIRECT',
+        400: 'BAD REQUEST',
+        401: 'UNAUTHORIZED',
+        402: 'PAYMENT REQUIRED',
+        403: 'FORBIDDEN',
+        404: 'NOT FOUND',
+        405: 'METHOD NOT ALLOWED',
+        406: 'NOT ACCEPTABLE',
+        407: 'PROXY AUTHENTICATION REQUIRED',
+        408: 'REQUEST TIMEOUT',
+        409: 'CONFLICT',
+        410: 'GONE',
+        411: 'LENGTH REQUIRED',
+        412: 'PRECONDITION FAILED',
+        413: 'REQUEST ENTITY TOO LARGE',
+        414: 'REQUEST-URI TOO LONG',
+        415: 'UNSUPPORTED MEDIA TYPE',
+        416: 'REQUESTED RANGE NOT SATISFIABLE',
+        417: 'EXPECTATION FAILED',
+        500: 'INTERNAL SERVER ERROR',
+        501: 'NOT IMPLEMENTED',
+        502: 'BAD GATEWAY',
+        503: 'SERVICE UNAVAILABLE',
+        504: 'GATEWAY TIMEOUT',
+        505: 'HTTP VERSION NOT SUPPORTED',
         }
-
-# hopefully reduce repetitive tuple building...?
-STR_CLASSES = (str, unicode, )
 
 # Content types that can be parsed into a form
 _FORM_CONTENT_HANDLERS = {}
@@ -124,8 +129,10 @@ def dummy_file_wrapper(fp, blk_sz=None):
 
 
 def send_content_iter(content, enc):
-    if isinstance(content, STR_CLASSES):
+    if isinstance(content, six.string_types):
         yield smartbytes(content, enc, 'replace')
+    elif isinstance(content, six.binary_type):
+        yield content
     else:
         for chunk in content:
             # encode and send the chunk using response.encoding
@@ -144,7 +151,7 @@ def _parse_urlencoded_form(content):
     form = parse_qs(content)
 
     # eliminate all those 1-element lists
-    for k in form.iterkeys():
+    for k in six.iterkeys(form):
         if len(form[k]) == 1:
             form[k] = form[k][0]
 
@@ -156,13 +163,13 @@ def _parse_json_form(content):
     return json.loads(content)
 
 
-def gen_http_headers(response):
+def gen_http_headers(response, __Content_Length=str('Content-Length')):
     status_code, enc = response.status, response.encoding
 
-    status_line = b'%d %s' % (
+    status_line = str('%d %s' % (
             status_code,
             status_to_str(status_code),
-            )
+            ))
 
     # ensure all header contents are bytes
     headers = []
@@ -170,10 +177,15 @@ def gen_http_headers(response):
     # insert a Content-Length along if response is not raw file and contains
     # a body
     if not response.is_raw_file and not response._dont_render:
-        headers.append((b'Content-Length', str(len(response.content)), ))
+        headers.append((
+                __Content_Length,
+                str(len(response.content)),
+                ))
 
     for k, v in response.http_headers:
-        headers.append((smartbytes(k, enc), smartbytes(v, enc), ))
+        k_bytes, v_bytes = smartbytes(k, enc), smartbytes(v, enc)
+        k_str, v_str = str(k_bytes), str(v_bytes)
+        headers.append((k_str, v_str, ))
 
     return status_line, headers
 

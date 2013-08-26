@@ -24,15 +24,17 @@ __all__ = [
         'smartbytes',
         ]
 
+import six
+
 
 def smartstr(s, encoding='utf-8', *args, **kwargs):
-    if not issubclass(type(s), unicode):
-        return unicode(s, encoding, *args, **kwargs)
+    if not isinstance(s, six.text_type):
+        return six.text_type(s, encoding, *args, **kwargs)
     return s
 
 
 def smartbytes(s, encoding='utf-8', *args, **kwargs):
-    if issubclass(type(s), unicode):
+    if isinstance(s, six.text_type):
         return s.encode(encoding, *args, **kwargs)
     return s
 
