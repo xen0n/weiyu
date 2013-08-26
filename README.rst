@@ -8,14 +8,16 @@ weiyu
     :target: https://pypi.python.org/pypi/weiyu/
 
 **weiyu** is a Web development framework for Python. Highly modular and
-configurable, ``weiyu`` tries hard to integrate common functionalities
-for the developer's convenience and productivity.
+configurable, ``weiyu`` strives to empower developers with convenience
+and productivity.
 
 
 Features
 ========
 
 * Configuration driven
+    - YAML, JSON or Python pickles are supported
+    - YAML is the default configuration format for readability
 * NoSQL storage
     - MongoDB
     - Redis
@@ -26,6 +28,8 @@ Features
     - Support for reverse resolution
 * Cache integration
 * Task queue integration
+* Frontend technologies
+    - Sass by means of pyScss_
 
 The framework provides integration with the following packages:
 
@@ -34,6 +38,7 @@ The framework provides integration with the following packages:
     - redis
 * Database
     - pymongo
+    - redis
     - riak
 * Server interfaces
     - WSGI
@@ -41,14 +46,19 @@ The framework provides integration with the following packages:
     - gevent-socketio
 * Session management
     - Beaker
+    - redis
 * Task queue
     - celery
 * Templating engine
     - Mako
+    - pyScss_
 * Miscellaneous
     - ultrajson
 
-CPython 2.7 and PyPy are supported, and Python 3 compliance is on the way.
+CPython 2.7 and PyPy are supported, with support for CPython 3.2 and above
+considered experimental. Any help is appreciated.
+
+.. _pyScss: https://github.com/Kronuz/pyScss
 
 
 Licenses
@@ -106,9 +116,10 @@ possible dependencies.::
 Known issues
 ------------
 
-* ``gevent-socketio`` integration is broken under PyPy 2.0b2 with the
-  experimental hacks_.
-* The NoSQL DB mapper is rather weak, may need a complete overhaul.
+* ``gevent-socketio`` integration is not directly usable on PyPy.
+  However, with the latest version of PyPy and some hacks_, the
+  performance can become really awesome!
+* The NoSQL DB mapper is somewhat lacking in capabilities, help appreciated.
 
 .. _hacks: https://github.com/gevent-on-pypy/pypycore/
 
@@ -125,7 +136,8 @@ Why the name?
 
 The name comes from *Lin Jiang Xian* (trad: 臨江仙/simp: 临江仙) by Yan
 Jidao, a poet of the Song dynasty. The referenced sentence is
-``去年春恨卻來時，落花人獨立，微雨燕雙飛``.
+``去年春恨卻來時，落花人獨立，微雨燕雙飛``. Its pronunciation is like
+"WE-you", if not using the correct vowel for "yu".
 
 
 Examples
