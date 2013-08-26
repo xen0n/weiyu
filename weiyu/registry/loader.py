@@ -99,14 +99,8 @@ from functools import wraps
 import abc
 import json
 
-try:
-    import cPickle as pickle
-except ImportError:
-    # at least there REALLY should be pickle, so I'm not going to catch
-    # any exception
-    import pickle
-
 import six
+from six.moves import cPickle as pickle
 
 from .classes import VALID_REGISTRY_TYPES
 from .provider import request

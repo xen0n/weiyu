@@ -39,12 +39,8 @@ should be good enough for a large class of URLS, however.
 
 from __future__ import unicode_literals
 
-from itertools import izip as zip
-
-try:
-    range = xrange
-except NameError:
-    pass
+from six.moves import zip
+from six.moves import xrange as range
 
 # Mapping of an escape character to a representative of that class. So, e.g.,
 # "\w" is replaced by "x" in a reverse URL. A value of None means to ignore
