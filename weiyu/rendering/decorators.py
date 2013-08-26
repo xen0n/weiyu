@@ -29,6 +29,8 @@ __all__ = [
         'renderable',
         ]
 
+import six
+
 from ..helpers.annotation import annotate, get_annotation
 
 
@@ -49,7 +51,7 @@ def renderable(handler, *args, **kwargs):
 
     '''
 
-    handler = unicode(handler)
+    handler = six.text_type(handler)
 
     def _decorator_(thing):
         try:

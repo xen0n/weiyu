@@ -30,6 +30,8 @@ from __future__ import unicode_literals, division
 
 __all__ = ['RenderContext', 'Renderable', ]
 
+import six
+
 from .exc import RenderingError
 
 
@@ -120,7 +122,7 @@ class Renderable(object):
             if new_rendered is None:
                 # skip to the next one
                 continue
-            elif issubclass(type(new_rendered), unicode):
+            elif issubclass(type(new_rendered), six.text_type):
                 # update (replace) rendered string
                 rendered = new_rendered
             else:

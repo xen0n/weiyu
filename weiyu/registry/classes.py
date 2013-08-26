@@ -174,12 +174,12 @@ class UnicodeRegistry(RegistryBase):
     def normalize_key(self, key):
         type_key = type(key)
 
-        if issubclass(type_key, unicode):
+        if issubclass(type_key, six.text_type):
             return key
 
         # needs some form of conversion, or worse, decoding...
-        if not issubclass(type_key, str):
-            return unicode(key)
+        if not issubclass(type_key, six.string_types):
+            return six.text_type(key)
 
         # key is a bytestring. ugh. force a UTF-8 encoding
         # Punishment for those under Win32 and an editor not-so-decent,

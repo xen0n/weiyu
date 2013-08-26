@@ -282,7 +282,7 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
             #  etc: etc,
             #  }
             # first a little type sanity check
-            if not isinstance(k, (str, unicode, )):
+            if not isinstance(k, six.string_types):
                 raise ValueError(
                         'registry name must be string; got %s (of type %s)'
                         % (repr(k), repr(type(k)), )
@@ -308,7 +308,7 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
                 nodup = False
 
             # override field type check
-            if not isinstance(class_name, (str, unicode, )):
+            if not isinstance(class_name, six.string_types):
                 raise ValueError('registry class name not of string type')
 
             if not isinstance(nodup, bool):

@@ -31,6 +31,8 @@ from collections import OrderedDict
 
 import six
 
+from ..helpers.misc import smartstr
+
 STATUS_REACHED, STATUS_FORWARD, STATUS_NOROUTE = range(3)
 
 
@@ -65,7 +67,7 @@ class RouterBase(object):
 
     def lookup(self, querystr, prev_args=None, prev_kwargs=None):
         # XXX is this needed, or am I overly sensitive?
-        querystr = unicode(querystr)
+        querystr = smartstr(querystr)
 
         if prev_args is None:
             prev_args = []

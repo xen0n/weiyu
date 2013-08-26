@@ -31,6 +31,7 @@ module, by calling :func:`request` (see below).
 
 from __future__ import unicode_literals, division
 
+from ..helpers.misc import smartstr
 from .classes import RegistryRegistry, RegistryBase
 
 __all__ = ['request',
@@ -59,7 +60,7 @@ def request(name, autocreate=False, nodup=True, klass=None, *args, **kwargs):
     '''
 
     # an extra layer of input type guarantee... is it needed?
-    name = unicode(name)
+    name = smartstr(name)
 
     if autocreate and nodup and name in _registries:
         raise AttributeError("the registry '%s' already exists" % name)

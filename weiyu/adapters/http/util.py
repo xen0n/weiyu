@@ -86,9 +86,6 @@ STATUS_CODES_MAP = {
         505: b'HTTP VERSION NOT SUPPORTED',
         }
 
-# hopefully reduce repetitive tuple building...?
-STR_CLASSES = (str, unicode, )
-
 # Content types that can be parsed into a form
 _FORM_CONTENT_HANDLERS = {}
 
@@ -126,7 +123,7 @@ def dummy_file_wrapper(fp, blk_sz=None):
 
 
 def send_content_iter(content, enc):
-    if isinstance(content, STR_CLASSES):
+    if isinstance(content, six.string_types):
         yield smartbytes(content, enc, 'replace')
     else:
         for chunk in content:
@@ -172,7 +169,10 @@ def gen_http_headers(response):
     # insert a Content-Length along if response is not raw file and contains
     # a body
     if not response.is_raw_file and not response._dont_render:
-        headers.append((b'Content-Length', str(len(response.content)), ))
+        headers.append((
+                b'Content-Length',
+                six.b(str(len(response.content))),
+                ))
 
     for k, v in response.http_headers:
         headers.append((smartbytes(k, enc), smartbytes(v, enc), ))
