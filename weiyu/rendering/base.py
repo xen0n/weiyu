@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-u'''
+'''
 Base classes for rendering
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -84,7 +84,7 @@ class Renderable(object):
 
         if not is_render_context(context):
             raise RenderingError(
-                    u'class of context must be subclass of RenderContext'
+                    'class of context must be subclass of RenderContext'
                     )
 
         skip_render, rendered = False, None
@@ -125,7 +125,7 @@ class Renderable(object):
                 rendered = new_rendered
             else:
                 raise RenderingError(
-                        u"invalid post-process hook return type: got '%s'"
+                        "invalid post-process hook return type: got '%s'"
                         % str(type(new_rendered))
                         )
 
