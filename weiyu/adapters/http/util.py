@@ -164,10 +164,10 @@ def _parse_json_form(content):
 def gen_http_headers(response):
     status_code, enc = response.status, response.encoding
 
-    status_line = b'%d %s' % (
+    status_line = six.binary_type('%d %s' % (
             status_code,
             status_to_str(status_code),
-            )
+            ))
 
     # ensure all header contents are bytes
     headers = []
