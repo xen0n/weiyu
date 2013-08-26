@@ -35,7 +35,7 @@ from ..utils.decorators import view
 def expose(fn):
     '''``__all__`` registry helper.'''
 
-    __all__.append(fn.func_name)
+    __all__.append(fn.__name__)
     return fn
 
 
@@ -82,7 +82,7 @@ def http(name=None):
     '''
 
     def _decorator_(fn):
-        view_name = name or _transform_view_name(fn.func_name)
+        view_name = name or _transform_view_name(fn.__name__)
         return router_hub.endpoint('http', view_name)(fn)
 
     if callable(name):

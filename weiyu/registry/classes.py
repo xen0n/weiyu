@@ -231,7 +231,7 @@ class FunctionValueRegistry(UnicodeRegistry):
     def register(self, name=None):
         '''Convenient decorator for registering functions.
 
-        If  ``name`` is ``None``, the function's ``func_name`` is used
+        If  ``name`` is ``None``, the function's ``__name__`` is used
         as key. Otherwise the name specified is used.
 
         .. note::
@@ -242,7 +242,7 @@ class FunctionValueRegistry(UnicodeRegistry):
         '''
 
         def _decorator_(fn):
-            key = fn.func_name if name is None else name
+            key = fn.__name__ if name is None else name
             super(FunctionRegistry, self).register(key, fn)
 
             return fn
