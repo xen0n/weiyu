@@ -267,7 +267,7 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
         '''
 
         self.ensure_data_presence()
-        for k, v in self.data.iteritems():
+        for k, v in six.iteritems(self.data):
             registry.register(k, v)
 
     def populate_central_regs(self):
@@ -278,7 +278,7 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
         '''
 
         self.ensure_data_presence()
-        for k, v in self.data.iteritems():
+        for k, v in six.iteritems(self.data):
             # k is registry name, v is a dict
             # v's format is as follows:
             # {['$$class': '<class name of registry (optional)>',]
@@ -337,7 +337,7 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
             # NOTE: We don't use update() here, because filling values one by
             # one would trigger validation and normalization for each of the
             # k-v pairs, and sanity is what we need.
-            for reg_k, reg_v in v.iteritems():
+            for reg_k, reg_v in six.iteritems(v):
                 reg[reg_k] = reg_v
 
 

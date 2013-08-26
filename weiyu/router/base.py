@@ -29,6 +29,8 @@ __all__ = [
 
 from collections import OrderedDict
 
+import six
+
 STATUS_REACHED, STATUS_FORWARD, STATUS_NOROUTE = range(3)
 
 
@@ -122,7 +124,7 @@ class RouterBase(object):
         for entry in self.route_table[::-1]:
             if entry.target_is_router:
                 chld_map = entry.target.reverse_map
-                for chld_scope, chld_scopemap in chld_map.iteritems():
+                for chld_scope, chld_scopemap in six.iteritems(chld_map):
                     if chld_scope in map_:
                         map_[chld_scope].update(chld_scopemap)
                     else:

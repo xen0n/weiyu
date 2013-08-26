@@ -145,13 +145,13 @@ class RegistryBase(six.with_metaclass(abc.ABCMeta)):
         return key in self.__registry
 
     def keys(self):
-        return self.__registry.iterkeys()
+        return six.iterkeys(self.__registry)
 
     def values(self):
-        return self.__registry.itervalues()
+        return six.itervalues(self.__registry)
 
     def items(self):
-        return self.__registry.iteritems()
+        return six.iteritems(self.__registry)
 
     def snapshot(self):
         '''Returns a snapshot of current internal state, obtained by calling

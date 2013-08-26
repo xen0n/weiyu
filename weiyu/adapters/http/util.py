@@ -35,6 +35,8 @@ try:
 except ImportError:
     import json
 
+import six
+
 from ...helpers.misc import smartbytes
 
 
@@ -144,7 +146,7 @@ def _parse_urlencoded_form(content):
     form = parse_qs(content)
 
     # eliminate all those 1-element lists
-    for k in form.iterkeys():
+    for k in six.iterkeys(form):
         if len(form[k]) == 1:
             form[k] = form[k][0]
 

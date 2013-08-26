@@ -23,6 +23,8 @@ __all__ = [
         'router_hub',
         ]
 
+import six
+
 from ..helpers.hub import BaseHub
 from ..registry.classes import UnicodeRegistry
 
@@ -157,7 +159,7 @@ class RouterHub(BaseHub):
                 pat_cache[endpoint] = (pat_str, pat_vars, )
 
             # verify the parameters
-            given_vars = set(kwargs.iterkeys())
+            given_vars = set(six.iterkeys(kwargs))
             if given_vars != pat_vars:
                 # parameter mismatch
                 raise ValueError('Parameter mismatch')

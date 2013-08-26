@@ -22,6 +22,8 @@ from __future__ import unicode_literals, division
 import re
 from collections import OrderedDict
 
+import six
+
 
 class Token(object):
     def __init__(self, type, data, span, line):
@@ -72,17 +74,17 @@ class Lexer(object):
 
         _rule_cache = OrderedDict(
                 (name, re.compile(rule), )
-                for name, rule in cls.RULES.iteritems()
+                for name, rule in six.iteritems(cls.RULES)
                 )
         _handlers = {
                 name: getattr(self, 't_%s' % name)
-                for name in _rule_cache.iterkeys()
+                for name in six.iterkeys(_rule_cache)
                 }
 
         self._tokens = []
         while self._pos <= self._length:
             matched = False
-            for name, rule in _rule_cache.iteritems():
+            for name, rule in six.iteritems(_rule_cache):
                 match = rule.match(self._input, self._pos)
                 if match is not None:
                     matched = True
@@ -132,7 +134,7 @@ class WRLexer(Lexer):
             ('EOF', r'$'),
             ])
 
-    tokens = list(RULES.iterkeys()) + ['INDENT', 'DEDENT', ]
+    tokens = list(six.iterkeys(RULES)) + ['INDENT', 'DEDENT', ]
     tokens.remove('SPACE')
     tokens = tuple(tokens)
 
