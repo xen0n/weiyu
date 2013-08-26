@@ -2,6 +2,12 @@
 	"site": {
 		"$$nodup": true,
 		"name": "weiyu hello site",
+		"views": {
+			"modules": [
+				"weiyu.utils.views",
+				"hello_views"
+				]
+			},
 		"middlewares": {
 			"pre": [
 				"session"

@@ -1,6 +1,14 @@
 site:
   $$nodup: true
 
+  views:
+    package: simplechat
+    modules:
+      - weiyu.utils.views
+      - weiyu.async.views
+      - .namespace
+      - .views
+
   staticfile:
     root: ./static/
 

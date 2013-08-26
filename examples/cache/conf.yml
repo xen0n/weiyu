@@ -1,3 +1,8 @@
+site:
+  views:
+    modules:
+      - cache_views
+
 weiyu.db:
   databases:
     cache-redis:

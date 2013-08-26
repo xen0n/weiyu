@@ -1,6 +1,10 @@
 site:
   $$nodup: true
 
+  views:
+    modules:
+      - weiyu.utils.ghwebhook
+
   github:
     post-receive:
       # replace this with your repo to be monitored

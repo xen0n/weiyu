@@ -1,3 +1,8 @@
+site:
+  views:
+    modules:
+      - task_views
+
 weiyu.tasks:
   conf:
     tasktest:
