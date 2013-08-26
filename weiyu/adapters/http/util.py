@@ -131,6 +131,8 @@ def dummy_file_wrapper(fp, blk_sz=None):
 def send_content_iter(content, enc):
     if isinstance(content, six.string_types):
         yield smartbytes(content, enc, 'replace')
+    elif isinstance(content, six.binary_type):
+        yield content
     else:
         for chunk in content:
             # encode and send the chunk using response.encoding
