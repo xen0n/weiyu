@@ -175,14 +175,20 @@ class RouterHub(BaseHub):
 
         return reverser
 
-    def _do_init_router(self, typ, routing_rules, lvl, parent_info):
+    def _do_init_router(
+            self,
+            typ,
+            routing_rules,
+            lvl,
+            parent_info,
+            _list_types=(list, tuple, ),
+            ):
         # recursive algorithm, watch out d-:
         # typ is not really useful except checking against endpoint reg
         #
         # let's construct the desired target initializer out of the
         # pattern-to-(endpoint-or-router) list
-        _list_types = (list, tuple, )
-
+        #
         # Attribute processing.
         attrib_list = routing_rules[0]
         inherited_renderer, scope = (
