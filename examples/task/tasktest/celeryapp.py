@@ -6,10 +6,10 @@
 
 from __future__ import unicode_literals, division
 
-from weiyu.shortcuts import load_config
+from weiyu.init import load_config
 from weiyu.tasks import task_hub
 
-load_config('conf.json')
+load_config('conf.yml')
 celery = task_hub.get_app('tasktest')
 
 
