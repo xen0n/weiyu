@@ -26,10 +26,13 @@ __all__ = [
 import six
 
 from ..helpers.hub import BaseHub
+from ..helpers.modprober import ModProber
 from ..registry.classes import UnicodeRegistry
 
 # this does not cause circular import
 from .config.parser import parse_config
+
+PROBER = ModProber('weiyu.router', '%srouter')
 
 
 class RouterHub(BaseHub):
@@ -235,18 +238,29 @@ class RouterHub(BaseHub):
             # description.
             return self.init_router_from_config(typ, include_path)
 
-        # Support different router classes to be used
-        # Because the mere request of an unregistered router class can
-        # be considered improper, no exception recovery is attempted.
+        # Load the requested (built-in) router class.
+        #
+        # Custom router classes should be registered before config load, like
+        # before.
+        #
+        # TODO: allow registration of custom modules in modprober mechanism
         try:
             cls = self._classes[cls_name]
         except KeyError:
-            raise RuntimeError(
-                    'request of unknown router class \'%s\'' % (
-                        routing_rules[0],
-                        ),
-                    )
+            try:
+                PROBER.modprobe(cls_name)
+            except ImportError:
+                raise RuntimeError(
+                        'request of unknown router class \'%s\'' % (
+                            cls_name,
+                            ),
+                        )
 
+            # Assume that module has actually registered the wanted class...
+            assert cls_name in self._classes
+            cls = self._classes[cls_name]
+
+        # Process rules.
         result_rules = []
         for pattern, target_spec, extra_data in routing_rules[1:]:
             if isinstance(target_spec, _list_types):
@@ -307,12 +321,6 @@ class RouterHub(BaseHub):
 
 
 router_hub = RouterHub()
-
-
-# force registering of router classes
-from .regexrouter import RegexRouter as __r
-from .exactrouter import ExactRouter as __r
-del __r
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
