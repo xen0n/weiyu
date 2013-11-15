@@ -30,7 +30,14 @@ from sys import getfilesystemencoding
 import re
 import weiyu as __this_pkg
 
-import six
+# Caveat: this file is imported also by setup.py, so we can't guarantee
+# six's presence! This can lead package installation to fail.
+# import six
+#
+# Instead, make up ourselves the only feature we need here -- six.text_type,
+# which is very easy to implement...
+text_type = str if __import__('sys').version_info[0] == 3 else unicode
+
 
 # Version information.
 VERSION_MAJOR = 0
@@ -64,7 +71,7 @@ def get_vcs_revision(path=None):
     # try the handlers one by one, return the first successful
     # match of VCS info
     # cast path into unicode if necessary
-    if path is not None and not isinstance(path, six.text_type):
+    if path is not None and not isinstance(path, text_type):
         path = path.decode(getfilesystemencoding())
 
     for handler in _VCS_HANDLERS:
