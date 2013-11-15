@@ -37,7 +37,6 @@ from ..router import router_hub
 from ..registry.classes import UnicodeRegistry
 from ..registry.loader import BaseConfig
 from ..registry.provider import request as regrequest
-from ..utils.decorators import view
 from .viewloader import ViewLoader
 
 # XXX Force load of HTTPSessionMiddleware
