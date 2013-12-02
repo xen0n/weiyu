@@ -85,6 +85,12 @@ class Lexer(object):
         while self._pos <= self._length:
             matched = False
             for name, rule in six.iteritems(_rule_cache):
+                #print(
+                #        '[try] %s: %s' % (
+                #            name,
+                #            repr(self._input[self._pos:self._pos + 16]),
+                #            ),
+                #        )
                 match = rule.match(self._input, self._pos)
                 if match is not None:
                     matched = True
@@ -94,6 +100,7 @@ class Lexer(object):
 
                     # generate the token(s)
                     frag = self._input[match_span[0]:match_span[1]]
+                    #print('[yes] %s: %s' % (name, repr(frag), ))
                     skip, result = _handlers[name](frag, self, match)
                     if skip:
                         continue
@@ -125,16 +132,18 @@ class Lexer(object):
 
 class WRLexer(Lexer):
     RULES = OrderedDict([
+            ('LINECOMMENT', r'[ \t]*#[^\n]*\n'),
             ('ATTRIB', r'--[^\s]+'),
             ('NEWLINE', r'\n+'),
             ('SPACE', r'[ \t]*'),
             ('COLON', r':\n'),
             #('LITERAL', r'(?:[^\s]*\\\s)*[^\s]+'),
-            ('LITERAL', r'[^\'\"\s]*[^\'\"\s:]|\'[^\']*\'|\"[^\"]*\"'),
+            ('LITERAL', r'[^#\'\"\s]*[^#\'\"\s:]|\'[^\']*\'|\"[^\"]*\"'),
             ('EOF', r'$'),
             ])
 
     tokens = list(six.iterkeys(RULES)) + ['INDENT', 'DEDENT', ]
+    tokens.remove('LINECOMMENT')
     tokens.remove('SPACE')
     tokens = tuple(tokens)
 
@@ -144,6 +153,11 @@ class WRLexer(Lexer):
         self._indent_stack = [0]
 
     # f for fragment, l for lexer instance, m for match object
+    # return value: (do_skip_this_rule, token_list_generated, )
+    def t_LINECOMMENT(self, f, l, m):
+        l._lineno += 1
+        return False, []
+
     def t_ATTRIB(self, f, l, m):
         return False, [self.get_token('ATTRIB', f, m), ]
 
