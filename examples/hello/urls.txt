@@ -1,18 +1,28 @@
 --exact
 --renderer=mako
 
+# Static file root.
 /static/:
+    # So far, router classes should always be specified for sub routers.
+    # This might be simplified in a future release of weiyu, by allowing
+    # specification of default router class to use.
     --regex
     ^(?P<path>.*)$ staticfile null
 
+# Multi-formatted view demo.
+# This endpoint's response can be rendered by both Mako and JSON,
+# enabling developers to write code once and generate both static pages and
+# API endpoints.
 /calc/:
     --regex
     ^(?P<val>\d+)/:
         --regex
-        text/$ multiformat-test
+        text/$ multiformat-test  # This uses the default renderer, i.e. Mako.
         json/$ multiformat-test json
 
+# Demo of a simple Ajax endpoint.
 /ajax/:
     --include=urls.ajax.txt
 
+# All other unrecognized URLs fallback on the introspection view.
 "" index
