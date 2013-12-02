@@ -162,8 +162,11 @@ class WRLexer(Lexer):
         return False, [self.get_token('ATTRIB', f, m), ]
 
     def t_NEWLINE(self, f, l, m):
+        # Generate token before advancing the lineno indicator, for saner
+        # lineno reporting inside the token.
+        tok = self.get_token('NEWLINE', f, m)
         l._lineno += len(f)
-        return False, [self.get_token('NEWLINE', f, m), ]
+        return False, [tok, ]
 
     def t_LITERAL(self, f, l, m):
         #return False, [self.get_token('LITERAL', f, m), ]
@@ -218,7 +221,10 @@ class WRLexer(Lexer):
         return False, dedents
 
     def t_COLON(self, f, l, m):
-        return False, [self.get_token('COLON', f, m), ]
+        # this should advance lineno, because there is no NEWLINE for colons.
+        tok = self.get_token('COLON', f, m)
+        l._lineno += 1
+        return False, [tok, ]
 
     def t_EOF(self, f, l, m):
         # just treat this as whitespace...
