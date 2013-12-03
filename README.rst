@@ -24,7 +24,8 @@ Features
     - Riak
 * Flexible URL routing
     - Route with either regexes or exact ``startswith`` matches
-    - Concise URLconf definition syntax
+    - Concise URLconf definition syntax, with Vim syntax coloring!
+      Check out the ``vim-support/`` directory for details.
     - Support for reverse resolution
 * Cache integration
 * Task queue integration
