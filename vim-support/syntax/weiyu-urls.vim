@@ -153,9 +153,9 @@ if version >= 508 || !exists("did_weiyu_urls_syn_inits")
   HiLink wyURLRendererBuiltin Type
 
   HiLink wyURLPatternExtremes Comment
-  HiLink wyURLPatternAlternatives Operator
+  HiLink wyURLPatternAlternatives Conditional
   HiLink wyURLPatternEscapes Special
-  HiLink wyURLPatternRepetitions Operator
+  HiLink wyURLPatternRepetitions Repeat
 
   HiLink wyURLPatternCharClass String
   HiLink wyURLPatternCharClassBrackets Comment
