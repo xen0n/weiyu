@@ -35,20 +35,19 @@ syn match wyURLAttribKey contained /scope=/
 
 syn match wyURLAttribValue contained /.*/
 
-syn match wyURLAttribRouterClass contained /regex/
-syn match wyURLAttribRouterClass contained /exact/
+syn keyword wyURLAttribRouterClass contained regex exact
 
 
 " Extras in JSON
-syn match wyURLExtras /.*/ contained transparent
+syn match wyURLExtras /\s*\zs.\+/ contained transparent
     \ contains=@jsTop
 
 
 " Renderers
 syn keyword wyURLRendererKeywords contained null inherit
-    \ nextgroup=wyURLExtras
+    \ nextgroup=wyURLExtras skipwhite
 syn keyword wyURLRendererBuiltin contained mako json scss dummy
-    \ nextgroup=wyURLExtras
+    \ nextgroup=wyURLExtras skipwhite
 syn cluster wyURLRenderer
     \ contains=wyURLRendererKeywords,wyURLRendererBuiltin
 
@@ -62,14 +61,13 @@ syn match wyURLPattern /^\s*\zs[^#'" \t-]*[^#'" \t:-]/
 syn match wyURLPattern /^\s*\zs[^#'" \t-][^#'" \t]*[^#'" \t:-]/
     \ contains=@wyURLPatternGroups,@wyURLPatternExprs
     \ nextgroup=wyURLColon,wyURLEndpoint skipwhite
-syn region wyURLPattern start=/^\s*\zs\'/ end=/\'/
-    \ contains=@wyURLPatternGroups,@wyURLPatternExprs
-    \ nextgroup=wyURLColon,wyURLEndpoint skipwhite
-syn region wyURLPattern start=/^\s*\zs\"/ end=/\"/
+syn region wyURLPattern start=/^\s*\zs\z(\'\|\"\)/ end=/\z1/
     \ contains=@wyURLPatternGroups,@wyURLPatternExprs
     \ nextgroup=wyURLColon,wyURLEndpoint skipwhite
 
-syn match wyURLEndpoint /[^ \t:][^ \t]*/ contained
+syn match wyURLEndpoint /[^ \t'":][^ \t'"]*/ contained
+    \ nextgroup=@wyURLRenderer skipwhite
+syn region wyURLEndpoint start=/\z(['"]\)/ end=/\z1/ contained
     \ nextgroup=@wyURLRenderer skipwhite
 
 
