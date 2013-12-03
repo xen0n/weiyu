@@ -92,6 +92,11 @@ syn match wyURLPatternEscapes /\\\*\|\\+\|\\?\|\\\.\|\\\^\|\\\$\|\\|\|\\(\|\\)\|
 syn cluster wyURLPatternExprs
     \ add=wyURLPatternEscapes
 
+syn match wyURLPatternReferences /\\\d\+/ contained
+syn region wyURLPatternReferences matchgroup=wyURLPatternReferencesParens start=/(?P=/ end=/)/ contained
+syn cluster wyURLPatternExprs
+    \ add=wyURLPatternReferences
+
 syn match wyURLPatternExtremes /\^\|\$/ contained
 syn cluster wyURLPatternExprs
     \ add=wyURLPatternExtremes
@@ -153,6 +158,8 @@ if version >= 508 || !exists("did_weiyu_urls_syn_inits")
   HiLink wyURLPatternExtremes Comment
   HiLink wyURLPatternAlternatives Conditional
   HiLink wyURLPatternEscapes Special
+  HiLink wyURLPatternReferences Include
+  HiLink wyURLPatternReferencesParens Comment
   HiLink wyURLPatternRepetitions Repeat
 
   HiLink wyURLPatternCharClass String
