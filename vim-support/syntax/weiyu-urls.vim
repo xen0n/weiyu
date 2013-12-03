@@ -45,9 +45,9 @@ syn match wyURLExtras /.*/ contained transparent
 
 
 " Renderers
-syn keyword wyURLRendererKeywords null inherit
+syn keyword wyURLRendererKeywords contained null inherit
     \ nextgroup=wyURLExtras
-syn keyword wyURLRendererBuiltin mako json scss dummy
+syn keyword wyURLRendererBuiltin contained mako json scss dummy
     \ nextgroup=wyURLExtras
 syn cluster wyURLRenderer
     \ contains=wyURLRendererKeyword,wyURLRendererBuiltin
