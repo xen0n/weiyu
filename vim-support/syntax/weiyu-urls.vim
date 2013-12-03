@@ -50,7 +50,7 @@ syn keyword wyURLRendererKeywords contained null inherit
 syn keyword wyURLRendererBuiltin contained mako json scss dummy
     \ nextgroup=wyURLExtras
 syn cluster wyURLRenderer
-    \ contains=wyURLRendererKeyword,wyURLRendererBuiltin
+    \ contains=wyURLRendererKeywords,wyURLRendererBuiltin
 
 
 " Router spec
