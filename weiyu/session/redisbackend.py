@@ -110,38 +110,24 @@ class RedisSessionObject(dict):
                 # empty it must not exist.
                 if old_content:
                     # the probability of UUID conflicts is ~0,
-                    # so why do we have to say while True here?
-                    result = False
-                    for i in xrange(4):
-                        try:
-                            result = conn.renamenx(old_id, self.id)
-                            if result:
-                                # rename successful
-                                break
-                            # rename failed because target key exists
-                            self.id = _generate_sessid()
-                        except redis.exceptions.ResponseError:
-                            # rename failed because source and destination
-                            # are the SAME... or because the source has
-                            # VANISHED in operation!
-                            self.id = _generate_sessid()
+                    # just believe that hopefully we won't get duplicates...
+                    try:
+                        result = conn.renamenx(old_id, self.id)
+                    except redis.exceptions.ResponseError:
+                        # rename failed because source and destination
+                        # are the SAME... or because the source has
+                        # VANISHED in operation!
+                        self.id = _generate_sessid()
 
-                            if not conn.exists(old_id):
-                                # well, the session expired during <<1ms of
-                                # execution.
-                                # Lucky we have old_content... Just assign it
-                                # to self.id. Another edge case is that the
-                                # newly-generated id happens to conflict with
-                                # something else... Oh well. Let's not go that
-                                # far.
-                                conn.hmset(self.id, old_content)
-                                result = True
-                                break
-
-                    if not result:
-                        # That many *UUID conflicts* ?
-                        # Better go buy some lotteries...
-                        raise RuntimeError('Session UUID conflicts!')
+                        if not conn.exists(old_id):
+                            # well, the session expired during <<1ms of
+                            # execution.
+                            # Lucky we have old_content... Just assign it
+                            # to self.id. Another edge case is that the
+                            # newly-generated id happens to conflict with
+                            # something else... Oh well. Let's not go that
+                            # far.
+                            conn.hmset(self.id, old_content)
 
         self.set_cookie_prop()
 
