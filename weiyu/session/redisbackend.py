@@ -156,8 +156,20 @@ class RedisSessionObject(dict):
 
     # Cookie operations
     def set_cookie_prop(self, expires=None, domain=None, path='/'):
-        self.cookie[self.key] = self.id
-        entry = self.cookie[self.key]
+        # On Python 2.x, unicode.translate only has 1 parameter, which would
+        # cause the Cookie implementation to fail!
+        bkey = six.binary_type(self.key)
+
+        # New session?
+        try:
+            entry = self.cookie[bkey]
+        except KeyError:
+            # Write a dummy entry.
+            # HMAC signing is done transparently if available.
+            self.cookie[bkey] = self.id
+
+            # This is *not* the same as self.id, of course...
+            entry = self.cookie[bkey]
 
         entry['path'] = path
         if domain is not None:
