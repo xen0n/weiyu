@@ -1,4 +1,5 @@
 --exact
+--default-type=regex
 --renderer=mako
 
 # Static file root.
@@ -6,7 +7,6 @@
     # So far, router classes should always be specified for sub routers.
     # This might be simplified in a future release of weiyu, by allowing
     # specification of default router class to use.
-    --regex
     ^(?P<path>.*)$ staticfile null
 
 # Multi-formatted view demo.
@@ -14,9 +14,7 @@
 # enabling developers to write code once and generate both static pages and
 # API endpoints.
 /calc/:
-    --regex
     ^(?P<val>\d+)/:
-        --regex
         text/$ multiformat-test  # This uses the default renderer, i.e. Mako.
         json/$ multiformat-test json
 
