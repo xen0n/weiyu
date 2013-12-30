@@ -32,6 +32,8 @@ syn match wyURLAttribKey contained /renderer=/
     \ nextgroup=@wyURLRenderer
 syn match wyURLAttribKey contained /scope=/
     \ nextgroup=wyURLAttribValue
+syn match wyURLAttribKey contained /default-type=/
+    \ nextgroup=wyURLAttribRouterClass
 
 syn match wyURLAttribValue contained /.*/
 

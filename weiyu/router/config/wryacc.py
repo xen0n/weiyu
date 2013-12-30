@@ -34,7 +34,7 @@ tokens = WRLexer.tokens
 
 
 # general rule
-def p_routedef(p):
+def p_routedef_withattrib(p):
     '''routedef : attriblist
                 | attriblist targetlist
                 | attriblist targetlist EOF'''
@@ -48,6 +48,11 @@ def p_routedef(p):
         p[0] = [p[1]] + p[2] if has_targets else [p[1]]
     #print 'new routedef %s' % (repr(p[0]), )
 
+
+def p_routedef_noattrib(p):
+    '''routedef : targetlist
+                | targetlist EOF'''
+    p[0] = [[]] + p[1]
 
 # ATTRIB list
 def p_attriblist_list(p):

@@ -191,7 +191,8 @@ class RouterHub(BaseHub):
         #
         # Attribute processing.
         attrib_list = routing_rules[0]
-        inherited_renderer, scope = (
+        inherited_klass, inherited_renderer, scope = (
+                parent_info['inherited_klass'],
                 parent_info['inherited_renderer'],
                 parent_info['scope'],
                 )
@@ -199,12 +200,17 @@ class RouterHub(BaseHub):
 
         if isinstance(attrib_list, _list_types):
             # Multiple attributes.
-            # separate the router class from the others
-            # the class spec is hardcoded to be the 1st attrib in the list
-            cls_name = attrib_list[0]
+            for attrib in attrib_list:
+                # Router class spec.
+                if '=' not in attrib:
+                    # The class spec attrib does not contain '='.
+                    # This flaky way of determining class spec can be used
+                    # at least for now, as no other parameter-less attributes
+                    # exist so far.
+                    cls_name = attrib
+                    continue
 
-            # Process the other attributes.
-            for attrib in attrib_list[1:]:
+                # Router properties.
                 k, v = attrib.split('=', 1)
 
                 if k == 'renderer':
@@ -221,6 +227,9 @@ class RouterHub(BaseHub):
                 elif k == 'scope':
                     # case: scope=xxx
                     scope = v
+                elif k == 'default-type':
+                    # case: default-type=xxx
+                    inherited_klass = v
         else:
             # only one attribute.
             # it is either the router class spec, or an include directive
@@ -250,6 +259,10 @@ class RouterHub(BaseHub):
         # before.
         #
         # TODO: allow registration of custom modules in modprober mechanism
+
+        # Override with inherited class name if not specified already.
+        # This works even inside the same router node.
+        cls_name = cls_name if cls_name is not None else inherited_klass
         try:
             cls = self._classes[cls_name]
         except KeyError:
@@ -273,6 +286,7 @@ class RouterHub(BaseHub):
                 # this is a router... recursively construct a router out
                 # of it
                 my_info = {
+                        'inherited_klass': inherited_klass,
                         'inherited_renderer': inherited_renderer,
                         'scope': scope,
                         }
@@ -316,6 +330,7 @@ class RouterHub(BaseHub):
                 routing_rules,
                 0,
                 {
+                    'inherited_klass': None,
                     'inherited_renderer': None,
                     'scope': '',
                     },
