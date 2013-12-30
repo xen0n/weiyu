@@ -54,6 +54,7 @@ def p_routedef_noattrib(p):
                 | targetlist EOF'''
     p[0] = [[]] + p[1]
 
+
 # ATTRIB list
 def p_attriblist_list(p):
     'attriblist : attriblist attribdef NEWLINE'

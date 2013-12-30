@@ -141,7 +141,6 @@ def boot(
                     )
             load_views('views.json')
 
-
     # init router
     if root_router_file is not None:
         # configured by app stub
