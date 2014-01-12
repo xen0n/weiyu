@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / object-nonrelational mapping / package
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -69,6 +69,9 @@ class MapperHub(BaseHub):
         # you aren't registering negative versions, huh?
         assert version >= 0
 
+        # automatically register struct if not already registered
+        self.register_struct(name)
+
         def _decorator_(fn):
             decoders = self._decoders[name]
             if version in decoders:
@@ -87,6 +90,9 @@ class MapperHub(BaseHub):
 
     def encoder_for(self, name, version):
         assert version >= 0
+
+        # automatically register struct if not already registered
+        self.register_struct(name)
 
         def _decorator_(fn):
             # update maxver if necessary
