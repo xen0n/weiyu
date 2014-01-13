@@ -56,7 +56,7 @@ class Document(dict):
         return db_hub.get_storage(cls.struct_id)
 
     @classinstancemethod
-    def encode(self, cls, obj=None, version=None):
+    def encode(self, cls=None, obj=None, version=None):
         '''Encode the document into a database-ready form.
 
         This method, and its companion :meth:`decode`, can be invoked both
@@ -69,7 +69,7 @@ class Document(dict):
         return mapper_hub.encode(cls.struct_id, self or obj, version)
 
     @classinstancemethod
-    def decode(self, cls, obj=None, version=None):
+    def decode(self, cls=None, obj=None, version=None):
         assert cls.struct_id is not None
         return mapper_hub.decode(cls.struct_id, self or obj, version)
 
