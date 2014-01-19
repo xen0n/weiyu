@@ -68,6 +68,7 @@ class WSGIReflex(BaseHTTPReflex):
 
         # Rest of request object preparation goes here...
         request.remote_addr = smartstr(env['REMOTE_ADDR'])
+        request.protocol = smartstr(env['wsgi.url_scheme'])
         method = request.method = smartstr(env['REQUEST_METHOD'])
         length, _env_length = None, None
         try:

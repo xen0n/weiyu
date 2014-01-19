@@ -77,6 +77,7 @@ class TornadoReflex(BaseHTTPReflex):
 
         # Rest of request object preparation goes here...
         request.remote_addr = smartstr(t_req.remote_ip)
+        request.protocol = smartstr(t_req.protocol)
         method = request.method = smartstr(t_req.method)
         length, content = None, None
         try:
