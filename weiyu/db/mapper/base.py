@@ -35,18 +35,22 @@ from ...helpers.metaprogramming import classproperty, classinstancemethod
 
 class MetaDocument(type):
     def __new__(cls, name, bases, attrs):
-        # first check if we are creating the Document class itself
-        if '_i_am_document_' in attrs:
-            # indeed we are, let it go without a struct_id
-            # but make its subclasses require the check
-            del attrs['_i_am_document_']
-            return super(MetaDocument, cls).__new__(cls, name, bases, attrs)
+        new_cls = super(MetaDocument, cls).__new__(cls, name, bases, attrs)
+
+        # first check if we are creating some abstract Document classes
+        try:
+            if new_cls._abstract_:
+                # indeed we are, let it go without a struct_id
+                # but make its subclasses require the check by default
+                del new_cls._abstract_
+                return new_cls
+        except AttributeError:
+            pass
 
         # check presence and validity of struct_id
         # because it's defined in Document we don't have to guard against
         # struct_id's absence, as those who manage to delete it are not going
         # anywhere anyway
-        new_cls = super(MetaDocument, cls).__new__(cls, name, bases, attrs)
         new_struct_id = new_cls.struct_id
 
         if new_struct_id is None:
@@ -70,7 +74,7 @@ class Document(dict):
     struct_id = None
 
     # for allowing this class itself to exist without a struct_id
-    _i_am_document_ = True
+    _abstract_ = True
 
     def __repr__(self):
         return b'<%s: %s>' % (
