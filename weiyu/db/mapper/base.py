@@ -25,16 +25,52 @@ __all__ = [
 
 from functools import partial
 
+import six
+
 from .. import db_hub
 from . import mapper_hub
 
 from ...helpers.metaprogramming import classproperty, classinstancemethod
 
 
+class MetaDocument(type):
+    def __new__(cls, name, bases, attrs):
+        # first check if we are creating the Document class itself
+        if '_i_am_document_' in attrs:
+            # indeed we are, let it go without a struct_id
+            # but make its subclasses require the check
+            del attrs['_i_am_document_']
+            return super(MetaDocument, cls).__new__(cls, name, bases, attrs)
+
+        # check presence and validity of struct_id
+        # because it's defined in Document we don't have to guard against
+        # struct_id's absence, as those who manage to delete it are not going
+        # anywhere anyway
+        new_cls = super(MetaDocument, cls).__new__(cls, name, bases, attrs)
+        new_struct_id = new_cls.struct_id
+
+        if new_struct_id is None:
+            raise TypeError('struct_id required for subclasses of Document')
+
+        if not isinstance(new_struct_id, six.text_type):
+            raise TypeError(
+                    'struct_id must be of type %s' % (repr(six.text_type), )
+                    )
+
+        # auto-register struct in mapper_hub if not already done
+        mapper_hub.register_struct(new_struct_id)
+
+        return new_cls
+
+
+@six.add_metaclass(MetaDocument)
 class Document(dict):
     # only struct id is needed here, database association is done in
     # configuration file
     struct_id = None
+
+    # for allowing this class itself to exist without a struct_id
+    _i_am_document_ = True
 
     def __repr__(self):
         return b'<%s: %s>' % (
