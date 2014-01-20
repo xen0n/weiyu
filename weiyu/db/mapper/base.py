@@ -93,6 +93,28 @@ class Document(dict):
         assert cls.struct_id is not None
         return db_hub.get_storage(cls.struct_id)
 
+    @classmethod
+    def encoder(cls, version):
+        '''Shortcut for registering a encoder for use with the class.
+
+        ``struct_id`` is just the one set in class declaration, you only have
+        to pass in the version.
+
+        '''
+
+        return mapper_hub.encoder_for(cls.struct_id, version)
+
+    @classmethod
+    def decoder(cls, version):
+        '''Shortcut for registering a decoder for use with the class.
+
+        ``struct_id`` is just the one set in class declaration, you only have
+        to pass in the version.
+
+        '''
+
+        return mapper_hub.decoder_for(cls.struct_id, version)
+
     @classinstancemethod
     def encode(self, cls=None, obj=None, version=None):
         '''Encode the document into a database-ready form.
