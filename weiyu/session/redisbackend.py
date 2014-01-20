@@ -160,16 +160,15 @@ class RedisSessionObject(dict):
         # cause the Cookie implementation to fail!
         bkey = six.binary_type(self.key)
 
-        # New session?
-        try:
-            entry = self.cookie[bkey]
-        except KeyError:
-            # Write a dummy entry.
-            # HMAC signing is done transparently if available.
-            self.cookie[bkey] = self.id
+        # Important: force current session ID into the cookie!
+        # Actually there's no risk of overriding existing properties by
+        # assigning to the key. This can be confirmed by reading the
+        # implementation of Morsel.__setitem__.
+        self.cookie[bkey] = self.id
 
-            # This is *not* the same as self.id, of course...
-            entry = self.cookie[bkey]
+        # This is *not* the same as self.id, of course...
+        # It's a Morsel instead
+        entry = self.cookie[bkey]
 
         entry['path'] = path
         if domain is not None:
