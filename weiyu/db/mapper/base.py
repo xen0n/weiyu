@@ -23,8 +23,6 @@ __all__ = [
         'Document',
         ]
 
-from functools import partial
-
 import six
 
 from .. import db_hub
