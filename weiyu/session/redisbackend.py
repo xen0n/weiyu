@@ -156,8 +156,8 @@ class RedisSessionObject(dict):
 
     # Cookie operations
     def set_cookie_prop(self, expires=None, domain=None, path='/'):
-        # On Python 2.x, unicode.translate only has 1 parameter, which would
-        # cause the Cookie implementation to fail!
+        # <text type of Python 2.x and 3.x>.translate only has 1 parameter,
+        # which would cause the Cookie implementation to fail!
         bkey = six.binary_type(self.key)
 
         # Important: force current session ID into the cookie!
