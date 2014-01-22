@@ -28,7 +28,6 @@ Features
       Check out the ``vim-support/`` directory for details.
     - Support for reverse resolution
 * Cache integration
-* Task queue integration
 * Frontend technologies
     - Sass by means of pyScss_
 
@@ -48,8 +47,6 @@ The framework provides integration with the following packages:
 * Session management
     - Beaker
     - redis
-* Task queue
-    - celery
 * Templating engine
     - Mako
     - pyScss_
@@ -101,7 +98,7 @@ To install via ``pip``::
     $ pip install weiyu
 
 Both will not install most of the dependencies. While the deps can be
-controlled individually using flags like ``weiyu[mako,celery,redis]``,
+controlled individually using flags like ``weiyu[mako,riak,redis]``,
 requirements files have been provided to allow quick install of all
 possible dependencies.::
 
