@@ -71,7 +71,7 @@ class TaskHub(BaseHub):
             return self._apps[name]['obj']
 
     def task(self, app):
-        # Callback into driver layer for high-level API consistence
+        # Callback into driver layer for high-level API consistency
         try:
             appreg = self._apps[app]
         except KeyError:
