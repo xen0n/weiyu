@@ -44,6 +44,8 @@ from .viewloader import ViewLoader
 from ..adapters.http import base
 del base
 
+CONFIG_LOADED = False
+
 
 def load_router(typ, filename):
     router = router_hub.init_router_from_config(typ, filename)
@@ -51,13 +53,18 @@ def load_router(typ, filename):
 
 
 def load_config(path):
-    ret = BaseConfig.get_config(path).populate_central_regs()
+    global CONFIG_LOADED
+    if CONFIG_LOADED:
+        return
+
+    # this has no return value as of now, safe to discard returned None
+    BaseConfig.get_config(path).populate_central_regs()
 
     # Refresh the hubs' internal cached references, this MUST be done
     # after config has loaded.
     db_hub._init_refresh_map()
 
-    return ret
+    CONFIG_LOADED = True
 
 
 def load_views(path_or_config):
