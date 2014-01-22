@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / Task queue integration - WSGI stub
+# weiyu / examples / Working with Celery - WSGI stub
 #
 # This file is in public domain.
 
