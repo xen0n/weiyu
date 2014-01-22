@@ -52,7 +52,7 @@ def load_router(typ, filename):
     return router_hub.register_router(router)
 
 
-def load_config(path):
+def _do_load_config(path):
     global CONFIG_LOADED
     if CONFIG_LOADED:
         return
@@ -65,6 +65,45 @@ def load_config(path):
     db_hub._init_refresh_map()
 
     CONFIG_LOADED = True
+
+
+def load_config(path=None):
+    if path is not None:
+        _do_load_config(path)
+    else:
+        # Default config file.
+        if os.path.exists('Rainfile.yml'):
+            # 1. Rainfile (new default)
+            if os.path.exists('conf.yml') or os.path.exists('conf.json'):
+                warnings.warn(
+                        'Rainfile overrides any conf.yml or conf.json, '
+                        'please migrate and delete the old configuration '
+                        'files to avoid any possible inconsistencies',
+                        DeprecationWarning,
+                        )
+
+            _do_load_config('Rainfile.yml')
+        elif os.path.exists('conf.yml'):
+            # 2. conf.yml (old default)
+            warnings.warn(
+                    'The filename \'conf.yml\' for configuration is '
+                    'deprecated, please rename it to Rainfile.yml (no other '
+                    'changes needed)',
+                    PendingDeprecationWarning,
+                    )
+            _do_load_config('conf.yml')
+        elif os.path.exists('conf.json'):
+            # 3. conf.json (VERY old default, since weiyu's inception)
+            warnings.warn(
+                    'JSON configuration stored in \'conf.json\' is LONG '
+                    'deprecated. Please consider migrating your '
+                    'configurations to YAML for better readability and ease '
+                    'of maintenance, then name it Rainfile.yml',
+                    DeprecationWarning,
+                    )
+            _do_load_config('conf.json')
+        else:
+            raise RuntimeError('no default configuration found')
 
 
 def load_views(path_or_config):
@@ -84,42 +123,7 @@ def boot(
         ):
     # initialize registries, views, router, in that order
     # registry
-    if conf_path is not None:
-        load_config(conf_path)
-    else:
-        # Default config file.
-        if os.path.exists('Rainfile.yml'):
-            # 1. Rainfile (new default)
-            if os.path.exists('conf.yml') or os.path.exists('conf.json'):
-                warnings.warn(
-                        'Rainfile overrides any conf.yml or conf.json, '
-                        'please migrate and delete the old configuration '
-                        'files to avoid any possible inconsistencies',
-                        DeprecationWarning,
-                        )
-
-            load_config('Rainfile.yml')
-        elif os.path.exists('conf.yml'):
-            # 2. conf.yml (old default)
-            warnings.warn(
-                    'The filename \'conf.yml\' for configuration is '
-                    'deprecated, please rename it to Rainfile.yml (no other '
-                    'changes needed)',
-                    PendingDeprecationWarning,
-                    )
-            load_config('conf.yml')
-        elif os.path.exists('conf.json'):
-            # 3. conf.json (VERY old default, since weiyu's inception)
-            warnings.warn(
-                    'JSON configuration stored in \'conf.json\' is LONG '
-                    'deprecated. Please consider migrating your '
-                    'configurations to YAML for better readability and ease '
-                    'of maintenance, then name it Rainfile.yml',
-                    DeprecationWarning,
-                    )
-            load_config('conf.json')
-        else:
-            raise RuntimeError('no default configuration found')
+    load_config(conf_path)
 
     # make an empty site registry if not present
     reg_site = regrequest(
