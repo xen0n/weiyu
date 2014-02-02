@@ -170,6 +170,15 @@ class BaseHTTPReflex(BaseReflex):
         for cookie_line in ctx.get('cookies', []):
             hdrs.append((b'Set-Cookie', cookie_line, ))
 
+        # Location header for 300, 301, 302
+        if response.status in {300, 301, 302, }:
+            try:
+                hdrs.append((b'Location', ctx['location'], ))
+            except KeyError:
+                # simply don't set the header, as that's not mandatory
+                # according to RFC2616.
+                pass
+
         # 405 Not Allowed header
         if response.status == 405:
             hdrs.append((b'Allow', ctx['allowed_methods'], ))
