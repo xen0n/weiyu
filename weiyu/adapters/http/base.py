@@ -38,7 +38,7 @@ from .. import adapter_hub
 # Status codes that cannot have response body
 # Used to prevent rendering code from being invoked
 # TODO: add more of them
-NO_RESP_BODY_STATUSES = {405, }
+NO_RESP_BODY_STATUSES = {204, 304, 405, }
 
 
 @adapter_hub.declare_middleware('session')
