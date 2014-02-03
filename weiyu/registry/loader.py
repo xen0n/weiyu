@@ -231,7 +231,7 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
             # NOTE Security is important here, so paths should be
             # at least canonicalized.
             real_path = abspath(path)
-            tmp.update(self.load_from_path(real_path))
+            tmp.update(BaseConfig.get_config(real_path).load())
         return tmp
 
     def _do_includes(self, dct):
