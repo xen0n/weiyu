@@ -9,7 +9,11 @@ weiyu.db:
     # $$include's can be used inside an included config file, of course;
     # even config files of different (supported) format can be included!
     # A JSON config file is included here to demonstrate this.
-    $$include: Rainfile.structs.json
+    #
+    # Note again that the path specified is relative to the including file,
+    # which can be convenient at times, especially when referencing some
+    # common configuration.
+    $$include: db.structs.json
 
 
 # vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:

@@ -15,7 +15,9 @@ site:
 
   session:
     # $$include's can be used inside any config dict.
-    $$include: Rainfile.session.yml
+    # Paths are relative to the including file, not to the current working
+    # directory.
+    $$include: config.d/session.yml
 
   staticfile:
     root: ./static/
@@ -25,8 +27,8 @@ site:
 # This can also be a list!
 # Multiple includes will be processed in order.
 $$include:
-  - Rainfile.render.yml
-  - Rainfile.db.yml
+  - config.d/rendering.yml
+  - config.d/db.yml
 
 
 # vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:
