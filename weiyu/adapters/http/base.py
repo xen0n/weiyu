@@ -92,7 +92,7 @@ class BaseHTTPReflex(BaseReflex):
         # TODO: find a way to extract all the literals out
         request = response.request
         ctx, hdrs, extras = response.context, [], {}
-        render_in = cont = mime = None
+        render_in, cont, mime = None, b'', None
         dont_render = False
 
         # are we hijacked by some other library (e.g. socketio)?
