@@ -237,7 +237,21 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
     def _do_includes(self, dct):
         # top-level includes
         if DIRECTIVE_INCLUDE in dct:
-            include_list = dct.pop(DIRECTIVE_INCLUDE)
+            include_file_or_list = dct.pop(DIRECTIVE_INCLUDE)
+
+            if isinstance(include_file_or_list, six.text_type):
+                include_list = [include_file_or_list, ]
+            elif isinstance(include_file_or_list, six.binary_type):
+                include_list = [include_file_or_list, ]
+            elif isinstance(include_file_or_list, (list, tuple, )):
+                include_list = include_file_or_list
+            else:
+                raise ValueError(
+                        'unknown object for $$include directive: %s' % (
+                            repr(include_file_or_list),
+                            ),
+                        )
+
             dct.update(self._do_inject_include_files(include_list))
 
         # includes inside sub-keys
