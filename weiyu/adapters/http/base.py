@@ -201,7 +201,7 @@ class BaseHTTPReflex(BaseReflex):
         if response.status == 405:
             hdrs.append((b'Allow', ctx['allowed_methods'], ))
 
-        response.http_headers.update(hdrs)
+        response.http_headers.extend(hdrs)
         response._dont_render = dont_render
 
         return response
