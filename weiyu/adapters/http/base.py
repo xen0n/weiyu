@@ -92,8 +92,7 @@ class BaseHTTPReflex(BaseReflex):
         # TODO: find a way to extract all the literals out
         request = response.request
         ctx, hdrs, extras = response.context, [], {}
-        render_in, cont, mime = None, b'', None
-        dont_render = False
+        dont_render, mime = False, None
 
         # are we hijacked by some other library (e.g. socketio)?
         if ctx.get('request_vanished', False):
@@ -126,7 +125,12 @@ class BaseHTTPReflex(BaseReflex):
         if response.status in NO_RESP_BODY_STATUSES:
             dont_render = True
 
-        if not dont_render:
+        if dont_render:
+            # literally don't render anything
+            response.content = b''
+        else:
+            render_in, cont = None, b''
+
             if issubclass(type(request.route_data), dict):
                 # mapping object, see if we could get the hint...
                 render_in = request.route_data.get('render_in', None)
