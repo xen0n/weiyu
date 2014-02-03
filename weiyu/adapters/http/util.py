@@ -24,6 +24,7 @@ __all__ = [
             'dummy_file_wrapper',
             'send_content_iter',
             'parse_form',
+            'canonicalize_http_headers',
             'gen_http_headers',
             ]
 
@@ -162,6 +163,21 @@ def _parse_urlencoded_form(content):
 @_form_content_handler('application/json')
 def _parse_json_form(content):
     return json.loads(content)
+
+
+def canonicalize_http_headers(header_obj):
+    if isinstance(header_obj, list):
+        return header_obj
+    elif isinstance(header_obj, dict):
+        # most probably dict or OrderedDict, make it a plain list
+        return list(six.iteritems(header_obj))
+    elif isinstance(header_obj, tuple):
+        return list(header_obj)
+
+    raise ValueError(
+            'unrecognized HTTP headers object: %s' % (
+                repr(header_obj),
+                ))
 
 
 def gen_http_headers(response, __Content_Length=str('Content-Length')):

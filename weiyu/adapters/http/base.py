@@ -35,6 +35,8 @@ from ...rendering import render_hub
 
 from .. import adapter_hub
 
+from .util import canonicalize_http_headers
+
 # Status codes that cannot have response body
 # Used to prevent rendering code from being invoked
 # TODO: add more of them
@@ -160,19 +162,16 @@ class BaseHTTPReflex(BaseReflex):
             response.content = smartbytes(cont, enc, 'replace')
 
         # Prepare headers.
-        ctx_hdrs = ctx.get('headers', [])
-        if isinstance(ctx_hdrs, list):
-            hdrs = ctx_hdrs
-        elif isinstance(ctx_hdrs, dict):
-            # most probably dict or OrderedDict, make it a plain list
-            hdrs = list(six.iteritems(ctx_hdrs))
-        elif isinstance(ctx_hdrs, tuple):
-            hdrs = list(ctx_hdrs)
-        else:
-            raise ValueError(
-                    'unrecognized HTTP headers object: %s' % (
-                        repr(ctx_hdrs),
-                        ))
+        # Process any headers directly specified in response objects.
+        try:
+            # Try to canonicalize into list.
+            canon_headers = canonicalize_http_headers(response.http_headers)
+            response.http_headers = canon_headers
+        except AttributeError:
+            response.http_headers = []
+
+        # Extract headers supplied in response context, if any.
+        hdrs = canonicalize_http_headers(ctx.get('headers', []))
 
         # TODO: convert more context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
@@ -202,7 +201,7 @@ class BaseHTTPReflex(BaseReflex):
         if response.status == 405:
             hdrs.append((b'Allow', ctx['allowed_methods'], ))
 
-        response.http_headers = hdrs
+        response.http_headers.update(hdrs)
         response._dont_render = dont_render
 
         return response
