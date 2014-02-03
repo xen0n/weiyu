@@ -224,7 +224,7 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
         with open(path, 'rb') as fp:
             return self.load(fp)
 
-    def do_include(self, includes):
+    def _do_inject_include_files(self, includes):
         tmp = {}
         for path in includes:
             # XXX FIXME: Infinite includes is possible!!
@@ -234,11 +234,23 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
             tmp.update(self.load_from_path(real_path))
         return tmp
 
+    def _do_includes(self, dct):
+        # top-level includes
+        if DIRECTIVE_INCLUDE in dct:
+            include_list = dct.pop(DIRECTIVE_INCLUDE)
+            dct.update(self._do_inject_include_files(include_list))
+
+        # includes inside sub-keys
+        for k in six.iterkeys(dct):
+            if isinstance(dct[k], dict):
+                # recurse into ANY sub-dictionary
+                dct[k] = self._do_includes(dct[k])
+
+        return dct
+
     def process_directives(self, data):
-        # process '$$include': [inc1, inc2, etc, ]
-        if DIRECTIVE_INCLUDE in data:
-            include_list = data.pop(DIRECTIVE_INCLUDE)
-            data.update(self.do_include(include_list))
+        # process all $$include's
+        data = self._do_includes(data)
 
         return data
 
