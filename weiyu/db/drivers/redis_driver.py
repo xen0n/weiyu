@@ -37,10 +37,13 @@ from .baseclass import BaseDriver
 
 
 class RedisDriver(BaseDriver):
-    def __init__(self, host, port):
+    def __init__(self, host, port, **kwargs):
         super(RedisDriver, self).__init__()
 
-        self.host, self.port = host, port
+        if 'db' in kwargs:
+            raise TypeError('db index in database declaration is not allowed')
+
+        self.host, self.port, self.options = host, port, kwargs
         self._buckets = {}
 
     def start(self):
@@ -55,7 +58,7 @@ class RedisDriver(BaseDriver):
         try:
             return self._buckets[bucket]
         except KeyError:
-            b = redis.StrictRedis(self.host, self.port, bucket)
+            b = redis.StrictRedis(self.host, self.port, bucket, **self.options)
             self._buckets[bucket] = b
 
         return self._buckets[bucket]
@@ -69,8 +72,9 @@ def redis_handler(
         hub,
         host='127.0.0.1',
         port=6379,
+        **kwargs
         ):
-    return RedisDriver(host, port)
+    return RedisDriver(host, port, **kwargs)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
