@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / utilities / decorators
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ from __future__ import unicode_literals, division
 __all__ = [
         'view',
         'only_methods',
+        'cors',
         ]
 
 import decorator
@@ -80,6 +81,31 @@ def only_methods(methods=None):
             return fn(request, *args, **kwargs)
         return decorator.decorator(_wrapped_, fn)
     return _decorator_
+
+
+def _cors_fn_(fn, request, *args, **kwargs):
+    # TODO: check for preflight request
+
+    response = fn(request, *args, **kwargs)
+
+    # set CORS response headers
+    # TODO: make this less dummy
+    response.http_headers = [('Access-Control-Allow-Origin', '*', ), ]
+
+    return response
+
+
+def cors(fn):
+    '''Make a view function CORS (Cross Origin Resource Sharing)-aware.
+
+    Must occur *before* the ``@view`` decorator.
+
+    This decorator is very dummy at the moment; only a minimal
+    ``Access-Control-Allow-Origin: *`` header is added for the response.
+
+    '''
+
+    return decorator.decorator(_cors_fn_, fn)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
