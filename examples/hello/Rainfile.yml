@@ -14,36 +14,19 @@ site:
       - session
 
   session:
-    backend: beaker
-    options:
-      session.type: file
-      session.data_dir: /tmp/beaker/data
-      session.lock_dir: /tmp/beaker/lock
-      session.key: weiyu.session
-      session.secret: '7h1z_must_13e_s3cr37'
-      session.timeout: 300
+    # $$include's can be used inside any config dict.
+    $$include: Rainfile.session.yml
 
   staticfile:
     root: ./static/
 
-weiyu.rendering:
-  mako:
-    directories:
-      - ./templates
 
-    module_dir: /tmp/mako-modules
-
-weiyu.db:
-  databases:
-    test:
-      driver: pymongo
-      host: 127.0.0.1
-      port: 27017
-      path: test
-  storage:
-    teststruct:
-      db: test
-      bucket: test
+# $$include can also be used in top-level, including whole registries at once.
+# This can also be a list!
+# Multiple includes will be processed in order.
+$$include:
+  - Rainfile.render.yml
+  - Rainfile.db.yml
 
 
 # vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:

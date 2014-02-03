@@ -1,0 +1,12 @@
+weiyu.db:
+  databases:
+    testdb:
+      driver: pymongo
+      host: 127.0.0.1
+      port: 27017
+      path: test
+  storage:
+    teststruct: testdb/test
+
+
+# vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:
