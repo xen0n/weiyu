@@ -91,7 +91,7 @@ class BaseHTTPReflex(BaseReflex):
         # Render the response early
         # TODO: find a way to extract all the literals out
         request = response.request
-        ctx, hdrs, extras = response.context, [], {}
+        ctx, extras = response.context, {}
         dont_render, mime = False, None
 
         # are we hijacked by some other library (e.g. socketio)?
@@ -158,6 +158,21 @@ class BaseHTTPReflex(BaseReflex):
 
             # encode content, if it's a Unicode thing
             response.content = smartbytes(cont, enc, 'replace')
+
+        # Prepare headers.
+        ctx_hdrs = ctx.get('headers', [])
+        if isinstance(ctx_hdrs, list):
+            hdrs = ctx_hdrs
+        elif isinstance(ctx_hdrs, dict):
+            # most probably dict or OrderedDict, make it a plain list
+            hdrs = list(six.iteritems(ctx_hdrs))
+        elif isinstance(ctx_hdrs, tuple):
+            hdrs = list(ctx_hdrs)
+        else:
+            raise ValueError(
+                    'unrecognized HTTP headers object: %s' % (
+                        repr(ctx_hdrs),
+                        ))
 
         # TODO: convert more context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
