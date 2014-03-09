@@ -31,7 +31,7 @@ import six
 import redis
 
 # I don't feel like reinventing the wheel, so...
-import Cookie
+from six.moves import http_cookies
 
 from beaker.session import SignedCookie
 
@@ -66,10 +66,10 @@ class RedisSessionObject(dict):
             if secret is not None:
                 try:
                     cookie = SignedCookie(secret, input=cookiehdr)
-                except Cookie.CookieError:
+                except http_cookies.CookieError:
                     cookie = SignedCookie(secret, input=None)
             else:
-                cookie = Cookie.SimpleCookie(input=cookiehdr)
+                cookie = http_cookies.SimpleCookie(input=cookiehdr)
 
             if self.id is None and key in cookie:
                 self.id = cookie[key].value
