@@ -20,7 +20,7 @@
 from __future__ import unicode_literals, division
 
 __all__ = [
-        'reverser_for',
+        'reverser_for_router',
         'Reverser',
         ]
 
@@ -29,7 +29,7 @@ import six
 _REVERSER_CACHE = {}
 
 
-def reverser_for(router):
+def reverser_for_router(router):
     key = router.name
     if key is None:
         raise ValueError('only named routers can have reverser at present')

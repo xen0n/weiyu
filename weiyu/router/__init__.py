@@ -32,6 +32,8 @@ from ..registry.classes import UnicodeRegistry
 # this does not cause circular import
 from .config.parser import parse_config
 
+from .reverser import reverser_for_router
+
 PROBER = ModProber('weiyu.router', '%srouter')
 
 
@@ -113,6 +115,9 @@ class RouterHub(BaseHub):
         # typically used with args=(request, ) inside the framework
         # TODO: is it really useful to allow passing kwargs also?
         return self.do_handling(typ, querystr, *args)
+
+    def reverser_for(self, router_name):
+        return reverser_for_router(self._routers[router_name])
 
     def _do_init_router(
             self,
