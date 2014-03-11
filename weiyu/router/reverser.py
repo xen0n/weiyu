@@ -48,42 +48,63 @@ class Reverser(object):
         self.map = router.reverse_map
         self.pat_cache = {}
 
-    def reverse(self, endpoint, **kwargs):
+    def _resolve_scope(self, endpoint, __cache={}):
+        # split the possibly scoped endpoint name into components
+        try:
+            # scope, name
+            return __cache[endpoint]
+        except KeyError:
+            pass
+
+        try:
+            colon = endpoint.index(':')
+            scope, name = endpoint[:colon], endpoint[colon + 1:]
+        except ValueError:
+            scope, name = '', endpoint
+
+        # memoize
+        result = __cache[endpoint] = (scope, name, )
+        return result
+
+    def signature(self, endpoint):
         # look up the endpoint, memoized.
         try:
-            pat_str, pat_vars = self.pat_cache[endpoint]
+            # pat_str, pat_vars
+            return self.pat_cache[endpoint]
         except KeyError:
-            # split the possibly scoped endpoint name into components
-            try:
-                colon = endpoint.index(':')
-                scope, name = endpoint[:colon], endpoint[colon + 1:]
-            except ValueError:
-                scope, name = '', endpoint
+            pass
 
-            # look up the scope first
-            try:
-                scope_map = self.map[scope]
-            except KeyError:
-                # TODO: a NoReverseMatch here, as Django did?
-                raise ValueError(
-                        "No scope named '%s' in router type '%s'" % (
-                            scope,
-                            typ,
-                            ))
+        scope, name = self._resolve_scope(endpoint)
 
-            try:
-                pat_str, pat_vars = scope_map[name]
-            except KeyError:
-                raise ValueError(
-                        "No endpoint '%s' exposed in scope '%s' of "
-                        "router type '%s'" % (
-                            name,
-                            scope,
-                            typ,
-                            ))
+        # look up the scope first
+        try:
+            scope_map = self.map[scope]
+        except KeyError:
+            # TODO: a NoReverseMatch here, as Django did?
+            raise ValueError(
+                    "No scope named '%s' in router type '%s'" % (
+                        scope,
+                        typ,
+                        ))
 
-            # memoize the result
-            self.pat_cache[endpoint] = (pat_str, pat_vars, )
+        # get out the pattern signature
+        try:
+            pat_str, pat_vars = scope_map[name]
+        except KeyError:
+            raise ValueError(
+                    "No endpoint '%s' exposed in scope '%s' of "
+                    "router type '%s'" % (
+                        name,
+                        scope,
+                        typ,
+                        ))
+
+        # memoize the result
+        result = self.pat_cache[endpoint] = (pat_str, pat_vars, )
+        return result
+
+    def reverse(self, endpoint, **kwargs):
+        pat_str, pat_vars = self.signature(endpoint)
 
         # verify the parameters
         given_vars = set(six.iterkeys(kwargs))
