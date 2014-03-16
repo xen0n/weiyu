@@ -96,7 +96,7 @@ class RouterBase(object):
                 return result
 
         # match failure
-        return (False, None, None, None, None, )
+        return False, None, None, None, None
 
     def dry_dispatch(self, querystr, *args):
         '''Do all things except actually invoking callback function,
