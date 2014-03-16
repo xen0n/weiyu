@@ -64,6 +64,7 @@ class TornadoReflex(BaseHTTPReflex):
         # decode the path bytestring
         # TODO: improve encoding handling here
         path = request.path = smartstr(t_req.path, 'utf-8', 'replace')
+        host = request.host = smartstr(t_req.host, 'utf-8', 'replace')
 
         # Move routing (much) earlier so we don't waste time in processing
         # requests impossible to fulfill.

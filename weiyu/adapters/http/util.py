@@ -21,6 +21,7 @@ from __future__ import unicode_literals, division
 
 __all__ = [
             'status_to_str',
+            'build_host_str',
             'dummy_file_wrapper',
             'send_content_iter',
             'parse_form',
@@ -44,7 +45,7 @@ except ImportError:
 
 import six
 
-from ...helpers.misc import smartbytes
+from ...helpers.misc import smartstr, smartbytes
 
 
 # This dict is pasted from Django's core/handlers/wsgi.py, with letter cases
@@ -118,6 +119,25 @@ def status_to_str(status):
     '''
 
     return STATUS_CODES_MAP[status]
+
+
+def build_host_str(env):
+    # Written according to the algorithm described in PEP 333.
+    if 'HTTP_HOST' in env:
+        return smartstr(env['HTTP_HOST'], 'utf-8', 'replace')
+    else:
+        server_name_str = smartstr(env['SERVER_NAME'], 'utf-8', 'replace')
+        server_port = int(env['SERVER_PORT'])
+        host_str_list = [server_name_str, ]
+
+        if env['wsgi.url_scheme'] == 'https':
+            if server_port != 443:
+                host_str_list.append(six.text_type(server_port))
+        else:
+            if server_port != 80:
+                host_str_list.append(six.text_type(server_port))
+
+        return ':'.join(host_str_list)
 
 
 def dummy_file_wrapper(fp, blk_sz=None):
