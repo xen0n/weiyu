@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / router / base functionality
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,8 +53,10 @@ class RouterBase(object):
             name=None,
             parent=None,
             scope='',
+            host=None,
             ):
-        self.name, self.scope, self.parent = name, scope, parent
+        self.name, self.scope, self.host = name, scope, host
+        self.parent = parent
         self.route_table = [
                 self.__class__.target_type(router=self, *i)
                 for i in target_initializers
@@ -65,7 +67,12 @@ class RouterBase(object):
             if tgt.target_is_router:
                 tgt.target.parent = tgt
 
-    def lookup(self, querystr, prev_args=None, prev_kwargs=None):
+    def lookup(self, querystr, host=None, prev_args=None, prev_kwargs=None):
+        # Host check
+        if self.host is not None and host != self.host:
+            # Host mismatch, return miss
+            return False, None, None, None, None
+
         # XXX is this needed, or am I overly sensitive?
         querystr = smartstr(querystr)
 
