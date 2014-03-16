@@ -135,10 +135,11 @@ class RouterHub(BaseHub):
         #
         # Attribute processing.
         attrib_list = routing_rules[0]
-        inherited_klass, inherited_renderer, scope = (
+        inherited_klass, inherited_renderer, scope, host = (
                 parent_info['inherited_klass'],
                 parent_info['inherited_renderer'],
                 parent_info['scope'],
+                parent_info['host'],
                 )
         include_path, cls_name = None, None
 
@@ -174,6 +175,9 @@ class RouterHub(BaseHub):
                 elif k == 'default-type':
                     # case: default-type=xxx
                     inherited_klass = v
+                elif k == 'host':
+                    # case: host=xxx
+                    host = v
         else:
             # only one attribute.
             # it is either the router class spec, or an include directive
@@ -233,6 +237,7 @@ class RouterHub(BaseHub):
                         'inherited_klass': inherited_klass,
                         'inherited_renderer': inherited_renderer,
                         'scope': scope,
+                        'host': host,
                         }
                 tgt = self._do_init_router(typ, target_spec, lvl + 1, my_info)
             elif isinstance(target_spec, six.string_types):
@@ -266,6 +271,7 @@ class RouterHub(BaseHub):
                 result_rules,
                 name=typ if lvl == 0 else None,
                 scope=scope,
+                host=host,
                 )
 
     def init_router(self, typ, routing_rules):
@@ -277,6 +283,7 @@ class RouterHub(BaseHub):
                     'inherited_klass': None,
                     'inherited_renderer': None,
                     'scope': '',
+                    'host': None,
                     },
                 )
 
