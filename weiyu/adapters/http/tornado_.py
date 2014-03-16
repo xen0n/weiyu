@@ -72,7 +72,7 @@ class TornadoReflex(BaseHTTPReflex):
         # can be replaced by potential hooks, and we certainly don't want
         # a reference to be frozen in the request.
         # Return value is of format (fn, args, kwargs, route_data, )
-        route_result = self._do_routing(path)
+        route_result = self._do_routing(path, host)
         request.callback_info = route_result[:-1]
         request.route_data = route_result[-1]
 
