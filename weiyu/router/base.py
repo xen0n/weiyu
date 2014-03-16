@@ -119,10 +119,6 @@ class RouterBase(object):
 
         return target, extended_args, kwargs, data
 
-    def dispatch(self, querystr, *args):
-        target, ext_args, kwargs, data = self.dry_dispatch(querystr, *args)
-        return target(*ext_args, **kwargs)
-
     def build_reverse_map(self):
         scope = self.scope
         map_ = {scope: {}}  # OrderedDict()
