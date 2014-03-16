@@ -160,7 +160,7 @@ class RouterTargetBase(object):
         # for nested processing
         self.target_is_router = is_router(target)
 
-    def check(self, querystr):
+    def check(self, querystr, prev_args, prev_kwargs):
         # return is assumed to be in the form of
         # (hit_status, args, kwargs, new_qs, )
         # since it is unnecessary and redundant to return self.target
