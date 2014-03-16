@@ -87,6 +87,7 @@ class RouterBase(object):
             # return is of form ``(hit, target, args, kwargs, )``
             result = entry.lookup(
                     querystr,
+                    host,
                     prev_args,
                     prev_kwargs,
                     )
@@ -163,7 +164,7 @@ class RouterTargetBase(object):
         # to an internal method
         raise NotImplementedError
 
-    def lookup(self, querystr, prev_args, prev_kwargs):
+    def lookup(self, querystr, host, prev_args, prev_kwargs):
         # return value is of form (hit, target, args, kwargs, )
         # result is of form (status, args, kwargs, new_querystr, )
         status, args, kwargs, new_qs = self.check(
@@ -180,7 +181,7 @@ class RouterTargetBase(object):
             return (False, None, None, None, None, )
         elif status == STATUS_FORWARD:
             # do nested routing
-            return self.target.lookup(new_qs, args, kwargs)
+            return self.target.lookup(new_qs, host, args, kwargs)
 
         # unreachable if check function behaves properly
         raise DispatchError('Impossible check result %s, bug detected'
