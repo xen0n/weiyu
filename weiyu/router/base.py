@@ -67,7 +67,7 @@ class RouterBase(object):
             if tgt.target_is_router:
                 tgt.target.parent = tgt
 
-    def lookup(self, querystr, host=None, prev_args=None, prev_kwargs=None):
+    def lookup(self, querystr, host, prev_args=None, prev_kwargs=None):
         # Host check
         if self.host is not None and host != self.host:
             # Host mismatch, return miss
@@ -98,14 +98,14 @@ class RouterBase(object):
         # match failure
         return False, None, None, None, None
 
-    def dry_dispatch(self, querystr, *args):
+    def dry_dispatch(self, querystr, host, *args):
         '''Do all things except actually invoking callback function,
         returns the calculated parameters that can be used to do a real
         dispatch.
 
         '''
 
-        hit, target, more_args, kwargs, data = self.lookup(querystr)
+        hit, target, more_args, kwargs, data = self.lookup(querystr, host)
 
         if not hit:
             raise DispatchError(
