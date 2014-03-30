@@ -64,6 +64,8 @@ TMPL_LOOKUP_KEY = 'lookup_obj'
 DIRECTORIES_KEY = 'directories'
 MODULE_DIR_KEY = 'module_dir'
 
+_EXTENDED_PATH_HANDLERS = {}
+
 
 class MakoRenderable(Renderable):
     def __init__(self, tmpl, *args, **kwargs):
@@ -74,6 +76,28 @@ class MakoRenderable(Renderable):
         real_ctx = result.copy()
         real_ctx.update(context)
         return self._template.render_unicode(**real_ctx), {}
+
+
+def _path_handler(name):
+    def _decorator_(fn):
+        _EXTENDED_PATH_HANDLERS[name] = fn
+        return fn
+    return _decorator_
+
+
+@_path_handler('pkg_resources')
+def _handle_pkg_resources_path(cfg):
+    import pkg_resources
+
+    pkg, res = cfg['package'], cfg['resource']
+    if not pkg_resources.resource_isdir(pkg, res):
+        raise ValueError(
+                'Resource is not a directory: {0} in package {1}'.format(
+                    res,
+                    pkg,
+                    ))
+
+    return pkg_resources.resource_filename(pkg, res)
 
 
 def _ensure_lookup(__cache=[]):
@@ -91,6 +115,15 @@ def _ensure_lookup(__cache=[]):
         if isinstance(i, six.text_type):
             # canonicalize template dirs to absolute path
             abspath_dirs.append(abspath(i))
+        elif isinstance(i, dict):
+            # extended configuration
+            path_type = i['type']
+            if path_type not in _EXTENDED_PATH_HANDLERS:
+                raise RuntimeError("path type '%s' not available" % path_type)
+
+            path_handler = _EXTENDED_PATH_HANDLERS[path_type]
+            processed_path = path_handler(i)
+            abspath_dirs.append(processed_path)
 
     # instantiate TemplateLookup singleton and expose it in registry
     lookup = mako_params[TMPL_LOOKUP_KEY] = TemplateLookup(
