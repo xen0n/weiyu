@@ -74,24 +74,35 @@ class MakoRenderable(Renderable):
         return self._template.render_unicode(**real_ctx), {}
 
 
-@render_hub.register_handler('mako')
-def mako_render_handler(hub, name, *args, **kwargs):
+def _ensure_lookup(__cache=[]):
+    try:
+        return __cache[0]
+    except IndexError:
+        pass
+
     render_reg = request('weiyu.rendering')
     # TODO: config default value here, or proper exc handling
     mako_params = render_reg['mako']
-    if TMPL_LOOKUP_KEY not in mako_params:
-        # canonicalize template dirs to absolute path
-        abspath_dirs = [abspath(i) for i in mako_params[DIRECTORIES_KEY]]
 
-        # instantiate TemplateLookup singleton
-        mako_params[TMPL_LOOKUP_KEY] = TemplateLookup(
-                directories=abspath_dirs,
-                module_directory=mako_params[MODULE_DIR_KEY],
-                )
+    # canonicalize template dirs to absolute path
+    abspath_dirs = [abspath(i) for i in mako_params[DIRECTORIES_KEY]]
 
-    lookup = mako_params[TMPL_LOOKUP_KEY]
+    # instantiate TemplateLookup singleton and expose it in registry
+    lookup = mako_params[TMPL_LOOKUP_KEY] = TemplateLookup(
+            directories=abspath_dirs,
+            module_directory=mako_params[MODULE_DIR_KEY],
+            )
+
+    # also save cache
+    __cache.append(lookup)
+
+    return lookup
+
+
+@render_hub.register_handler('mako')
+def mako_render_handler(hub, name, *args, **kwargs):
     # TODO: possibly map template names to filenames here
-    tmpl = lookup.get_template(name)
+    tmpl = _ensure_lookup().get_template(name)
     return MakoRenderable(tmpl, *args, **kwargs)
 
 
