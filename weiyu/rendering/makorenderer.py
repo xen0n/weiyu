@@ -125,11 +125,15 @@ def _ensure_lookup(__cache=[]):
             processed_path = path_handler(i)
             abspath_dirs.append(processed_path)
 
+    kwargs = {'directories': abspath_dirs, }
+
+    try:
+        kwargs['module_directory'] = mako_params[MODULE_DIR_KEY]
+    except KeyError:
+        pass
+
     # instantiate TemplateLookup singleton and expose it in registry
-    lookup = mako_params[TMPL_LOOKUP_KEY] = TemplateLookup(
-            directories=abspath_dirs,
-            module_directory=mako_params[MODULE_DIR_KEY],
-            )
+    lookup = mako_params[TMPL_LOOKUP_KEY] = TemplateLookup(**kwargs)
 
     # also save cache
     __cache.append(lookup)
