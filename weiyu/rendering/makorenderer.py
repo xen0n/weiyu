@@ -51,6 +51,8 @@ __all__ = ['MakoRenderable', ]
 
 from os.path import abspath
 
+import six
+
 from mako.lookup import TemplateLookup
 
 from . import render_hub
@@ -84,8 +86,11 @@ def _ensure_lookup(__cache=[]):
     # TODO: config default value here, or proper exc handling
     mako_params = render_reg['mako']
 
-    # canonicalize template dirs to absolute path
-    abspath_dirs = [abspath(i) for i in mako_params[DIRECTORIES_KEY]]
+    abspath_dirs = []
+    for i in mako_params[DIRECTORIES_KEY]:
+        if isinstance(i, six.text_type):
+            # canonicalize template dirs to absolute path
+            abspath_dirs.append(abspath(i))
 
     # instantiate TemplateLookup singleton and expose it in registry
     lookup = mako_params[TMPL_LOOKUP_KEY] = TemplateLookup(
