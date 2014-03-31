@@ -22,6 +22,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+MANIFEST
 
 # Installer logs and other logfiles
 pip-log.txt
@@ -36,6 +37,9 @@ pip-log.txt
 
 # Mr Developer
 .mr.developer.cfg
+
+# PyCharm
+.idea
 
 # Eric4
 *.e4p
