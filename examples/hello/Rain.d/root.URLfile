@@ -20,7 +20,7 @@
 
 # Demo of a simple Ajax endpoint.
 /ajax/:
-    --include=urls.ajax.txt
+    --include=ajax.URLfile
 
 # All other unrecognized URLs fallback on the introspection view.
 "" index
