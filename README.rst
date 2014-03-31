@@ -11,6 +11,10 @@ weiyu
 configurable, ``weiyu`` strives to empower developers with convenience
 and productivity.
 
+**NOTE** weiyu is **considered alpha quality**, with its adoption basically
+non-existent besides the author's several projects. **Do not use in production
+for now!**
+
 
 Features
 ========
@@ -19,14 +23,14 @@ Features
     - YAML, JSON or Python pickles are supported
     - YAML is the default configuration format for readability
 * NoSQL storage
-    - MongoDB
-    - Redis
     - Riak
+    - Redis
+    - MongoDB (not actively tested)
 * Flexible URL routing
     - Route with either regexes or exact ``startswith`` matches
-    - Concise URLconf definition syntax, with Vim syntax coloring!
-      Check out the ``vim-support/`` directory for details.
-    - Support for reverse resolution
+    - Concise URL routing definition syntax, with Vim syntax coloring!
+      Check out ``examples/hello`` and ``vim-support/`` for details.
+    - Support for scoped reverse URL resolution (documentation needed)
 * Cache integration
 * Frontend technologies
     - Sass by means of pyScss_
