@@ -20,7 +20,11 @@
 
 # Demo of a simple Ajax endpoint.
 /ajax/:
-    --include=ajax.URLfile
+    # A single include can be used to separate whole chunks of URL routing
+    # configuration. The path is resolved relative to the current URLfile,
+    # just like the $$includes in Rainfiles (now config.yml and friends).
+    # Also the .URLfile extension can be omitted for some saved typing. Handy!
+    --include=ajax
 
 # All other unrecognized URLs fallback on the introspection view.
 "" index
