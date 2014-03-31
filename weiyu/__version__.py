@@ -42,7 +42,7 @@ text_type = str if __import__('sys').version_info[0] == 3 else unicode
 # Version information.
 VERSION_MAJOR = 0
 VERSION_MINOR = 2
-VERSION_REV = 0
+VERSION_REV = 1
 
 VERSION = (VERSION_MAJOR, VERSION_MINOR, VERSION_REV, 'final', 0)
 

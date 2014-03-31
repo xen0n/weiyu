@@ -15,7 +15,7 @@ from weiyu.__version__ import VERSION_STR
 setup(
         name='weiyu',
         version=VERSION_STR.split(' ')[0],  # strip out the possible VCS commit
-        description='Yet another Python Web framework, as modular and configurable as possible',
+        description='Yet another Python Web framework striving for convenience and productivity',
         author='Wang Xuerui',
         author_email='idontknw.wang+pypi@gmail.com',
         license='GPLv3+',
@@ -41,7 +41,7 @@ setup(
             },
         packages=find_packages(exclude=['examples', 'tests']),
         classifiers=[
-            'Development Status :: 2 - Pre-Alpha',
+            'Development Status :: 3 - Alpha',
             'Environment :: Web Environment',
             'Intended Audience :: Developers',
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
