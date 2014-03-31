@@ -23,6 +23,8 @@ __all__ = [
         'router_hub',
         ]
 
+import os
+
 import six
 
 from ..helpers.hub import BaseHub
@@ -135,7 +137,8 @@ class RouterHub(BaseHub):
         #
         # Attribute processing.
         attrib_list = routing_rules[0]
-        inherited_klass, inherited_renderer, scope, host = (
+        this_file, inherited_klass, inherited_renderer, scope, host = (
+                parent_info['__file__'],
                 parent_info['inherited_klass'],
                 parent_info['inherited_renderer'],
                 parent_info['scope'],
@@ -197,9 +200,24 @@ class RouterHub(BaseHub):
                         'any rules'
                         )
 
+            # Resolve include path.
+            if this_file is not None:
+                # Resolve relative to the current file.
+                this_dir = os.path.dirname(this_file)
+            else:
+                # Current file path is unavailable, resolve relative to the
+                # current working directory (old behavior).
+                this_dir = os.getcwdu()
+
+            include_path_resolved = os.path.abspath(
+                    os.path.join(
+                        this_dir,
+                        include_path,
+                        ))
+
             # The included file is then treated as a normal routing
             # description.
-            return self.init_router_from_config(typ, include_path)
+            return self.init_router_from_config(typ, include_path_resolved)
 
         # Load the requested (built-in) router class.
         #
@@ -234,6 +252,7 @@ class RouterHub(BaseHub):
                 # this is a router... recursively construct a router out
                 # of it
                 my_info = {
+                        '__file__': this_file,
                         'inherited_klass': inherited_klass,
                         'inherited_renderer': inherited_renderer,
                         'scope': scope,
@@ -274,12 +293,13 @@ class RouterHub(BaseHub):
                 host=host,
                 )
 
-    def init_router(self, typ, routing_rules):
+    def init_router(self, typ, routing_rules, filename=None):
         return self._do_init_router(
                 typ,
                 routing_rules,
                 0,
                 {
+                    '__file__': filename,
                     'inherited_klass': None,
                     'inherited_renderer': None,
                     'scope': '',
@@ -289,7 +309,7 @@ class RouterHub(BaseHub):
 
     def init_router_from_config(self, typ, filename):
         config = parse_config(filename)
-        return self.init_router(typ, config)
+        return self.init_router(typ, config, filename)
 
 
 router_hub = RouterHub()
