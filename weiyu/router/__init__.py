@@ -24,6 +24,7 @@ __all__ = [
         ]
 
 import os
+import errno
 
 import six
 
@@ -215,8 +216,26 @@ class RouterHub(BaseHub):
                         include_path,
                         ))
 
-            # The included file is then treated as a normal routing
-            # description.
+            # Allow for extension (.URLfile) omission.
+            #
+            # Since it is not the default any more, .txt is not considered
+            # here. The worst thing can happen is a failed open() call, so
+            # no worries.
+            #
+            # I decided to not allow funky things like including something
+            # like 'foo.URLfile.URLfile'...
+            if not include_path_resolved.endswith('.URLfile'):
+                # Likely the filename extension is omitted, add it back.
+                suffixed_path = include_path_resolved + '.URLfile'
+
+                # Try the suffixed version first...
+                try:
+                    return self.init_router_from_config(typ, suffixed_path)
+                except IOError as e:
+                    # Only ignore ENOENT here.
+                    if e.errno != errno.ENOENT:
+                        raise
+
             return self.init_router_from_config(typ, include_path_resolved)
 
         # Load the requested (built-in) router class.
