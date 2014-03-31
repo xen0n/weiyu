@@ -166,49 +166,50 @@ class RouterHub(BaseHub):
                 )
         include_path, cls_name = None, None
 
-        if isinstance(attrib_list, _list_types):
-            # Multiple attributes.
-            for attrib in attrib_list:
-                # Router class spec.
-                if '=' not in attrib:
-                    # The class spec attrib does not contain '='.
-                    # This flaky way of determining class spec can be used
-                    # at least for now, as no other parameter-less attributes
-                    # exist so far.
-                    cls_name = attrib
-                    continue
+        if not isinstance(attrib_list, _list_types):
+            # Always use a list for attributes.
+            attrib_list = [attrib_list]
 
-                # Router properties.
-                k, v = attrib.split('=', 1)
+        for attrib in attrib_list:
+            # Router class spec.
+            if '=' not in attrib:
+                # The class spec attrib does not contain '='.
+                # This flaky way of determining class spec can be used
+                # at least for now, as no other parameter-less attributes
+                # exist so far.
+                cls_name = attrib
+                continue
 
-                if k == 'renderer':
-                    # case: renderer=xxx
-                    # record the renderer to inherit
-                    inherited_renderer = v
-                elif k == 'include':
-                    # case: include=xxx
-                    # it must appear as the only attribute, if used!
+            # Router properties.
+            k, v = attrib.split('=', 1)
+
+            if k == 'renderer':
+                # case: renderer=xxx
+                # record the renderer to inherit
+                inherited_renderer = v
+            elif k == 'include':
+                # case: include=xxx
+                # it must appear as the only attribute, if used!
+                if len(attrib_list) > 1:
                     # throw an exception.
                     raise RuntimeError(
                             'include directive must appear on its own'
                             )
-                elif k == 'scope':
-                    # case: scope=xxx
-                    scope = v
-                elif k == 'default-type':
-                    # case: default-type=xxx
-                    inherited_klass = v
-                elif k == 'host':
-                    # case: host=xxx
-                    host = v
-        else:
-            # only one attribute.
-            # it is either the router class spec, or an include directive
-            if attrib_list.startswith('include='):
-                k, v = attrib_list.split('=', 1)
                 include_path = v
+            elif k == 'scope':
+                # case: scope=xxx
+                scope = v
+            elif k == 'default-type':
+                # case: default-type=xxx
+                inherited_klass = v
+            elif k == 'host':
+                # case: host=xxx
+                host = v
             else:
-                cls_name = attrib_list
+                # Unknown attribute, ignore it for compatibility with future
+                # versions.
+                # TODO: log warnings
+                continue
 
         # Process include.
         if include_path is not None:
