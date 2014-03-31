@@ -19,7 +19,7 @@ weiyu.cache:
       struct_id: cache-redis
     main-mc:
       driver: memcached
-      servers: 
+      servers:
         - 127.0.0.1:11211
 
 
