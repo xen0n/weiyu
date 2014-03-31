@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / Task queue integration - Task file
+# weiyu / examples / Working with Celery - Task file
 #
 # This file is in public domain.
 
 from __future__ import unicode_literals, division
 
-from weiyu.tasks import task_hub
+from .celery import celery
 
 
-@task_hub.task('tasktest')
+@celery.task(serializer='json')
 def add(a, b):
     return a + b
 

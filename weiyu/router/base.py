@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / router / base functionality
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,8 +53,10 @@ class RouterBase(object):
             name=None,
             parent=None,
             scope='',
+            host=None,
             ):
-        self.name, self.scope, self.parent = name, scope, parent
+        self.name, self.scope, self.host = name, scope, host
+        self.parent = parent
         self.route_table = [
                 self.__class__.target_type(router=self, *i)
                 for i in target_initializers
@@ -65,7 +67,12 @@ class RouterBase(object):
             if tgt.target_is_router:
                 tgt.target.parent = tgt
 
-    def lookup(self, querystr, prev_args=None, prev_kwargs=None):
+    def lookup(self, querystr, host, prev_args=None, prev_kwargs=None):
+        # Host check
+        if self.host is not None and host != self.host:
+            # Host mismatch, return miss
+            return False, None, None, None, None
+
         # XXX is this needed, or am I overly sensitive?
         querystr = smartstr(querystr)
 
@@ -80,6 +87,7 @@ class RouterBase(object):
             # return is of form ``(hit, target, args, kwargs, )``
             result = entry.lookup(
                     querystr,
+                    host,
                     prev_args,
                     prev_kwargs,
                     )
@@ -89,16 +97,16 @@ class RouterBase(object):
                 return result
 
         # match failure
-        return (False, None, None, None, None, )
+        return False, None, None, None, None
 
-    def dry_dispatch(self, querystr, *args):
+    def dry_dispatch(self, querystr, host, *args):
         '''Do all things except actually invoking callback function,
         returns the calculated parameters that can be used to do a real
         dispatch.
 
         '''
 
-        hit, target, more_args, kwargs, data = self.lookup(querystr)
+        hit, target, more_args, kwargs, data = self.lookup(querystr, host)
 
         if not hit:
             raise DispatchError(
@@ -111,10 +119,6 @@ class RouterBase(object):
         extended_args.extend(more_args)
 
         return target, extended_args, kwargs, data
-
-    def dispatch(self, querystr, *args):
-        target, ext_args, kwargs, data = self.dry_dispatch(querystr, *args)
-        return target(*ext_args, **kwargs)
 
     def build_reverse_map(self):
         scope = self.scope
@@ -153,14 +157,14 @@ class RouterTargetBase(object):
         # for nested processing
         self.target_is_router = is_router(target)
 
-    def check(self, querystr):
+    def check(self, querystr, prev_args, prev_kwargs):
         # return is assumed to be in the form of
         # (hit_status, args, kwargs, new_qs, )
         # since it is unnecessary and redundant to return self.target
         # to an internal method
         raise NotImplementedError
 
-    def lookup(self, querystr, prev_args, prev_kwargs):
+    def lookup(self, querystr, host, prev_args, prev_kwargs):
         # return value is of form (hit, target, args, kwargs, )
         # result is of form (status, args, kwargs, new_querystr, )
         status, args, kwargs, new_qs = self.check(
@@ -177,7 +181,7 @@ class RouterTargetBase(object):
             return (False, None, None, None, None, )
         elif status == STATUS_FORWARD:
             # do nested routing
-            return self.target.lookup(new_qs, args, kwargs)
+            return self.target.lookup(new_qs, host, args, kwargs)
 
         # unreachable if check function behaves properly
         raise DispatchError('Impossible check result %s, bug detected'

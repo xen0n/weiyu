@@ -64,6 +64,7 @@ class TornadoReflex(BaseHTTPReflex):
         # decode the path bytestring
         # TODO: improve encoding handling here
         path = request.path = smartstr(t_req.path, 'utf-8', 'replace')
+        host = request.host = smartstr(t_req.host, 'utf-8', 'replace')
 
         # Move routing (much) earlier so we don't waste time in processing
         # requests impossible to fulfill.
@@ -71,12 +72,13 @@ class TornadoReflex(BaseHTTPReflex):
         # can be replaced by potential hooks, and we certainly don't want
         # a reference to be frozen in the request.
         # Return value is of format (fn, args, kwargs, route_data, )
-        route_result = self._do_routing(path)
+        route_result = self._do_routing(path, host)
         request.callback_info = route_result[:-1]
         request.route_data = route_result[-1]
 
         # Rest of request object preparation goes here...
         request.remote_addr = smartstr(t_req.remote_ip)
+        request.protocol = smartstr(t_req.protocol)
         method = request.method = smartstr(t_req.method)
         length, content = None, None
         try:

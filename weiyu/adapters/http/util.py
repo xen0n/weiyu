@@ -21,9 +21,11 @@ from __future__ import unicode_literals, division
 
 __all__ = [
             'status_to_str',
+            'build_host_str',
             'dummy_file_wrapper',
             'send_content_iter',
             'parse_form',
+            'canonicalize_http_headers',
             'gen_http_headers',
             ]
 
@@ -43,53 +45,54 @@ except ImportError:
 
 import six
 
-from ...helpers.misc import smartbytes
+from ...helpers.misc import smartstr, smartbytes
 
 
-# This dict is pasted from Django's core/handlers/wsgi.py
+# This dict is pasted from Django's core/handlers/wsgi.py, with letter cases
+# adjusted.
 # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 STATUS_CODES_MAP = {
-        100: 'CONTINUE',
-        101: 'SWITCHING PROTOCOLS',
+        100: 'Continue',
+        101: 'Switching Protocols',
         200: 'OK',
-        201: 'CREATED',
-        202: 'ACCEPTED',
-        203: 'NON-AUTHORITATIVE INFORMATION',
-        204: 'NO CONTENT',
-        205: 'RESET CONTENT',
-        206: 'PARTIAL CONTENT',
-        300: 'MULTIPLE CHOICES',
-        301: 'MOVED PERMANENTLY',
-        302: 'FOUND',
-        303: 'SEE OTHER',
-        304: 'NOT MODIFIED',
-        305: 'USE PROXY',
-        306: 'RESERVED',
-        307: 'TEMPORARY REDIRECT',
-        400: 'BAD REQUEST',
-        401: 'UNAUTHORIZED',
-        402: 'PAYMENT REQUIRED',
-        403: 'FORBIDDEN',
-        404: 'NOT FOUND',
-        405: 'METHOD NOT ALLOWED',
-        406: 'NOT ACCEPTABLE',
-        407: 'PROXY AUTHENTICATION REQUIRED',
-        408: 'REQUEST TIMEOUT',
-        409: 'CONFLICT',
-        410: 'GONE',
-        411: 'LENGTH REQUIRED',
-        412: 'PRECONDITION FAILED',
-        413: 'REQUEST ENTITY TOO LARGE',
-        414: 'REQUEST-URI TOO LONG',
-        415: 'UNSUPPORTED MEDIA TYPE',
-        416: 'REQUESTED RANGE NOT SATISFIABLE',
-        417: 'EXPECTATION FAILED',
-        500: 'INTERNAL SERVER ERROR',
-        501: 'NOT IMPLEMENTED',
-        502: 'BAD GATEWAY',
-        503: 'SERVICE UNAVAILABLE',
-        504: 'GATEWAY TIMEOUT',
-        505: 'HTTP VERSION NOT SUPPORTED',
+        201: 'Created',
+        202: 'Accepted',
+        203: 'Non-Authoritative Information',
+        204: 'No Content',
+        205: 'Reset Content',
+        206: 'Partial Content',
+        300: 'Multiple Choices',
+        301: 'Moved Permanently',
+        302: 'Found',
+        303: 'See Other',
+        304: 'Not Modified',
+        305: 'Use Proxy',
+        306: 'Reserved',
+        307: 'Temporary Redirect',
+        400: 'Bad Request',
+        401: 'Unauthorized',
+        402: 'Payment Required',
+        403: 'Forbidden',
+        404: 'Not Found',
+        405: 'Method Not Allowed',
+        406: 'Not Acceptable',
+        407: 'Proxy Authentication Required',
+        408: 'Request Timeout',
+        409: 'Conflict',
+        410: 'Gone',
+        411: 'Length Required',
+        412: 'Precondition Failed',
+        413: 'Request Entity Too Large',
+        414: 'Request-URI Too Long',
+        415: 'Unsupported Media Type',
+        416: 'Requested Range Not Satisfiable',
+        417: 'Expectation Failed',
+        500: 'Internal Server Error',
+        501: 'Not Implemented',
+        502: 'Bad Gateway',
+        503: 'Service Unavailable',
+        504: 'Gateway Timeout',
+        505: 'HTTP Version Not Supported',
         }
 
 # Content types that can be parsed into a form
@@ -116,6 +119,25 @@ def status_to_str(status):
     '''
 
     return STATUS_CODES_MAP[status]
+
+
+def build_host_str(env):
+    # Written according to the algorithm described in PEP 333.
+    if 'HTTP_HOST' in env:
+        return smartstr(env['HTTP_HOST'], 'utf-8', 'replace')
+    else:
+        server_name_str = smartstr(env['SERVER_NAME'], 'utf-8', 'replace')
+        server_port = int(env['SERVER_PORT'])
+        host_str_list = [server_name_str, ]
+
+        if env['wsgi.url_scheme'] == 'https':
+            if server_port != 443:
+                host_str_list.append(six.text_type(server_port))
+        else:
+            if server_port != 80:
+                host_str_list.append(six.text_type(server_port))
+
+        return ':'.join(host_str_list)
 
 
 def dummy_file_wrapper(fp, blk_sz=None):
@@ -161,6 +183,21 @@ def _parse_urlencoded_form(content):
 @_form_content_handler('application/json')
 def _parse_json_form(content):
     return json.loads(content)
+
+
+def canonicalize_http_headers(header_obj):
+    if isinstance(header_obj, list):
+        return header_obj
+    elif isinstance(header_obj, dict):
+        # most probably dict or OrderedDict, make it a plain list
+        return list(six.iteritems(header_obj))
+    elif isinstance(header_obj, tuple):
+        return list(header_obj)
+
+    raise ValueError(
+            'unrecognized HTTP headers object: %s' % (
+                repr(header_obj),
+                ))
 
 
 def gen_http_headers(response, __Content_Length=str('Content-Length')):

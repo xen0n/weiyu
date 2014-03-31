@@ -1,0 +1,33 @@
+--exact
+--default-type=regex
+--renderer=mako
+
+# Static file root.
+/static/:
+    # So far, router classes should always be specified for sub routers.
+    # This might be simplified in a future release of weiyu, by allowing
+    # specification of default router class to use.
+    ^(?P<path>.*)$ staticfile null
+
+# Multi-formatted view demo.
+# This endpoint's response can be rendered by both Mako and JSON,
+# enabling developers to write code once and generate both static pages and
+# API endpoints.
+/calc/:
+    ^(?P<val>\d+)/:
+        text/$ multiformat-test  # This uses the default renderer, i.e. Mako.
+        json/$ multiformat-test json
+
+# Demo of a simple Ajax endpoint.
+/ajax/:
+    # A single include can be used to separate whole chunks of URL routing
+    # configuration. The path is resolved relative to the current URLfile,
+    # just like the $$includes in Rainfiles (now config.yml and friends).
+    # Also the .URLfile extension can be omitted for some saved typing. Handy!
+    --include=ajax
+
+# All other unrecognized URLs fallback on the introspection view.
+"" index
+
+
+# vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8 syn=weiyu-urls:

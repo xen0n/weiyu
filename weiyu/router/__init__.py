@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / router / package
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,6 +23,9 @@ __all__ = [
         'router_hub',
         ]
 
+import os
+import errno
+
 import six
 
 from ..helpers.hub import BaseHub
@@ -31,6 +34,8 @@ from ..registry.classes import UnicodeRegistry
 
 # this does not cause circular import
 from .config.parser import parse_config
+
+from .reverser import reverser_for_router
 
 PROBER = ModProber('weiyu.router', '%srouter')
 
@@ -114,66 +119,27 @@ class RouterHub(BaseHub):
         # TODO: is it really useful to allow passing kwargs also?
         return self.do_handling(typ, querystr, *args)
 
-    def reverser_for(self, typ, __cache={}):
+    def reverser_for(self, router_name):
+        return reverser_for_router(self._routers[router_name])
+
+    def _probe_router_class(self, cls_name):
         try:
-            return __cache[typ]
+            return self._classes[cls_name]
         except KeyError:
             pass
 
-        router = self._routers[typ]
-        map = router.reverse_map
-        pat_cache = {}
+        try:
+            PROBER.modprobe(cls_name)
+        except ImportError:
+            raise RuntimeError(
+                    'request of unknown router class \'%s\'' % (
+                        cls_name,
+                        ),
+                    )
 
-        def reverser(endpoint, **kwargs):
-            # look up the endpoint, memoized.
-            try:
-                pat_str, pat_vars = pat_cache[endpoint]
-            except KeyError:
-                # split the possibly scoped endpoint name into components
-                try:
-                    colon = endpoint.index(':')
-                    scope, name = endpoint[:colon], endpoint[colon + 1:]
-                except ValueError:
-                    scope, name = '', endpoint
-
-                # look up the scope first
-                try:
-                    scope_map = map[scope]
-                except KeyError:
-                    # TODO: a NoReverseMatch here, as Django did?
-                    raise ValueError(
-                            "No scope named '%s' in router type '%s'" % (
-                                scope,
-                                typ,
-                                ))
-
-                try:
-                    pat_str, pat_vars = scope_map[name]
-                except KeyError:
-                    raise ValueError(
-                            "No endpoint '%s' exposed in scope '%s' of "
-                            "router type '%s'" % (
-                                name,
-                                scope,
-                                typ,
-                                ))
-
-                # memoize the result
-                pat_cache[endpoint] = (pat_str, pat_vars, )
-
-            # verify the parameters
-            given_vars = set(six.iterkeys(kwargs))
-            if given_vars != pat_vars:
-                # parameter mismatch
-                raise ValueError('Parameter mismatch')
-
-            # successful match, construct the result
-            return pat_str % kwargs
-
-        # memoize the reverser instance
-        __cache[typ] = reverser
-
-        return reverser
+        # Assume that module has actually registered the wanted class...
+        assert cls_name in self._classes
+        return self._classes[cls_name]
 
     def _do_init_router(
             self,
@@ -191,44 +157,59 @@ class RouterHub(BaseHub):
         #
         # Attribute processing.
         attrib_list = routing_rules[0]
-        inherited_renderer, scope = (
+        this_file, inherited_klass, inherited_renderer, scope, host = (
+                parent_info['__file__'],
+                parent_info['inherited_klass'],
                 parent_info['inherited_renderer'],
                 parent_info['scope'],
+                parent_info['host'],
                 )
         include_path, cls_name = None, None
 
-        if isinstance(attrib_list, _list_types):
-            # Multiple attributes.
-            # separate the router class from the others
-            # the class spec is hardcoded to be the 1st attrib in the list
-            cls_name = attrib_list[0]
+        if not isinstance(attrib_list, _list_types):
+            # Always use a list for attributes.
+            attrib_list = [attrib_list]
 
-            # Process the other attributes.
-            for attrib in attrib_list[1:]:
-                k, v = attrib.split('=', 1)
+        for attrib in attrib_list:
+            # Router class spec.
+            if '=' not in attrib:
+                # The class spec attrib does not contain '='.
+                # This flaky way of determining class spec can be used
+                # at least for now, as no other parameter-less attributes
+                # exist so far.
+                cls_name = attrib
+                continue
 
-                if k == 'renderer':
-                    # case: renderer=xxx
-                    # record the renderer to inherit
-                    inherited_renderer = v
-                elif k == 'include':
-                    # case: include=xxx
-                    # it must appear as the only attribute, if used!
+            # Router properties.
+            k, v = attrib.split('=', 1)
+
+            if k == 'renderer':
+                # case: renderer=xxx
+                # record the renderer to inherit
+                inherited_renderer = v
+            elif k == 'include':
+                # case: include=xxx
+                # it must appear as the only attribute, if used!
+                if len(attrib_list) > 1:
                     # throw an exception.
                     raise RuntimeError(
                             'include directive must appear on its own'
                             )
-                elif k == 'scope':
-                    # case: scope=xxx
-                    scope = v
-        else:
-            # only one attribute.
-            # it is either the router class spec, or an include directive
-            if attrib_list.startswith('include='):
-                k, v = attrib_list.split('=', 1)
                 include_path = v
+            elif k == 'scope':
+                # case: scope=xxx
+                scope = v
+            elif k == 'default-type':
+                # case: default-type=xxx
+                inherited_klass = v
+            elif k == 'host':
+                # case: host=xxx
+                host = v
             else:
-                cls_name = attrib_list
+                # Unknown attribute, ignore it for compatibility with future
+                # versions.
+                # TODO: log warnings
+                continue
 
         # Process include.
         if include_path is not None:
@@ -240,9 +221,42 @@ class RouterHub(BaseHub):
                         'any rules'
                         )
 
-            # The included file is then treated as a normal routing
-            # description.
-            return self.init_router_from_config(typ, include_path)
+            # Resolve include path.
+            if this_file is not None:
+                # Resolve relative to the current file.
+                this_dir = os.path.dirname(this_file)
+            else:
+                # Current file path is unavailable, resolve relative to the
+                # current working directory (old behavior).
+                this_dir = os.getcwdu()
+
+            include_path_resolved = os.path.abspath(
+                    os.path.join(
+                        this_dir,
+                        include_path,
+                        ))
+
+            # Allow for extension (.URLfile) omission.
+            #
+            # Since it is not the default any more, .txt is not considered
+            # here. The worst thing can happen is a failed open() call, so
+            # no worries.
+            #
+            # I decided to not allow funky things like including something
+            # like 'foo.URLfile.URLfile'...
+            if not include_path_resolved.endswith('.URLfile'):
+                # Likely the filename extension is omitted, add it back.
+                suffixed_path = include_path_resolved + '.URLfile'
+
+                # Try the suffixed version first...
+                try:
+                    return self.init_router_from_config(typ, suffixed_path)
+                except IOError as e:
+                    # Only ignore ENOENT here.
+                    if e.errno != errno.ENOENT:
+                        raise
+
+            return self.init_router_from_config(typ, include_path_resolved)
 
         # Load the requested (built-in) router class.
         #
@@ -250,21 +264,11 @@ class RouterHub(BaseHub):
         # before.
         #
         # TODO: allow registration of custom modules in modprober mechanism
-        try:
-            cls = self._classes[cls_name]
-        except KeyError:
-            try:
-                PROBER.modprobe(cls_name)
-            except ImportError:
-                raise RuntimeError(
-                        'request of unknown router class \'%s\'' % (
-                            cls_name,
-                            ),
-                        )
 
-            # Assume that module has actually registered the wanted class...
-            assert cls_name in self._classes
-            cls = self._classes[cls_name]
+        # Override with inherited class name if not specified already.
+        # This works even inside the same router node.
+        cls_name = cls_name if cls_name is not None else inherited_klass
+        cls = self._probe_router_class(cls_name)
 
         # Process rules.
         result_rules = []
@@ -273,8 +277,11 @@ class RouterHub(BaseHub):
                 # this is a router... recursively construct a router out
                 # of it
                 my_info = {
+                        '__file__': this_file,
+                        'inherited_klass': inherited_klass,
                         'inherited_renderer': inherited_renderer,
                         'scope': scope,
+                        'host': host,
                         }
                 tgt = self._do_init_router(typ, target_spec, lvl + 1, my_info)
             elif isinstance(target_spec, six.string_types):
@@ -308,22 +315,26 @@ class RouterHub(BaseHub):
                 result_rules,
                 name=typ if lvl == 0 else None,
                 scope=scope,
+                host=host,
                 )
 
-    def init_router(self, typ, routing_rules):
+    def init_router(self, typ, routing_rules, filename=None):
         return self._do_init_router(
                 typ,
                 routing_rules,
                 0,
                 {
+                    '__file__': filename,
+                    'inherited_klass': None,
                     'inherited_renderer': None,
                     'scope': '',
+                    'host': None,
                     },
                 )
 
     def init_router_from_config(self, typ, filename):
         config = parse_config(filename)
-        return self.init_router(typ, config)
+        return self.init_router(typ, config, filename)
 
 
 router_hub = RouterHub()

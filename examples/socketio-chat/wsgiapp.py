@@ -4,16 +4,18 @@
 #
 # This file is in public domain.
 
+from __future__ import unicode_literals
+
 from gevent import monkey
 monkey.patch_all()
 
 from weiyu.init import inject_app
-from weiyu.utils.server import cli_server
 
 inject_app()
 
 
 if __name__ == '__main__':
+    from weiyu.utils.server import cli_server
     cli_server(
             'socketio',
             ('0.0.0.0', 8080),

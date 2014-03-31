@@ -1,0 +1,35 @@
+site:
+  $$nodup: true
+  name: "weiyu hello site"
+
+  views:
+    modules:
+      - weiyu.utils.views
+      - hello_views
+
+  middlewares:
+    pre:
+      - session
+    post:
+      - session
+
+  session:
+    # $$include's can be used inside any config dict.
+    # Paths are relative to the including file, not to the current working
+    # directory.
+    $$include: weiyu/session.yml
+
+  staticfile:
+    # NOTE: This is relative to the script's working directory.
+    root: ./static/
+
+
+# $$include can also be used in top-level, including whole registries at once.
+# This can also be a list!
+# Multiple includes will be processed in order.
+$$include:
+  - weiyu/rendering.yml
+  - weiyu/db.yml
+
+
+# vim:set ai et ts=2 sw=2 sts=2 fenc=utf-8:

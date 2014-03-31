@@ -32,6 +32,8 @@ except ImportError:
 from ..registry.provider import request as regrequest
 from ..shortcuts import *
 
+from .decorators import only_methods
+
 # Valid GitHub callback IP ranges
 # TODO: according to GitHub, implement HTTP Basic auth as well
 GH_IP_WHITELIST = (
@@ -60,15 +62,12 @@ def is_ip_whitelisted(ip):
 @http('gh-webhook-post-receive')
 @renderable('dummy')
 @view
+@only_methods(['POST', ])
 def on_gh_post_receive(request):
     repos = regrequest('site')['github']['post-receive']
 
     if not is_ip_whitelisted(request.remote_addr):
         return _dummy(403)
-
-    if request.method != 'POST':
-        # TODO: a limit method decorator would be better
-        return _dummy(400)
 
     try:
         payload_json = request.form['payload']

@@ -1,0 +1,5 @@
+--exact
+/ajax/github/ gh-webhook-post-receive dummy
+
+
+# vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8 syn=weiyu-urls:

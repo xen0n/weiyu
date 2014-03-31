@@ -31,7 +31,7 @@ from ...reflex.classes import ReflexRequest
 
 from .base import BaseHTTPReflex
 from .util import status_to_str, dummy_file_wrapper, send_content_iter
-from .util import parse_form, gen_http_headers
+from .util import build_host_str, parse_form, gen_http_headers
 
 
 class WSGIRequest(ReflexRequest):
@@ -55,6 +55,7 @@ class WSGIReflex(BaseHTTPReflex):
         # decode the path bytestring
         # TODO: improve encoding handling here
         path = request.path = smartstr(env['PATH_INFO'], 'utf-8', 'replace')
+        host = request.host = build_host_str(env)
 
         # Move routing (much) earlier so we don't waste time in processing
         # requests impossible to fulfill.
@@ -62,12 +63,13 @@ class WSGIReflex(BaseHTTPReflex):
         # can be replaced by potential hooks, and we certainly don't want
         # a reference to be frozen in the request.
         # Return value is of format (fn, args, kwargs, route_data, )
-        route_result = self._do_routing(path)
+        route_result = self._do_routing(path, host)
         request.callback_info = route_result[:-1]
         request.route_data = route_result[-1]
 
         # Rest of request object preparation goes here...
         request.remote_addr = smartstr(env['REMOTE_ADDR'])
+        request.protocol = smartstr(env['wsgi.url_scheme'])
         method = request.method = smartstr(env['REQUEST_METHOD'])
         length, _env_length = None, None
         try:

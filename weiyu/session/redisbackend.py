@@ -31,7 +31,7 @@ import six
 import redis
 
 # I don't feel like reinventing the wheel, so...
-import Cookie
+from six.moves import http_cookies
 
 from beaker.session import SignedCookie
 
@@ -66,10 +66,10 @@ class RedisSessionObject(dict):
             if secret is not None:
                 try:
                     cookie = SignedCookie(secret, input=cookiehdr)
-                except Cookie.CookieError:
+                except http_cookies.CookieError:
                     cookie = SignedCookie(secret, input=None)
             else:
-                cookie = Cookie.SimpleCookie(input=cookiehdr)
+                cookie = http_cookies.SimpleCookie(input=cookiehdr)
 
             if self.id is None and key in cookie:
                 self.id = cookie[key].value
@@ -110,38 +110,24 @@ class RedisSessionObject(dict):
                 # empty it must not exist.
                 if old_content:
                     # the probability of UUID conflicts is ~0,
-                    # so why do we have to say while True here?
-                    result = False
-                    for i in xrange(4):
-                        try:
-                            result = conn.renamenx(old_id, self.id)
-                            if result:
-                                # rename successful
-                                break
-                            # rename failed because target key exists
-                            self.id = _generate_sessid()
-                        except redis.exceptions.ResponseError:
-                            # rename failed because source and destination
-                            # are the SAME... or because the source has
-                            # VANISHED in operation!
-                            self.id = _generate_sessid()
+                    # just believe that hopefully we won't get duplicates...
+                    try:
+                        result = conn.renamenx(old_id, self.id)
+                    except redis.exceptions.ResponseError:
+                        # rename failed because source and destination
+                        # are the SAME... or because the source has
+                        # VANISHED in operation!
+                        self.id = _generate_sessid()
 
-                            if not conn.exists(old_id):
-                                # well, the session expired during <<1ms of
-                                # execution.
-                                # Lucky we have old_content... Just assign it
-                                # to self.id. Another edge case is that the
-                                # newly-generated id happens to conflict with
-                                # something else... Oh well. Let's not go that
-                                # far.
-                                conn.hmset(self.id, old_content)
-                                result = True
-                                break
-
-                    if not result:
-                        # That many *UUID conflicts* ?
-                        # Better go buy some lotteries...
-                        raise RuntimeError('Session UUID conflicts!')
+                        if not conn.exists(old_id):
+                            # well, the session expired during <<1ms of
+                            # execution.
+                            # Lucky we have old_content... Just assign it
+                            # to self.id. Another edge case is that the
+                            # newly-generated id happens to conflict with
+                            # something else... Oh well. Let's not go that
+                            # far.
+                            conn.hmset(self.id, old_content)
 
         self.set_cookie_prop()
 
@@ -170,8 +156,19 @@ class RedisSessionObject(dict):
 
     # Cookie operations
     def set_cookie_prop(self, expires=None, domain=None, path='/'):
-        self.cookie[self.key] = self.id
-        entry = self.cookie[self.key]
+        # <text type of Python 2.x and 3.x>.translate only has 1 parameter,
+        # which would cause the Cookie implementation to fail!
+        bkey = six.binary_type(self.key)
+
+        # Important: force current session ID into the cookie!
+        # Actually there's no risk of overriding existing properties by
+        # assigning to the key. This can be confirmed by reading the
+        # implementation of Morsel.__setitem__.
+        self.cookie[bkey] = self.id
+
+        # This is *not* the same as self.id, of course...
+        # It's a Morsel instead
+        entry = self.cookie[bkey]
 
         entry['path'] = path
         if domain is not None:

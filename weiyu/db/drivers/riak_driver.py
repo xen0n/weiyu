@@ -84,12 +84,14 @@ class RiakDriver(BaseDriver):
         return self._buckets[bucket]
 
     def __repr__(self):
-        return b'<weiyu.db/riak: %s:%d, prefix=%s, mapred_prefix=%s>' % (
-                self.host,
-                self.port,
-                self.prefix,
-                self.mapred_prefix,
-                )
+        if self.nodes is None:
+            return b'<weiyu.db/riak: %s, http_port=%d, pb_port=%d>' % (
+                    self.host,
+                    self.http_port,
+                    self.pb_port,
+                    )
+
+        return b'<weiyu.db/riak: nodes=%s>' % (repr(self.nodes), )
 
 
 @db_hub.register_handler('riak')

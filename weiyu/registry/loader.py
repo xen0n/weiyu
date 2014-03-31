@@ -94,7 +94,8 @@ __all__ = [
         'PickleConfig',
         ]
 
-from os.path import abspath, splitext
+from os.path import abspath, dirname, splitext
+from os.path import join as pathjoin
 from functools import wraps
 import abc
 import json
@@ -224,21 +225,62 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
         with open(path, 'rb') as fp:
             return self.load(fp)
 
-    def do_include(self, includes):
+    def _do_inject_include_files(self, includes):
         tmp = {}
+
+        # All include paths should be relative to the config file currently
+        # under preprocessing.
+        this_path = dirname(abspath(self.path))
+
+        # print("$$include: base path for '%s' is '%s'" % (
+        #         self.path,
+        #         this_path,
+        #         ))
+
         for path in includes:
             # XXX FIXME: Infinite includes is possible!!
             # NOTE Security is important here, so paths should be
             # at least canonicalized.
-            real_path = abspath(path)
-            tmp.update(self.load_from_path(real_path))
+
+            real_path = abspath(pathjoin(this_path, path))
+            # print("$$include: '%s' resolved to '%s'" % (path, real_path, ))
+
+            tmp.update(BaseConfig.get_config(real_path).load())
+
         return tmp
 
+    def _do_includes(self, dct):
+        # top-level includes
+        if DIRECTIVE_INCLUDE in dct:
+            include_file_or_list = dct.pop(DIRECTIVE_INCLUDE)
+
+            if isinstance(include_file_or_list, six.text_type):
+                include_list = [include_file_or_list, ]
+            elif isinstance(include_file_or_list, six.binary_type):
+                include_list = [include_file_or_list, ]
+            elif isinstance(include_file_or_list, (list, tuple, )):
+                include_list = include_file_or_list
+            else:
+                raise ValueError(
+                        'unknown object for $$include directive: %s' % (
+                            repr(include_file_or_list),
+                            ),
+                        )
+
+            dct.update(self._do_inject_include_files(include_list))
+
+        # includes inside sub-keys
+        for k in six.iterkeys(dct):
+            if isinstance(dct[k], dict):
+                # recurse into ANY sub-dictionary
+                dct[k] = self._do_includes(dct[k])
+
+        return dct
+
     def process_directives(self, data):
-        # process '$$include': [inc1, inc2, etc, ]
-        if DIRECTIVE_INCLUDE in data:
-            include_list = data.pop(DIRECTIVE_INCLUDE)
-            data.update(self.do_include(include_list))
+        # process all $$include's
+        # print("Preprocessing config file '%s'" % (self.path, ))
+        data = self._do_includes(data)
 
         return data
 

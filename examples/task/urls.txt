@@ -1,2 +1,0 @@
---regex
-^/add/(?P<r_a>\d+)/(?P<r_b>\d+)/$ delayed-add json

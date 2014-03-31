@@ -24,7 +24,8 @@ This is an implementation of GitHub's post-receive hook listener.
 
 ## tasks
 
-This example shows the usage of ``weiyu``'s task subsystem.
+This example shows how to integrate Celery into your ``weiyu`` app. It boils
+down to just loading the config before creating the ``celery`` object!
 
 
 ## cache

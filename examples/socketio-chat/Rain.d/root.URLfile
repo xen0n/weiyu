@@ -1,10 +1,12 @@
---regex
+--default-type=regex
 
 ^/static/:
-    --regex
     ^(?P<path>.*)$ staticfile null
 
 ^/socket.io socketio-handler null
 
 ^/$ index mako
 "" 404 mako
+
+
+# vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8 syn=weiyu-urls:

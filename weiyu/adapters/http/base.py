@@ -35,10 +35,12 @@ from ...rendering import render_hub
 
 from .. import adapter_hub
 
+from .util import canonicalize_http_headers
+
 # Status codes that cannot have response body
 # Used to prevent rendering code from being invoked
 # TODO: add more of them
-NO_RESP_BODY_STATUSES = {405, }
+NO_RESP_BODY_STATUSES = {204, 304, 405, }
 
 
 @adapter_hub.declare_middleware('session')
@@ -91,9 +93,8 @@ class BaseHTTPReflex(BaseReflex):
         # Render the response early
         # TODO: find a way to extract all the literals out
         request = response.request
-        ctx, hdrs, extras = response.context, [], {}
-        render_in = cont = mime = None
-        dont_render = False
+        ctx, extras = response.context, {}
+        dont_render, mime = False, None
 
         # are we hijacked by some other library (e.g. socketio)?
         if ctx.get('request_vanished', False):
@@ -126,7 +127,12 @@ class BaseHTTPReflex(BaseReflex):
         if response.status in NO_RESP_BODY_STATUSES:
             dont_render = True
 
-        if not dont_render:
+        if dont_render:
+            # literally don't render anything
+            response.content = b''
+        else:
+            render_in, cont = None, b''
+
             if issubclass(type(request.route_data), dict):
                 # mapping object, see if we could get the hint...
                 render_in = request.route_data.get('render_in', None)
@@ -155,6 +161,18 @@ class BaseHTTPReflex(BaseReflex):
             # encode content, if it's a Unicode thing
             response.content = smartbytes(cont, enc, 'replace')
 
+        # Prepare headers.
+        # Process any headers directly specified in response objects.
+        try:
+            # Try to canonicalize into list.
+            canon_headers = canonicalize_http_headers(response.http_headers)
+            response.http_headers = canon_headers
+        except AttributeError:
+            response.http_headers = []
+
+        # Extract headers supplied in response context, if any.
+        hdrs = canonicalize_http_headers(ctx.get('headers', []))
+
         # TODO: convert more context into HTTP headers as much as possible
         # generate Content-Type from mimetype and charset
         # but don't append charset if the response is a raw file
@@ -170,11 +188,20 @@ class BaseHTTPReflex(BaseReflex):
         for cookie_line in ctx.get('cookies', []):
             hdrs.append((b'Set-Cookie', cookie_line, ))
 
+        # Location header for 300, 301, 302
+        if response.status in {300, 301, 302, }:
+            try:
+                hdrs.append((b'Location', ctx['location'], ))
+            except KeyError:
+                # simply don't set the header, as that's not mandatory
+                # according to RFC2616.
+                pass
+
         # 405 Not Allowed header
         if response.status == 405:
             hdrs.append((b'Allow', ctx['allowed_methods'], ))
 
-        response.http_headers = hdrs
+        response.http_headers.extend(hdrs)
         response._dont_render = dont_render
 
         return response

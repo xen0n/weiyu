@@ -11,6 +11,10 @@ weiyu
 configurable, ``weiyu`` strives to empower developers with convenience
 and productivity.
 
+**NOTE** weiyu is **considered alpha quality**, with its adoption basically
+non-existent besides the author's several projects. **Do not use in production
+for now!**
+
 
 Features
 ========
@@ -19,15 +23,15 @@ Features
     - YAML, JSON or Python pickles are supported
     - YAML is the default configuration format for readability
 * NoSQL storage
-    - MongoDB
-    - Redis
     - Riak
+    - Redis
+    - MongoDB (not actively tested)
 * Flexible URL routing
     - Route with either regexes or exact ``startswith`` matches
-    - Concise URLconf definition syntax
-    - Support for reverse resolution
+    - Concise URL routing definition syntax, with Vim syntax coloring!
+      Check out ``examples/hello`` and ``vim-support/`` for details.
+    - Support for scoped reverse URL resolution (documentation needed)
 * Cache integration
-* Task queue integration
 * Frontend technologies
     - Sass by means of pyScss_
 
@@ -47,8 +51,6 @@ The framework provides integration with the following packages:
 * Session management
     - Beaker
     - redis
-* Task queue
-    - celery
 * Templating engine
     - Mako
     - pyScss_
@@ -100,7 +102,7 @@ To install via ``pip``::
     $ pip install weiyu
 
 Both will not install most of the dependencies. While the deps can be
-controlled individually using flags like ``weiyu[mako,celery,redis]``,
+controlled individually using flags like ``weiyu[mako,riak,redis]``,
 requirements files have been provided to allow quick install of all
 possible dependencies.::
 

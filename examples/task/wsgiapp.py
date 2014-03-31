@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / Task queue integration - WSGI stub
+# weiyu / examples / Working with Celery - WSGI stub
 #
 # This file is in public domain.
 
-from __future__ import unicode_literals, division
+from __future__ import unicode_literals
 
 from weiyu.init import inject_app
-from weiyu.utils.server import cli_server
 
 inject_app()
 
 
 if __name__ == '__main__':
+    from weiyu.utils.server import cli_server
     cli_server('cherrypy')
 
 

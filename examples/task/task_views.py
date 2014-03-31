@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# weiyu / examples / Task queue integration - view
+# weiyu / examples / Working with Celery - view
 #
 # This file is in public domain.
 
 from __future__ import unicode_literals, division
 
 from weiyu.shortcuts import *
-from weiyu.tasks import task_hub
 
 from tasktest.tasks import add
 

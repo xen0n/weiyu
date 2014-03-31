@@ -31,7 +31,7 @@ from .. import init
 from ..adapters import adapter_hub
 from ..router import router_hub
 from ..rendering.decorators import renderable
-from ..utils.decorators import view
+from ..utils.decorators import view, cors
 
 
 def expose(fn):
@@ -44,6 +44,7 @@ def expose(fn):
 # Expose convenient aliases.
 expose(renderable)
 expose(view)
+expose(cors)
 
 make_app = adapter_hub.make_app
 expose(make_app)
