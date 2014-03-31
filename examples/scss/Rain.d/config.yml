@@ -6,6 +6,8 @@ site:
       - weiyu.rendering.views
 
   scss-bridge:
+    # NOTE: This (and other paths) is relative to the entry point script's
+    # working directory, unlike include paths.
     root: ./css
 
 weiyu.rendering:
