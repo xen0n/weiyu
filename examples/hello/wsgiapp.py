@@ -4,17 +4,15 @@
 #
 # This file is in public domain.
 
-from __future__ import unicode_literals, division
+from __future__ import unicode_literals
 
 from weiyu.init import inject_app
-from weiyu.utils.server import cli_server
 
-# For JSON or other config formats, do something like this instead:
-# inject_app(conf_path='conf.json')
 inject_app()
 
 
 if __name__ == '__main__':
+    from weiyu.utils.server import cli_server
     cli_server('cherrypy')
 
 
