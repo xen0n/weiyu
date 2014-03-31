@@ -122,6 +122,25 @@ class RouterHub(BaseHub):
     def reverser_for(self, router_name):
         return reverser_for_router(self._routers[router_name])
 
+    def _probe_router_class(self, cls_name):
+        try:
+            return self._classes[cls_name]
+        except KeyError:
+            pass
+
+        try:
+            PROBER.modprobe(cls_name)
+        except ImportError:
+            raise RuntimeError(
+                    'request of unknown router class \'%s\'' % (
+                        cls_name,
+                        ),
+                    )
+
+        # Assume that module has actually registered the wanted class...
+        assert cls_name in self._classes
+        return self._classes[cls_name]
+
     def _do_init_router(
             self,
             typ,
@@ -248,21 +267,7 @@ class RouterHub(BaseHub):
         # Override with inherited class name if not specified already.
         # This works even inside the same router node.
         cls_name = cls_name if cls_name is not None else inherited_klass
-        try:
-            cls = self._classes[cls_name]
-        except KeyError:
-            try:
-                PROBER.modprobe(cls_name)
-            except ImportError:
-                raise RuntimeError(
-                        'request of unknown router class \'%s\'' % (
-                            cls_name,
-                            ),
-                        )
-
-            # Assume that module has actually registered the wanted class...
-            assert cls_name in self._classes
-            cls = self._classes[cls_name]
+        cls = self._probe_router_class(cls_name)
 
         # Process rules.
         result_rules = []
