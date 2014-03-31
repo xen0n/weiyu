@@ -47,9 +47,51 @@ del base
 CONFIG_LOADED = False
 
 
-def load_router(typ, filename):
+def _ensure_site_registry():
+    return regrequest(
+            'site',
+            autocreate=True,
+            nodup=False,
+            klass=UnicodeRegistry,
+            )
+
+
+def _do_load_router(typ, filename):
     router = router_hub.init_router_from_config(typ, filename)
     return router_hub.register_router(router)
+
+
+def load_router(typ, filename=None):
+    if filename is not None:
+        # configured by app stub
+        return _do_load_router(typ, filename)
+
+    reg_site = _ensure_site_registry()
+    if 'urls' in reg_site:
+        # configured by registry
+        return _do_load_router(typ, reg_site['urls'])
+
+    # probe for different defaults
+    if os.path.exists('Rain.d/root.URLfile'):
+        if os.path.exists('urls.txt'):
+            warnings.warn(
+                    'Rain.d/root.URLfile overrides urls.txt, please migrate '
+                    'and delete the old URL routing files to avoid any '
+                    'possible inconsistencies',
+                    DeprecationWarning,
+                    )
+        return _do_load_router(typ, 'Rain.d/root.URLfile')
+
+    if os.path.exists('urls.txt'):
+        warnings.warn(
+                'The filename \'urls.txt\' for URL routing is '
+                'deprecated, please move to Rain.d/root.URLfile (no other '
+                'changes needed)',
+                DeprecationWarning,
+                )
+        return _do_load_router(typ, 'urls.txt')
+
+    raise RuntimeError('no default URL routing configuration found')
 
 
 def _do_load_config(path):
@@ -72,33 +114,45 @@ def load_config(path=None):
         _do_load_config(path)
     else:
         # Default config file.
-        if os.path.exists('Rainfile.yml'):
-            # 1. Rainfile (new default)
-            if os.path.exists('conf.yml') or os.path.exists('conf.json'):
+        if os.path.exists('Rain.d/config.yml'):
+            # 1. Rain.d ((again) new default)
+            if any(
+                    os.path.exists(f)
+                    for f in ('Rainfile.yml', 'conf.yml', 'conf.json')
+                    ):
                 warnings.warn(
-                        'Rainfile overrides any conf.yml or conf.json, '
-                        'please migrate and delete the old configuration '
-                        'files to avoid any possible inconsistencies',
+                        'Rain.d/config.yml overrides the config files with '
+                        'old default names, please migrate and delete the '
+                        'old configuration files to avoid any possible '
+                        'inconsistencies',
                         DeprecationWarning,
                         )
-
+            _do_load_config('Rain.d/config.yml')
+        elif os.path.exists('Rainfile.yml'):
+            # 2. Rainfile (old default)
+            warnings.warn(
+                    'The filename \'Rainfile.yml\' for configuration is '
+                    'deprecated, please move to Rain.d/config.yml (no other '
+                    'changes needed)',
+                    DeprecationWarning,
+                    )
             _do_load_config('Rainfile.yml')
         elif os.path.exists('conf.yml'):
-            # 2. conf.yml (old default)
+            # 3. conf.yml (old^2 default)
             warnings.warn(
                     'The filename \'conf.yml\' for configuration is '
-                    'deprecated, please rename it to Rainfile.yml (no other '
+                    'deprecated, please move to Rain.d/config.yml (no other '
                     'changes needed)',
-                    PendingDeprecationWarning,
+                    DeprecationWarning,
                     )
             _do_load_config('conf.yml')
         elif os.path.exists('conf.json'):
-            # 3. conf.json (VERY old default, since weiyu's inception)
+            # 4. conf.json (VERY VERY old default, since weiyu's inception)
             warnings.warn(
                     'JSON configuration stored in \'conf.json\' is LONG '
                     'deprecated. Please consider migrating your '
                     'configurations to YAML for better readability and ease '
-                    'of maintenance, then name it Rainfile.yml',
+                    'of maintenance, then store it in Rain.d/config.yml',
                     DeprecationWarning,
                     )
             _do_load_config('conf.json')
@@ -126,12 +180,7 @@ def boot(
     load_config(conf_path)
 
     # make an empty site registry if not present
-    reg_site = regrequest(
-            'site',
-            autocreate=True,
-            nodup=False,
-            klass=UnicodeRegistry,
-            )
+    reg_site = _ensure_site_registry()
 
     # determine if ViewLoader is configured by registry
     if views_path is not None:
@@ -153,20 +202,7 @@ def boot(
             load_views('views.json')
 
     # init router
-    if root_router_file is not None:
-        # configured by app stub
-        router_file_to_use = root_router_file
-    else:
-        if 'urls' in reg_site:
-            # configured by registry
-            router_file_to_use = reg_site['urls']
-        else:
-            # default value to use
-            # this is not deprecated because urls.txt has special syntax
-            # anyway
-            router_file_to_use = 'urls.txt'
-
-    load_router(router_type, router_file_to_use)
+    load_router(router_type, root_router_file)
 
     # register middlewares according to config
     middleware_decl = (
