@@ -51,12 +51,12 @@ def get_port_number():
     return int(sys.argv[1]) if len(sys.argv) == 2 else DEFAULT_PORT
 
 
-def cli_server(flavor, *args, **kwargs):
-    return _SERVER_FLAVORS[flavor](*args, **kwargs)
+def cli_server(flavor, managed=False, **kwargs):
+    return _SERVER_FLAVORS[flavor](managed, **kwargs)
 
 
 @expose_flavor('cherrypy')
-def cli_server_cherrypy(application=None, port=None, hostname=None):
+def cli_server_cherrypy(managed, application=None, port=None, hostname=None):
     try:
         from cherrypy import wsgiserver
     except ImportError:
@@ -66,10 +66,10 @@ def cli_server_cherrypy(application=None, port=None, hostname=None):
                 )
         sys.exit(1)
 
-    port = get_port_number() if port is None else port
+    port = get_port_number() if not managed and port is None else port
     hostname = gethostname() if hostname is None else hostname
 
-    if application is None:
+    if not managed and application is None:
         # inspect the outer frame's locals to get the application object, for
         # developer's convenience.
         outer_frame = inspect.getouterframes(inspect.currentframe())[2][0]
@@ -87,7 +87,7 @@ def cli_server_cherrypy(application=None, port=None, hostname=None):
 
 
 @expose_flavor('tornado')
-def cli_server_tornado(server=None, port=None, hostname=None):
+def cli_server_tornado(managed, application=None, port=None, hostname=None):
     try:
         from tornado import ioloop
     except ImportError:
@@ -97,22 +97,32 @@ def cli_server_tornado(server=None, port=None, hostname=None):
                 )
         sys.exit(1)
 
-    port = get_port_number() if port is None else port
+    port = get_port_number() if not managed and port is None else port
     hostname = gethostname() if hostname is None else hostname
 
-    if server is None:
+    if not managed and application is None:
         # NOTE: Tornado does not have the notion of "application" as WSGI.
         # The procedure to start serving requests is also different, so we
         # do not inspect the parent frame for the application object.
         # Instead, we request one from ``adapter_hub`` directly.
-        server = adapter_hub.make_app('tornado')
+        #
+        # The argument name is forced to be 'application' because of the CLI
+        # functionality 'rain serve'. This way we avoid special-casing the
+        # flavor.
+        application = adapter_hub.make_app('tornado')
 
-    server.listen(port)
+    application.listen(port)
     ioloop.IOLoop.instance().start()
 
 
 @expose_flavor('socketio')
-def cli_server_socketio(listener, application=None, *args, **kwargs):
+def cli_server_socketio(
+        managed,
+        listen=None,
+        application=None,
+        port=None,
+        **kwargs
+        ):
     try:
         from socketio.server import SocketIOServer
     except ImportError:
@@ -122,14 +132,20 @@ def cli_server_socketio(listener, application=None, *args, **kwargs):
                 )
         sys.exit(1)
 
-    if application is None:
+    if not managed and application is None:
         # inspect the caller
         outer_frame = inspect.getouterframes(inspect.currentframe())[2][0]
         app = outer_frame.f_globals['application']
     else:
         app = application
 
-    server = SocketIOServer(listener, app, *args, **kwargs)
+    # Managed (i.e. invoked by 'rain serve') invocations doesn't have the
+    # ``listen`` parameter passed in, but have ``port`` set.
+    # Just make up one listening on localhost.
+    if managed and listen is None:
+        listen = ('0.0.0.0', port, )
+
+    server = SocketIOServer(listen, app, **kwargs)
     server.serve_forever()
 
 

@@ -24,6 +24,7 @@ import os
 import argparse
 
 from .commands import shell
+from .commands import serve
 
 # Argument parser setup
 parser = argparse.ArgumentParser(
@@ -44,6 +45,32 @@ parser_shell = subparsers.add_parser(
         help='Open a Python shell with weiyu initialized',
         )
 parser_shell.set_defaults(func=shell.rain_shell)
+
+# rain serve
+parser_serve = subparsers.add_parser(
+        'serve',
+        help='Fire up development server',
+        )
+parser_serve.add_argument(
+        '-f',
+        '--server-flavor',
+        help='flavor of server',
+        default='cherrypy',
+        )
+parser_serve.add_argument(
+        '-t',
+        '--adapter-type',
+        help='type of adapter to use',
+        default='wsgi',
+        )
+parser_serve.add_argument(
+        '-p',
+        '--port',
+        help='port to listen on',
+        type=int,
+        default=9090,
+        )
+parser_serve.set_defaults(func=serve.rain_serve)
 
 
 def main():

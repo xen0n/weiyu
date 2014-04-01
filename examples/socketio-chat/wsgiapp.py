@@ -18,7 +18,7 @@ if __name__ == '__main__':
     from weiyu.utils.server import cli_server
     cli_server(
             'socketio',
-            ('0.0.0.0', 8080),
+            listen=('0.0.0.0', 8080),
             resource="socket.io",
             policy_server=True,
             policy_listener=('0.0.0.0', 10843),
