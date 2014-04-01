@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+from __future__ import unicode_literals, absolute_import
+
+from gevent import monkey
+monkey.patch_all()
+
+import sys
+
+from weiyu.cli import entrypoint
+
+
+if __name__ == '__main__':
+    sys.exit(entrypoint.main())
+
+
+# vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

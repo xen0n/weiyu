@@ -40,7 +40,7 @@ setup(
             'scss': ['pyScss>=1.1.5', ],
             },
         packages=find_packages(exclude=['examples', 'tests']),
-        scripts=['scripts/rain', ],
+        scripts=['scripts/rain', 'scripts/rain-gevent', ],
         classifiers=[
             'Development Status :: 3 - Alpha',
             'Environment :: Web Environment',
