@@ -20,7 +20,6 @@
 from __future__ import unicode_literals, division
 
 import sys
-import code
 
 from ... import init
 
@@ -28,6 +27,16 @@ from ... import init
 def rain_shell(args):
     init.boot(args.config)
 
+    try:
+        # prefer IPython as console!
+        import IPython
+        IPython.embed()
+        return 0
+    except ImportError:
+        pass
+
+    # fallback to using code module
+    import code
     console = code.InteractiveConsole()
     console.interact()
 
