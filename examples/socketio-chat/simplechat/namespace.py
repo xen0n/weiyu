@@ -8,7 +8,6 @@ from socketio.namespace import BaseNamespace
 from socketio.mixins import RoomsMixin, BroadcastMixin
 
 from weiyu.async import async_hub
-from weiyu.registry.classes import UnicodeRegistry
 from weiyu.registry.provider import request as regrequest
 
 
@@ -19,7 +18,6 @@ class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
                 'chat',
                 nodup=False,
                 autocreate=True,
-                klass=UnicodeRegistry,
                 )
 
         if 'nicknames' not in reg:

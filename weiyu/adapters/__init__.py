@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / adapter / package
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ __all__ = [
 
 from ..helpers.hub import BaseHub
 from ..helpers.modprober import ModProber
-from ..registry.classes import UnicodeRegistry
 from ..signals import signal_hub
 
 ADAPTERS_KEY = 'adapters'
@@ -44,7 +43,6 @@ PROBER = ModProber(
 
 class AdapterHub(BaseHub):
     registry_name = 'weiyu.adapter'
-    registry_class = UnicodeRegistry
     handlers_key = ADAPTERS_KEY
 
     def __init__(self):

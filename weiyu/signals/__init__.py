@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / signals / package
 #
-# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,12 @@ __all__ = [
         ]
 
 from ..helpers.hub import BaseHub
-from ..registry.classes import UnicodeRegistry
 
 LISTENERS_KEY = 'listeners'
 
 
 class SignalHub(BaseHub):
     registry_name = 'weiyu.signal'
-    registry_class = UnicodeRegistry
     handlers_key = 'handlers'  # XXX Not used!
 
     def __init__(self):

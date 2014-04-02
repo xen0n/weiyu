@@ -5,7 +5,6 @@ Central registry modules
    :maxdepth: 1
 
    provider
-   classes
    loader
 
 

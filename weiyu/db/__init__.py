@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / db / package
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,6 @@ import six
 from ..helpers.hub import BaseHub
 from ..helpers.misc import smartstr
 from ..helpers.modprober import ModProber
-from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
 
 DBCONF_KEY, DRVOBJ_KEY = 'databases', 'drvobjs'
@@ -40,7 +39,6 @@ PROBER = ModProber('weiyu.db.drivers', '%s_driver')
 
 class DatabaseHub(BaseHub):
     registry_name = 'weiyu.db'
-    registry_class = UnicodeRegistry
     handlers_key = 'drivers'
 
     def __init__(self, *args, **kwargs):

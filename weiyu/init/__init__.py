@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / framework-level initialization / package
 #
-# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,7 +35,6 @@ import six
 from ..adapters import adapter_hub
 from ..db import db_hub
 from ..router import router_hub
-from ..registry.classes import UnicodeRegistry
 from ..registry.loader import BaseConfig
 from ..registry.provider import request as regrequest
 from .viewloader import ViewLoader
@@ -55,7 +54,6 @@ def _ensure_site_registry():
             'site',
             autocreate=True,
             nodup=False,
-            klass=UnicodeRegistry,
             )
 
 

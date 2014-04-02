@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / helpers / module hub management
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -42,32 +42,30 @@ class BaseHub(object):
 
         # in one of your __init__.py files:
 
-        # best to only "expose" the Hub instance
-        __all__ = ['Hub', ]
+        # best to only "expose" the hub instance
+        __all__ = ['spam_egg_hub', ]
 
         from weiyu.helpers.hub import BaseHub
-        from weiyu.registry.classes import UnicodeRegistry
 
 
         class SpamEggHub(BaseHub):
             # specify several required properties
             registry_name = 'sketch'
-            registry_class = UnicodeRegistry
             handlers_key = 'handlers'
 
 
         # instantiate a single Hub instance
-        Hub = SpamEggHub()
+        spam_egg_hub = SpamEggHub()
 
     Then you can register your functions like this::
 
         # in spam.py, which is inside the abovementioned package
 
-        from . import Hub
+        from . import spam_egg_hub
 
 
         # handler function
-        @Hub.register_handler('spam')
+        @spam_egg_hub.register_handler('spam')
         def spam_handler(*args, **kwargs):
             pass
 
@@ -84,8 +82,6 @@ class BaseHub(object):
 
     :attr registry_name: name of the registry used to hold the
       type-to-handler mapping;
-    :attr registry_class: the proper registry class to use, if the registry
-      named by ``registry_name`` does not exist at the time of hub creation;
     :attr handlers_key: key which the type-to-handler mapping resides in.
 
     To avoid excessive attribute lookups when retrieving reference to the
@@ -105,7 +101,6 @@ class BaseHub(object):
                 cls.registry_name,
                 autocreate=True,
                 nodup=False,
-                klass=cls.registry_class,
                 )
 
         if cls.handlers_key not in self._reg:
@@ -134,7 +129,6 @@ class BaseHub(object):
         '''
 
         def _decorator_(thing):
-            # NOTE: Doesn't work with FunctionValueRegistry
             self._handlers[typ] = thing
             return thing
         return _decorator_

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / central registry / service provider singleton
 #
-# Copyright (C) 2012 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,8 +21,7 @@
 Registry service provider
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This module is the "official" provider of registry instances, in which a
-:class:`.classes.RegistryRegistry` singleton lives.
+This module is the "official" provider of registries.
 
 To ensure true singleton-ness, all registries should be acquired from this
 module, by calling :func:`request` (see below).
@@ -32,23 +31,20 @@ module, by calling :func:`request` (see below).
 from __future__ import unicode_literals, division
 
 from ..helpers.misc import smartstr
-from .classes import RegistryRegistry, RegistryBase
 
 __all__ = ['request',
            ]
 
 
-def request(name, autocreate=False, nodup=True, klass=None, *args, **kwargs):
+def request(name, autocreate=False, nodup=True, *args, **kwargs):
     '''
 
-    Returns a registry instance specified by ``name``, optionally creates
-    one of type ``klass`` for you (with extra arguments passed as arguments
-    to ``klass.__init__``), if no registry with name ``name`` exists.
+    Returns a registry dict instance specified by ``name``, optionally
+    creating one for you if the requested registry does not exist.
 
     If the auto-creation behavior is turned off (which is the default), a
-    :exc:`KeyError` will be ``raise``\ d if the requested instance does not
-    exist. If auto-creation is enabled but ``klass`` is not derived from
-    :class:`.classes.RegistryBase`, :exc:`TypeError` will be ``raise``\ d.
+    :exc:`KeyError` will be ``raise``\ d if the requested registry does not
+    exist.
 
     To avoid getting an existing registry when you actually want a new one,
     a parameter ``nodup`` is added to indicate that any attempt to request
@@ -75,24 +71,13 @@ def request(name, autocreate=False, nodup=True, klass=None, *args, **kwargs):
                 (name, )
                 )
 
-    # create one registry, but only instantiate klass iff klass is
-    # RegistryBase-derived, to prevent unneeded object creation.
-    if not issubclass(klass, RegistryBase):
-        raise TypeError("class '%s' not subclass of RegistryBase" %
-                (repr(klass), )
-                )
-
     # instantiate, insert and return
-    new_registry = klass(*args, **kwargs)
-    _registries.register(name, new_registry)
-
-    # in case of future expansion of registration semantics and possible
-    # post-processing, return via the central registry singleton.
-    return _registries[name]
+    new_registry = _registries[name] = {}
+    return new_registry
 
 
 # init at module load
-_registries = RegistryRegistry()
+_registries = {}
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

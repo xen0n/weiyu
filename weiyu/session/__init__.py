@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / session handling / package
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ __all__ = [
 
 from ..helpers.hub import BaseHub
 from ..helpers.modprober import ModProber
-from ..registry.classes import UnicodeRegistry
 from ..registry.provider import request
 
 PROBER = ModProber('weiyu.session', '%sbackend')
@@ -33,7 +32,6 @@ PROBER = ModProber('weiyu.session', '%sbackend')
 
 class SessionHub(BaseHub):
     registry_name = 'weiyu.session'
-    registry_class = UnicodeRegistry
     handlers_key = 'backends'
 
     def do_handling(self, typ, *args, **kwargs):

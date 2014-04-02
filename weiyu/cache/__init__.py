@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / cache / package
 #
-# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,7 +25,6 @@ __all__ = [
 
 from ..helpers.hub import BaseHub
 from ..helpers.modprober import ModProber
-from ..registry.classes import UnicodeRegistry
 
 CACHE_DRIVERS_KEY = 'drivers'
 CACHE_CONF_KEY = 'caches'
@@ -36,7 +35,6 @@ PROBER = ModProber('weiyu.cache.drivers', '%s_driver')
 
 class CacheHub(BaseHub):
     registry_name = 'weiyu.cache'
-    registry_class = UnicodeRegistry
     handlers_key = CACHE_DRIVERS_KEY
 
     def __init__(self):

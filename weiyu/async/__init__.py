@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / async / package
 #
-# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,14 +24,12 @@ __all__ = [
         ]
 
 from ..helpers.hub import BaseHub
-from ..registry.classes import UnicodeRegistry
 
 FLAVOR_KEY, NS_KEY = 'flavors', 'namespaces'
 
 
 class AsyncHub(BaseHub):
     registry_name = 'weiyu.async'
-    registry_class = UnicodeRegistry
     handlers_key = FLAVOR_KEY  # XXX currently unused
 
     def __init__(self):

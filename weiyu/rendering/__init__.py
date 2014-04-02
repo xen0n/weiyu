@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / rendering / package
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ __all__ = [
 from ..helpers.hub import BaseHub
 from ..helpers.modprober import ModProber
 from ..helpers.annotation import get_annotation
-from ..registry.classes import UnicodeRegistry
 
 from .exc import RenderingError
 from .base import RenderContext
@@ -36,7 +35,6 @@ PROBER = ModProber('weiyu.rendering', '%srenderer')
 
 class RenderHub(BaseHub):
     registry_name = 'weiyu.rendering'
-    registry_class = UnicodeRegistry
     handlers_key = 'handlers'
 
     # template thing

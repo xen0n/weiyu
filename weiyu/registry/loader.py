@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / central registry / config loader
 #
-# Copyright (C) 2012-2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2012-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,8 +26,8 @@ a convenient way of pre-loading configuration data before performing any
 significant actions. This module serves just that purpose, providing several
 configuration formats free to choose from; of course, you are also free to
 roll your own loader by inheriting :class:`.BaseConfig` and implement the
-``_do_loads`` method. At present, only JSON and Python pickles are
-available for use; more is expected to be added.
+``_do_loads`` method. At present, JSON, YAML and Python pickles are
+available for use.
 
 
 Basics
@@ -38,25 +38,19 @@ Global configuration files which is used by
 registries must have a Pythonized format like this::
 
     {
-        u'registry.name.1': {
-            u'class': u'ClassNameOfRegistry', # must be bytes or unicode
-            u'no_update': True or False,
-            u'data': {
-                # this is the actual configuration data
-                u'spam': u'foo',
-                u'eggs': 42,
-                u'etc': u'etc',
-                }
-            },
+        'registry.name.1': {
+            '$$nodup': True or False,
+            # this is the actual configuration data
+            'spam': 'foo',
+            'eggs': 42,
+            'etc': 'etc',
+            }
+        },
 
         # optionally more registries, or directives to follow
     }
 
-The ``class`` attribute must specify one of the registry types "exported"
-in :mod:`weiyu.registry.classes`; this limitation may be lifted in future
-versions of weiyu.
-
-The ``no_update`` boolean, whose value is directly passed as the
+The ``$$nodup`` boolean, whose value is directly passed as the
 ``nodup`` parameter to :func:`weiyu.registry.provider.request`,
 indicates that an exception should be raised when a registry with the
 same name already exists (possibly initialized to an empty one by its
@@ -103,11 +97,9 @@ import json
 import six
 from six.moves import cPickle as pickle
 
-from .classes import VALID_REGISTRY_TYPES
 from .provider import request
 
 # $$directives
-DIRECTIVE_CLASS_OVERRIDE = '$$class'
 DIRECTIVE_UPDATE_OVERRIDE = '$$nodup'
 DIRECTIVE_INCLUDE = '$$include'
 
@@ -303,15 +295,10 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
         '''
 
         self.ensure_data_presence()
-        for k, v in six.iteritems(self.data):
-            registry.register(k, v)
+        registry.update(self.data)
 
     def populate_central_regs(self):
-        '''Fills the central registry, i.e. the
-        :class:`.classes.RegistryRegistry` singleton. Config data format
-        used for this method is described above.
-
-        '''
+        '''Fills the central registry singleton.'''
 
         self.ensure_data_presence()
         for k, v in six.iteritems(self.data):
@@ -336,45 +323,21 @@ class BaseConfig(six.with_metaclass(abc.ABCMeta)):
                         % (repr(type(v)), )
                         )
 
-            # extract class and updating behavior
-            if DIRECTIVE_CLASS_OVERRIDE in v:
-                class_name = v.pop(DIRECTIVE_CLASS_OVERRIDE)
-            else:
-                # hard-code to be a string-keyed registry
-                class_name = 'UnicodeRegistry'
-
+            # nodup directive
             if DIRECTIVE_UPDATE_OVERRIDE in v:
                 nodup = v.pop(DIRECTIVE_UPDATE_OVERRIDE)
             else:
                 # allow updating existing registries through conf by default
                 nodup = False
 
-            # override field type check
-            if not isinstance(class_name, six.string_types):
-                raise ValueError('registry class name not of string type')
-
             if not isinstance(nodup, bool):
-                raise ValueError('no_update property must be boolean')
-
-            # class validation
-            try:
-                cls = VALID_REGISTRY_TYPES[class_name]
-            except KeyError:
-                raise ValueError("registry class name '%s' not valid"
-                        % (class_name, )
-                        )
+                raise ValueError('$$nodup property must be boolean')
 
             # format check (finally...) passed, go on with actually updating
-            # NOTE: obviously registries cannot have duplicate names,
-            # here we'll rely on RegistryBase's behavior to ensure this :P
-            reg = request(k, autocreate=True, nodup=nodup, klass=cls)
+            reg = request(k, autocreate=True, nodup=nodup)
 
             # populate the dict
-            # NOTE: We don't use update() here, because filling values one by
-            # one would trigger validation and normalization for each of the
-            # k-v pairs, and sanity is what we need.
-            for reg_k, reg_v in six.iteritems(v):
-                reg[reg_k] = reg_v
+            reg.update(v)
 
 
 @handler_for_ext('.json')

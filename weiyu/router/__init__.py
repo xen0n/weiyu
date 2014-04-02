@@ -30,7 +30,6 @@ import six
 
 from ..helpers.hub import BaseHub
 from ..helpers.modprober import ModProber
-from ..registry.classes import UnicodeRegistry
 
 # this does not cause circular import
 from .config.parser import parse_config
@@ -42,7 +41,6 @@ PROBER = ModProber('weiyu.router', '%srouter')
 
 class RouterHub(BaseHub):
     registry_name = 'weiyu.router'
-    registry_class = UnicodeRegistry
     handlers_key = 'handlers'
 
     def __init__(self):

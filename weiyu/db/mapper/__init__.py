@@ -29,7 +29,6 @@ import six
 
 from .. import db_hub
 from ...helpers.hub import BaseHub
-from ...registry.classes import UnicodeRegistry
 
 
 DECODERS_KEY, ENCODERS_KEY = 'decoders', 'encoders'
@@ -40,7 +39,6 @@ VERSION_FIELD = '_V'
 
 class MapperHub(BaseHub):
     registry_name = 'weiyu.db.mapper'
-    registry_class = UnicodeRegistry
     handlers_key = 'shims'
 
     def __init__(self):
