@@ -32,13 +32,6 @@ __all__ = [
 from functools import partial
 
 try:
-    # Python 3
-    from urllib.parse import parse_qs
-except ImportError:
-    # Python 2
-    from urlparse import parse_qs
-
-try:
     import ujson as json
 except ImportError:
     import json
@@ -46,6 +39,8 @@ except ImportError:
 import six
 
 from ...helpers.misc import smartstr, smartbytes
+
+parse_qs = six.moves.urllib.parse.parse_qs
 
 # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 STATUS_CODES_MAP = six.moves.http_client.responses
