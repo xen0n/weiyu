@@ -88,14 +88,13 @@ __all__ = [
         'PickleConfig',
         ]
 
+import abc
+
 from os.path import abspath, dirname, splitext
 from os.path import join as pathjoin
 from functools import wraps
-import abc
-import json
 
 import six
-from six.moves import cPickle as pickle
 
 from .provider import request
 
@@ -345,9 +344,12 @@ class JSONConfig(BaseConfig):
     '''JSON config backend.'''
 
     def _do_loads(self, s, *args, **kwargs):
-        dump = json.loads(s, *args, **kwargs)
-        # TODO: some canonicalization or such
-        return dump
+        try:
+            import ujson as json
+        except ImportError:
+            import json
+
+        return json.loads(s, *args, **kwargs)
 
 
 @handler_for_ext('.pickle')
@@ -355,6 +357,7 @@ class PickleConfig(BaseConfig):
     '''Python pickle config backend.'''
 
     def _do_loads(self, s, *args, **kwargs):
+        from six.moves import cPickle as pickle
         return pickle.loads(s, *args, **kwargs)
 
 
