@@ -45,6 +45,9 @@ from ..adapters.http import base
 del base
 
 CONFIG_LOADED = False
+VIEW_LOADED = False
+ROUTER_LOADED = False
+BOOTED = False
 
 
 def _ensure_site_registry():
@@ -57,8 +60,15 @@ def _ensure_site_registry():
 
 
 def _do_load_router(typ, filename):
+    global ROUTER_LOADED
+    if ROUTER_LOADED:
+        return
+
     router = router_hub.init_router_from_config(typ, filename)
-    return router_hub.register_router(router)
+    ret = router_hub.register_router(router)
+
+    ROUTER_LOADED = True
+    return ret
 
 
 def load_router(typ, filename=None):
@@ -161,12 +171,20 @@ def load_config(path=None):
 
 
 def load_views(path_or_config):
+    global VIEW_LOADED
+    if VIEW_LOADED:
+        return
+
     if isinstance(path_or_config, six.string_types):
         # this is a path to views.json
-        return ViewLoader().fileconfig(path_or_config)()
+        ret = ViewLoader().fileconfig(path_or_config)()
+        VIEW_LOADED = True
+        return ret
 
     # direct config by dict
-    return ViewLoader(path_or_config)()
+    ret = ViewLoader(path_or_config)()
+    VIEW_LOADED = True
+    return ret
 
 
 def boot(
@@ -175,6 +193,10 @@ def boot(
         router_type='http',
         root_router_file=None,
         ):
+    global BOOTED
+    if BOOTED:
+        return
+
     # initialize registries, views, router, in that order
     # registry
     load_config(conf_path)
@@ -221,6 +243,8 @@ def boot(
 
     call_register_middleware('pre')
     call_register_middleware('post')
+
+    BOOTED = True
 
 
 def inject_app(app_type='wsgi', var='application', *args, **kwargs):
