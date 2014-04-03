@@ -23,8 +23,8 @@ import abc
 
 import six
 
-
-class BaseCache(six.with_metaclass(abc.ABCMeta)):
+@six.add_metaclass(abc.ABCMeta)
+class BaseCache(object):
     def __init__(self):
         super(BaseCache, self).__init__()
 

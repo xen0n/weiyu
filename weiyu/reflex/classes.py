@@ -52,7 +52,8 @@ class ReflexResponse(dict):
         self.request = request
 
 
-class BaseReflex(six.with_metaclass(abc.ABCMeta)):
+@six.add_metaclass(abc.ABCMeta)
+class BaseReflex(object):
     '''Abstract reflex class.
 
     Responses are obtained by calling :meth:`stimulate`, which "excites" the

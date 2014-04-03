@@ -23,8 +23,8 @@ import abc
 
 import six
 
-
-class BaseDriver(six.with_metaclass(abc.ABCMeta)):
+@six.add_metaclass(abc.ABCMeta)
+class BaseDriver(object):
     '''Baseclass for database drivers.'''
 
     @abc.abstractmethod

@@ -113,7 +113,8 @@ def handler_for_ext(ext):
     return _decorator_
 
 
-class BaseConfig(six.with_metaclass(abc.ABCMeta)):
+@six.add_metaclass(abc.ABCMeta)
+class BaseConfig(object):
     '''Base class for prepopulated config storages. It has an interface
     inspired by ``pickle``: methods such as :meth:`loads` and :meth:`load`
     exist and more or less behaves like the standard library counterpart.
