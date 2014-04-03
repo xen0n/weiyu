@@ -84,7 +84,7 @@ class Reverser(object):
             raise ValueError(
                     "No scope named '%s' in router type '%s'" % (
                         scope,
-                        typ,
+                        self.router.name,
                         ))
 
         # get out the pattern signature
@@ -96,7 +96,7 @@ class Reverser(object):
                     "router type '%s'" % (
                         name,
                         scope,
-                        typ,
+                        self.router.name,
                         ))
 
         # memoize the result
