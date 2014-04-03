@@ -19,13 +19,11 @@
 
 from __future__ import unicode_literals, division
 
-import sys
-
-from ... import init
+from .. import discover
 
 
 def rain_shell(args):
-    init.boot(args.config)
+    discover.init_or_die(args)
 
     try:
         # prefer IPython as console!

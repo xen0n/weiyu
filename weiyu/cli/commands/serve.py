@@ -19,15 +19,14 @@
 
 from __future__ import unicode_literals, division
 
-import sys
-
-from ... import init
 from ...adapters import adapter_hub
 from ...utils import server
 
+from .. import discover
+
 
 def rain_serve(args):
-    init.boot(args.config)
+    discover.init_or_die(args)
 
     application = adapter_hub.make_app(args.adapter_type)
     server.cli_server(
