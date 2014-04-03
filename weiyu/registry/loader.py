@@ -358,8 +358,7 @@ class PickleConfig(BaseConfig):
     '''Python pickle config backend.'''
 
     def _do_loads(self, s, *args, **kwargs):
-        from six.moves import cPickle as pickle
-        return pickle.loads(s, *args, **kwargs)
+        return six.moves.cPickle.loads(s, *args, **kwargs)
 
 
 @handler_for_ext('.yml')
