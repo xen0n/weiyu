@@ -29,7 +29,7 @@ from ...helpers.misc import smartstr
 from ...reflex.classes import ReflexRequest
 
 from .base import BaseHTTPReflex
-from .util import status_to_str, dummy_file_wrapper, send_content_iter
+from .util import dummy_file_wrapper, send_content_iter
 from .util import build_host_str, parse_form, gen_http_headers
 
 
