@@ -8,13 +8,13 @@ from socketio.namespace import BaseNamespace
 from socketio.mixins import RoomsMixin, BroadcastMixin
 
 from weiyu.async import async_hub
-from weiyu.registry.provider import request as regrequest
+from weiyu import registry
 
 
 @async_hub.register_ns('socketio', '')
 class ChatNamespace(BaseNamespace, RoomsMixin, BroadcastMixin):
     def _get_nickname_list(self):
-        reg = regrequest(
+        reg = registry.request(
                 'chat',
                 nodup=False,
                 autocreate=True,

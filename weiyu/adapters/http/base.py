@@ -25,7 +25,7 @@ __all__ = [
 
 from ...helpers.misc import smartbytes
 
-from ...registry.provider import request as reg_request
+from ... import registry
 
 from ...reflex.classes import BaseReflex
 from ...router import router_hub
@@ -47,7 +47,7 @@ NO_RESP_BODY_STATUSES = {204, 304, 405, }
 class HTTPSessionMiddleware(object):
     def __init__(self):
         # get options
-        site = reg_request('site')
+        site = registry.request('site')
 
         # assume session config is present if this middleware is used
         ses_conf = site['session']
@@ -65,7 +65,7 @@ class HTTPSessionMiddleware(object):
 
 class BaseHTTPReflex(BaseReflex):
     def __init__(self):
-        self.SITE_CONF = reg_request('site')
+        self.SITE_CONF = registry.request('site')
         # no more repeated lookups for handler
         # NOTE: Remember this can lead to stale value when handler got
         # dynamically updated. This is (admittedly) a VERY rare and

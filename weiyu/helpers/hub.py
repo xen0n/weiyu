@@ -29,7 +29,7 @@ __all__ = ['BaseHub', ]
 
 from functools import partial
 
-from ..registry.provider import request
+from .. import registry
 
 
 class BaseHub(object):
@@ -97,7 +97,7 @@ class BaseHub(object):
 
     def __init__(self):
         cls = self.__class__
-        self._reg = request(
+        self._reg = registry.request(
                 cls.registry_name,
                 autocreate=True,
                 nodup=False,

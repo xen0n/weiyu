@@ -26,10 +26,10 @@ __all__ = [
 
 import six
 
+from .. import registry
 from ..helpers.hub import BaseHub
 from ..helpers.misc import smartstr
 from ..helpers.modprober import ModProber
-from ..registry.provider import request
 
 DBCONF_KEY, DRVOBJ_KEY = 'databases', 'drvobjs'
 STORAGE_KEY, STORAGE_CACHE_KEY = 'storage', '_storage_cache'
@@ -128,7 +128,7 @@ db_hub = DatabaseHub()
 # driver objects are memoized in db_hub.get_database()
 @db_hub.register_handler('__name')
 def name_resolver(hub, name):
-    dbconf = request('weiyu.db')
+    dbconf = registry.request('weiyu.db')
     # NOTE: exception is not caught as any request for an unmentioned
     # database SHOULD fail
     db_cfg = dbconf[DBCONF_KEY][smartstr(name)]

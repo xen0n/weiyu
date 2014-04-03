@@ -11,7 +11,7 @@ import re
 from weiyu.shortcuts import *
 
 from weiyu.__version__ import VERSION_STR
-from weiyu.registry.provider import request, _registries as REGS
+from weiyu import registry
 
 OUTPUT_ENC = 'utf-8'
 
@@ -90,7 +90,7 @@ def get_response(request):
     result = dict(
             request=request,
             env=env,
-            regs=REGS,
+            regs=registry._registries,
             sitename=conf['name'],
             version=VERSION_STR,
             session=session,

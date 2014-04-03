@@ -96,7 +96,7 @@ from functools import wraps
 
 import six
 
-from .provider import request
+from . import request
 
 # $$directives
 DIRECTIVE_UPDATE_OVERRIDE = '$$nodup'

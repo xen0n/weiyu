@@ -34,7 +34,6 @@ except ImportError:
 from .. import adapter_hub
 
 from ...helpers.misc import smartstr
-from ...registry.provider import request as reg_request
 from ...reflex.classes import ReflexRequest
 
 from .base import BaseHTTPReflex

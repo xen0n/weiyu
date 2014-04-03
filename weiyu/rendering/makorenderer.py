@@ -58,7 +58,7 @@ from mako.lookup import TemplateLookup
 from . import render_hub
 from .base import Renderable
 
-from ..registry.provider import request
+from .. import registry
 
 TMPL_LOOKUP_KEY = 'lookup_obj'
 DIRECTORIES_KEY = 'directories'
@@ -106,7 +106,7 @@ def _ensure_lookup(__cache=[]):
     except IndexError:
         pass
 
-    render_reg = request('weiyu.rendering')
+    render_reg = registry.request('weiyu.rendering')
     # TODO: config default value here, or proper exc handling
     mako_params = render_reg['mako']
 

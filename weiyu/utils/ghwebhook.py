@@ -29,7 +29,7 @@ try:
 except ImportError:
     import ipaddr as ipaddress
 
-from ..registry.provider import request as regrequest
+from .. import registry
 from ..shortcuts import *
 
 from .decorators import only_methods
@@ -64,7 +64,7 @@ def is_ip_whitelisted(ip):
 @view
 @only_methods(['POST', ])
 def on_gh_post_receive(request):
-    repos = regrequest('site')['github']['post-receive']
+    repos = registry.request('site')['github']['post-receive']
 
     if not is_ip_whitelisted(request.remote_addr):
         return _dummy(403)

@@ -40,7 +40,7 @@ import scss
 from . import render_hub
 from .base import Renderable
 
-from ..registry.provider import request
+from .. import registry
 
 SCSS_COMMON_EXTRAS = {
         'mimetype': 'text/css',
@@ -75,7 +75,7 @@ class SCSSRenderable(Renderable):
 
 @render_hub.register_handler('scss')
 def scss_render_handler(hub, name, *args, **kwargs):
-    render_reg = request('weiyu.rendering')
+    render_reg = registry.request('weiyu.rendering')
     # TODO: default value
     scss_params = render_reg['scss']
 

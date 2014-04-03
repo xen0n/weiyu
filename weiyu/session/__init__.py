@@ -25,7 +25,6 @@ __all__ = [
 
 from ..helpers.hub import BaseHub
 from ..helpers.modprober import ModProber
-from ..registry.provider import request
 
 PROBER = ModProber('weiyu.session', '%sbackend')
 
