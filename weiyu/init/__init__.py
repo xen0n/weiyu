@@ -32,11 +32,11 @@ import warnings
 
 import six
 
+from .. import registry
 from ..adapters import adapter_hub
 from ..db import db_hub
 from ..router import router_hub
 from ..registry.loader import BaseConfig
-from ..registry.provider import request as regrequest
 from .viewloader import ViewLoader
 
 # XXX Force load of HTTPSessionMiddleware
@@ -50,7 +50,7 @@ BOOTED = False
 
 
 def _ensure_site_registry():
-    return regrequest(
+    return registry.request(
             'site',
             autocreate=True,
             nodup=False,
