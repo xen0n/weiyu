@@ -32,9 +32,9 @@ parser = argparse.ArgumentParser(
         )
 
 # Rainfile path
-parser.add_argument('-c', '--config', help='path of Rainfile to use')
+parser.add_argument('-c', dest='config', help='path of Rainfile to use')
 parser.add_argument(
-        '--discovery-across-fs',
+        '--across-fs',
         action='store_true',
         help='discover project config across FS boundary',
         )

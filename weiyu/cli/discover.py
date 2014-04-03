@@ -108,7 +108,7 @@ def init_or_die(args):
         return
 
     # do auto discovery
-    ret = auto_discover_and_init(args.discovery_across_fs)
+    ret = auto_discover_and_init(args.across_fs)
     if ret != 0:
         sys.exit(ret)
 
