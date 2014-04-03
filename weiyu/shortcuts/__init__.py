@@ -100,5 +100,10 @@ def http(name=None):
     return _decorator_
 
 
+@expose
+def http_reverse(endpoint, **kwargs):
+    reverser = router_hub.reverser_for('http')
+    return reverser.reverse(endpoint, **kwargs)
+
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
