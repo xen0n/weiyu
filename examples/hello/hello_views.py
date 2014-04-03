@@ -8,7 +8,7 @@ from __future__ import unicode_literals, division
 
 import re
 
-from weiyu.shortcuts import *
+from weiyu.shortcuts import http, renderable, view, jsonview
 
 from weiyu.__version__ import VERSION_STR
 from weiyu import registry
@@ -16,11 +16,7 @@ from weiyu import registry
 OUTPUT_ENC = 'utf-8'
 
 # DEBUG: db & mapper
-from weiyu.db import db_hub, mapper_hub
 from weiyu.db.mapper.base import Document
-
-# DEBUG: session
-from weiyu.session import session_hub
 
 # DEBUG: signal
 from weiyu.signals import signal_hub
@@ -44,30 +40,26 @@ HAVE_GIT_COLOR, GIT_COLOR_VAL = get_git_rev_color()
 # original data {'val': x, }
 # ver 1. {'v1': x + 2, }
 # ver 2. {'v2': x * 2, }
-_STRUCT_NAME = 'teststruct'
-mapper_hub.register_struct(_STRUCT_NAME)
-
-
 class TestStruct(Document):
-    struct_id = _STRUCT_NAME
+    struct_id = 'teststruct'
 
 
-@mapper_hub.decoder_for(_STRUCT_NAME, 1)
+@TestStruct.decoder(1)
 def decode1(obj):
     return {'val': obj['v1'] - 2, }
 
 
-@mapper_hub.decoder_for(_STRUCT_NAME, 2)
+@TestStruct.decoder(2)
 def decode2(obj):
     return {'val': obj['v2'] >> 1, }
 
 
-@mapper_hub.encoder_for(_STRUCT_NAME, 1)
+@TestStruct.encoder(1)
 def encode1(obj):
     return {'v1': obj['val'] + 2, }
 
 
-@mapper_hub.encoder_for(_STRUCT_NAME, 2)
+@TestStruct.encoder(2)
 def encode2(obj):
     return {'v2': obj['val'] << 1, }
 
@@ -157,19 +149,6 @@ def ajax_doubler(request, number):
     return (
             200,
             {'result': num, },
-            {'mimetype': 'application/json', },
-            )
-
-
-# benchmark purpose: json w/ db access
-@http
-@jsonview
-def ajax_dbtest(request):
-    result = TestStruct.findall()
-
-    return (
-            200,
-            {'result': list(result), },
             {'mimetype': 'application/json', },
             )
 
