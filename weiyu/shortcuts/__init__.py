@@ -101,7 +101,7 @@ def http(name=None):
 
 
 @expose
-def http_reverse(endpoint, **kwargs):
+def reverse_http(endpoint, **kwargs):
     reverser = router_hub.reverser_for('http')
     return reverser.reverse(endpoint, **kwargs)
 
