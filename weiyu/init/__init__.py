@@ -46,6 +46,7 @@ del base
 CONFIG_LOADED = False
 VIEW_LOADED = False
 ROUTER_LOADED = False
+IN_BOOTING = False
 BOOTED = False
 
 
@@ -192,57 +193,62 @@ def boot(
         root_router_file=None,
         ):
     global BOOTED
-    if BOOTED:
+    global IN_BOOTING
+    if BOOTED or IN_BOOTING:
         return
 
-    # initialize registries, views, router, in that order
-    # registry
-    load_config(conf_path)
+    IN_BOOTING = True
+    try:
+        # initialize registries, views, router, in that order
+        # registry
+        load_config(conf_path)
 
-    # make an empty site registry if not present
-    reg_site = _ensure_site_registry()
+        # make an empty site registry if not present
+        reg_site = _ensure_site_registry()
 
-    # determine if ViewLoader is configured by registry
-    if views_path is not None:
-        # external file configured by app stub
-        load_views(views_path)
-    else:
-        # extract config from site registry
-        if 'views' in reg_site:
-            view_config = reg_site['views']
-            load_views(view_config)
+        # determine if ViewLoader is configured by registry
+        if views_path is not None:
+            # external file configured by app stub
+            load_views(views_path)
         else:
-            # old behavior, which is an implicit (specified via default)
-            # views.json, kept for compatibility
-            warnings.warn(
-                    'Implicit views.json is discouraged, please put the '
-                    'view config directly into main config file',
-                    PendingDeprecationWarning,
-                    )
-            load_views('views.json')
+            # extract config from site registry
+            if 'views' in reg_site:
+                view_config = reg_site['views']
+                load_views(view_config)
+            else:
+                # old behavior, which is an implicit (specified via default)
+                # views.json, kept for compatibility
+                warnings.warn(
+                        'Implicit views.json is discouraged, please put the '
+                        'view config directly into main config file',
+                        PendingDeprecationWarning,
+                        )
+                load_views('views.json')
 
-    # init router
-    load_router(router_type, root_router_file)
+        # init router
+        load_router(router_type, root_router_file)
 
-    # register middlewares according to config
-    middleware_decl = (
-            reg_site['middlewares']
-            if 'middlewares' in reg_site
-            else {}
-            )
-
-    def call_register_middleware(kind):
-        middlewares = middleware_decl.get(kind, [])
-        adapter_hub.register_middleware_chain(
-                router_type,
-                kind,
-                middlewares,
+        # register middlewares according to config
+        middleware_decl = (
+                reg_site['middlewares']
+                if 'middlewares' in reg_site
+                else {}
                 )
 
-    call_register_middleware('pre')
-    call_register_middleware('post')
+        def call_register_middleware(kind):
+            middlewares = middleware_decl.get(kind, [])
+            adapter_hub.register_middleware_chain(
+                    router_type,
+                    kind,
+                    middlewares,
+                    )
 
-    BOOTED = True
+        call_register_middleware('pre')
+        call_register_middleware('post')
+
+        BOOTED = True
+    finally:
+        IN_BOOTING = False
 
 
 def inject_app(app_type='wsgi', var='application', *args, **kwargs):
