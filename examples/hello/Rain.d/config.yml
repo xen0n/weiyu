@@ -23,6 +23,11 @@ site:
     # NOTE: This is relative to the script's working directory.
     root: ./static/
 
+  # Include the Server header in responses.
+  # This is disabled by default for security purposes, but here is how to
+  # explicitly enable it.
+  send_server_header: true
+
 
 # $$include can also be used in top-level, including whole registries at once.
 # This can also be a list!
