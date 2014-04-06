@@ -35,7 +35,7 @@ from ...rendering import render_hub
 
 from .. import adapter_hub
 
-from .util import canonicalize_http_headers
+from .util import canonicalize_http_headers, get_server_header
 
 # Status codes that cannot have response body
 # Used to prevent rendering code from being invoked
@@ -72,6 +72,8 @@ class BaseHTTPReflex(BaseReflex):
         # dangerous case that's simply NOT going to work, but the expected
         # behavior is documented here anyway.
         self._do_routing = router_hub.get_handler('http')
+
+        self.send_server_hdr = self.SITE_CONF.get('send_server_header', False)
 
     def _do_translate_request(self, request):
         # Middleware
@@ -200,6 +202,10 @@ class BaseHTTPReflex(BaseReflex):
         # 405 Not Allowed header
         if response.status == 405:
             hdrs.append((b'Allow', ctx['allowed_methods'], ))
+
+        # Server header, if explicitly enabled
+        if self.send_server_hdr:
+            hdrs.append(get_server_header())
 
         response.http_headers.extend(hdrs)
         response._dont_render = dont_render

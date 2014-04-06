@@ -27,6 +27,7 @@ __all__ = [
             'parse_form',
             'canonicalize_http_headers',
             'gen_http_headers',
+            'get_server_header',
             ]
 
 from functools import partial
@@ -175,6 +176,31 @@ def gen_http_headers(response, __Content_Length=str('Content-Length')):
         headers.append((k_str, v_str, ))
 
     return status_line, headers
+
+
+def get_server_header(__cache=[]):
+    try:
+        return __cache[0]
+    except IndexError:
+        pass
+
+    import sys
+    try:
+        # PyPy
+        python_ver = 'PyPy/%d.%d.%d' % sys.pypy_version_info[:3]
+    except AttributeError:
+        pass
+
+    # CPython
+    python_ver = 'Python/%d.%d.%d' % sys.version_info[:3]
+
+    # weiyu
+    from weiyu.__version__ import VERSION_STR
+    weiyu_ver = 'weiyu/' + VERSION_STR
+
+    header_val = ' '.join((weiyu_ver, python_ver, ))
+    __cache.append((str('Server'), str(smartbytes(header_val))))
+    return __cache[0]
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
