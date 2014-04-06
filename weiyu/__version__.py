@@ -49,12 +49,13 @@ VERSION = (VERSION_MAJOR, VERSION_MINOR, VERSION_REV, 'alpha', 0)
 _VCS_HANDLERS = []
 
 
-def get_version():
+def get_version(use_dev_suffix=True):
     version = '%s.%s' % (VERSION[0], VERSION[1])
     if VERSION[2]:
         version = '%s.%s' % (version, VERSION[2])
     if VERSION[3:] == ('alpha', 0):
-        version = '%s-dev' % version
+        if use_dev_suffix:
+            version = '%s-dev' % version
     else:
         if VERSION[3] != 'final':
             version = '%s %s %s' % (version, VERSION[3], VERSION[4])
@@ -62,79 +63,9 @@ def get_version():
     return version
 
 
-###############################################################
-## for getting revision info from a VCS
-###############################################################
-
-
-def get_vcs_revision(path=None):
-    # try the handlers one by one, return the first successful
-    # match of VCS info
-    # cast path into unicode if necessary
-    if path is not None and not isinstance(path, text_type):
-        path = path.decode(getfilesystemencoding())
-
-    for handler in _VCS_HANDLERS:
-        is_ok, result = handler(path)
-        if is_ok:
-            return (is_ok, result, )
-
-    # no info available, signal failure
-    return (False, None, )
-
-
-def get_svn_revision(path=None):
-    '''Returns the SVN revision in the form SVN-XXXX, where XXXX is the
-    revision number.
-
-    Returns (False, None) if anything goes wrong, such as an unexpected
-    format of internal SVN files.
-
-    If path is provided, it should be a directory whose SVN info you want to
-    inspect. If it's not provided, this will use the root package
-    directory.
-
-    '''
-
-    rev = None
-    if path is None:
-        path = __this_pkg.__path__[0]
-    entries_path = '%s/.svn/entries' % path
-
-    try:
-        with open(entries_path, 'r') as fp:
-            entries = fp.read().decode('ascii', 'replace')
-    except IOError:
-        return (False, None, )
-    else:
-        # Versions >= 7 of the entries file are flat text. The first line
-        # is the version number. The next set of digits after 'dir' is the
-        # revision.
-        if re.match(r'(\d+)', entries):
-            rev_match = re.search(r'\d+\s+dir\s+(\d+)', entries)
-            if rev_match:
-                rev = rev_match.groups()[0]
-        # Older XML versions of the file specify revision as an attribute
-        # of the first entries node.
-        else:
-            from xml.dom import minidom
-            dom = minidom.parse(entries_path)
-            rev = (dom.getElementsByTagName('entry')[0]
-                    .getAttribute('revision')
-                    )
-
-    if rev:
-        return (True, 'SVN-%s' % rev, )
-    return (False, None, )
-
-_VCS_HANDLERS.append(get_svn_revision)
-
-
-def get_git_commit(path=None):
-    '''Returns the Git commit id in the form Git-xxxxxxxx,
-    where xxxxxxxx is the commit hash truncated after the 8th hex digit.
-
-    Returns (False, None) if anything goes wrong.
+def _get_git_commit(path=None):
+    '''Returns the Git commit hash truncated after the 7th hex digit, ``None``
+    if anything goes wrong.
 
     If path is provided, it should be a directory whose Git info you want
     to inspect. If it's not provided, this will use the root package
@@ -158,14 +89,14 @@ def get_git_commit(path=None):
         with open(head_path, 'rb') as fp:
             ref = fp.read().strip().decode('ascii', 'replace')
     except IOError:
-        return (False, None, )
+        return None
     else:
         ref_path_match = re.search(r'^ref: (.*)$', ref)
         if ref_path_match:
             ref_path = ref_path_match.groups()[0]
         else:
             # unrecognized HEAD format...
-            return (False, None, )
+            return None
 
     # now ref_path is ready, move on to Phase 2, pull out the commit id
     commit_path = os.path.normpath(os.path.join(git_path, ref_path))
@@ -173,27 +104,27 @@ def get_git_commit(path=None):
         with open(commit_path, 'rb') as fp:
             commit = fp.read().strip().decode('ascii', 'replace')
     except IOError:
-        return (False, None, )
+        return None
     else:
         # Truncate the commit id.
-        commit_id = commit[:8]
+        commit_id = commit[:7]
 
     # if we arrive here, we're done and commit id is ready.
-    return (True, 'Git-%s' % commit_id, )
+    return commit_id
 
-_VCS_HANDLERS.append(get_git_commit)
+
+# read the Git commit hash if available
+_vcs_rev = _get_git_commit()
 
 # init our version strings... they are constant during one run
-_verstr = get_version()
+VERSION_DEV = _vcs_rev or ''
+VERSION_STR = (
+        '%s-g%s'  % (get_version(False), _vcs_rev, )
+        if _vcs_rev
+        else get_version(True)
+        )
 
-# VCS revision, if we are in an devel environment
-# updated to support Git too
-_vcs_ok, _vcs_rev = get_vcs_revision()
-
-VERSION_DEV = _vcs_rev if _vcs_ok else ''
-VERSION_STR = _verstr if not _vcs_ok else ' '.join([_verstr, _vcs_rev])
-
-del _vcs_ok, _vcs_rev, _verstr
+del _vcs_rev
 
 
 # vi:ai:et:ts=4 sw=4 sts=4 fenc=utf-8
