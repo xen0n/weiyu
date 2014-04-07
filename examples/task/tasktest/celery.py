@@ -14,7 +14,7 @@ from weiyu.init import load_config
 
 _project_root = os.path.join(os.path.dirname(__file__), '..')
 os.chdir(_project_root)
-load_config('Rainfile.yml')
+load_config()
 
 celery = Celery(
         'tasktest',
