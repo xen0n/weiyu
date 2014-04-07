@@ -30,6 +30,7 @@ setup(
             'cherrypy': ['cherrypy>=3.2', ],
             'tornado': ['tornado>=2.4', ],
             'socketio': ['gevent-socketio>=0.3.5-rc2', ],
+            'meinheld': ['meinheld>=0.5.6', ],
             'celery': ['celery>3.0', ],
             'memcached': ['python-memcached>=1.48', ],
             'redis': ['redis>=2.7.0', ],
