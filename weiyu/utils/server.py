@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # weiyu / utilities / server
 #
-# Copyright (C) 2013 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
+# Copyright (C) 2013-2014 Wang Xuerui <idontknw.wang-at-gmail-dot-com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -147,6 +147,27 @@ def cli_server_socketio(
 
     server = SocketIOServer(listen, app, **kwargs)
     server.serve_forever()
+
+
+@expose_flavor('meinheld')
+def cli_server_meinheld(managed, application=None, port=None):
+    try:
+        from meinheld import server
+    except ImportError:
+        print('failed to import meinheld, bailing', file=sys.stderr)
+        sys.exit(1)
+
+    port = get_port_number() if not managed and port is None else port
+
+    if not managed and application is None:
+        # inspect the caller
+        outer_frame = inspect.getouterframes(inspect.currentframe())[2][0]
+        app = outer_frame.f_globals['application']
+    else:
+        app = application
+
+    server.listen(('0.0.0.0', port, ))
+    server.run(app)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
