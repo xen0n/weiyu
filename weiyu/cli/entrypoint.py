@@ -60,7 +60,7 @@ parser_serve.add_argument(
         '-f',
         '--server-flavor',
         help='flavor of server',
-        default='cherrypy',
+        default='meinheld',
         )
 parser_serve.add_argument(
         '-t',
