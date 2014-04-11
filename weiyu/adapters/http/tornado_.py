@@ -37,8 +37,7 @@ from ...helpers.misc import smartstr
 from ...reflex.classes import ReflexRequest
 
 from .base import BaseHTTPReflex
-from .util import dummy_file_wrapper, send_content_iter
-from .util import parse_form, gen_http_headers
+from .util import dummy_file_wrapper, send_content_iter, gen_http_headers
 
 
 class TornadoRequest(ReflexRequest):
@@ -94,7 +93,7 @@ class TornadoReflex(BaseHTTPReflex):
                     'CONTENT_TYPE',
                     None,
                     )
-            request.form = parse_form(ctype, content)
+            request.form = self._helper.parse_form(ctype, content)
 
         # TODO: add more ubiquitous HTTP request headers
 

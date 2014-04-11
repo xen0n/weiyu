@@ -24,10 +24,10 @@ __all__ = [
             'build_host_str',
             'dummy_file_wrapper',
             'send_content_iter',
-            'parse_form',
             'canonicalize_http_headers',
             'gen_http_headers',
             'get_server_header',
+            'HTTPHelper',
             ]
 
 from functools import partial
@@ -112,13 +112,6 @@ def send_content_iter(content, enc):
             yield smartbytes(chunk, enc, 'replace')
 
 
-def parse_form(ctype, content):
-    if ctype in _FORM_CONTENT_HANDLERS:
-        return _FORM_CONTENT_HANDLERS[ctype](content)
-
-    return None
-
-
 @_form_content_handler('application/x-www-form-urlencoded')
 def _parse_urlencoded_form(content):
     form = parse_qs(content)
@@ -201,6 +194,28 @@ def get_server_header(__cache=[]):
     header_val = ' '.join((weiyu_ver, python_ver, ))
     __cache.append((str('Server'), str(smartbytes(header_val))))
     return __cache[0]
+
+
+class HTTPHelper(object):
+    '''Settings-aware HTTP helper object.'''
+
+    def __init__(self, config):
+        # Request
+        request_config = config.get('request', {})
+
+        # Acceptable MIME types of POST data
+        post_mime = request_config.get('post_mime', {})
+        known_mimes = set(six.iterkeys(_FORM_CONTENT_HANDLERS))
+        blacklisted_mimes = set(post_mime.get('blacklist', []))
+        whitelisted_mimes = set(post_mime.get('whitelist', known_mimes))
+        acceptable_mimes = whitelisted_mimes.difference(blacklisted_mimes)
+        self._acceptable_post_mimes = frozenset(acceptable_mimes)
+
+    def parse_form(self, content_type, content):
+        if content_type in self._acceptable_post_mimes:
+            return _FORM_CONTENT_HANDLERS[content_type](content)
+
+        return None
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

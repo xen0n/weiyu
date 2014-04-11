@@ -35,7 +35,7 @@ from ...rendering import render_hub
 
 from .. import adapter_hub
 
-from .util import canonicalize_http_headers, get_server_header
+from .util import canonicalize_http_headers, get_server_header, HTTPHelper
 
 # Status codes that cannot have response body
 # Used to prevent rendering code from being invoked
@@ -74,6 +74,10 @@ class BaseHTTPReflex(BaseReflex):
         self._do_routing = router_hub.get_handler('http')
 
         self.send_server_hdr = self.SITE_CONF.get('send_server_header', False)
+
+        adapter_reg = registry.request('weiyu.adapter')
+        http_config = adapter_reg.get('http', {})
+        self._helper = HTTPHelper(http_config)
 
     def _do_translate_request(self, request):
         # Middleware
