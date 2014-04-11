@@ -84,7 +84,7 @@ class WSGIReflex(BaseHTTPReflex):
         request.content_length = length
 
         # read the request body if content length is given
-        if length is not None and request.method == 'POST':
+        if length is not None and method == 'POST':
             request.content = env['wsgi.input'].read(length)
 
             # parse the POSTed data

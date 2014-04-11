@@ -78,16 +78,16 @@ class TornadoReflex(BaseHTTPReflex):
         request.remote_addr = smartstr(t_req.remote_ip)
         request.protocol = smartstr(t_req.protocol)
         method = request.method = smartstr(t_req.method)
-        length, content = None, None
+
         try:
             content = t_req.body
         except AttributeError:
-            pass
+            content = None
 
         request.content = content
         request.content_length = len(content) if content is not None else None
 
-        if content is not None:
+        if content is not None and method == 'POST':
             # parse the POSTed data
             ctype = request.content_type = t_req.headers.get(
                     'CONTENT_TYPE',
