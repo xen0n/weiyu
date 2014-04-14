@@ -93,6 +93,23 @@ class WSGIReflex(BaseHTTPReflex):
         else:
             request.content = None
 
+        # CORS support
+        origin = env.get('HTTP_ORIGIN', None)
+        if origin is not None:
+            request.origin = smartstr(origin)
+            request.cors_request = {
+                    'method': env.get(
+                        'HTTP_ACCESS_CONTROL_REQUEST_METHOD',
+                        None,
+                        ),
+                    'headers': env.get(
+                        'HTTP_ACCESS_CONTROL_REQUEST_HEADERS',
+                        None,
+                        ),
+                    }
+        else:
+            request.origin, request.cors_request = None, {}
+
         # TODO: add more ubiquitous HTTP request headers
 
         # do session injection in baseclass

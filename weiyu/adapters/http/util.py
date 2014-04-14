@@ -43,6 +43,8 @@ from ...helpers.misc import smartstr, smartbytes
 
 parse_qs = six.moves.urllib.parse.parse_qs
 
+from .cors import CORSReflexHelper
+
 # See http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
 STATUS_CODES_MAP = six.moves.http_client.responses
 
@@ -210,6 +212,9 @@ class HTTPHelper(object):
         whitelisted_mimes = set(post_mime.get('whitelist', known_mimes))
         acceptable_mimes = whitelisted_mimes.difference(blacklisted_mimes)
         self._acceptable_post_mimes = frozenset(acceptable_mimes)
+
+        # CORS
+        self.cors_helper = CORSReflexHelper(config.get('cors', {}))
 
     def parse_form(self, content_type, content):
         # canonicalize content type

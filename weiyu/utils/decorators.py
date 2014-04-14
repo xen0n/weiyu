@@ -83,29 +83,19 @@ def only_methods(methods=None):
     return _decorator_
 
 
-def _cors_fn_(fn, request, *args, **kwargs):
-    # TODO: check for preflight request
-
-    response = fn(request, *args, **kwargs)
-
-    # set CORS response headers
-    # TODO: make this less dummy
-    response.http_headers = [('Access-Control-Allow-Origin', '*', ), ]
-
     return response
 
 
 def cors(fn):
-    '''Make a view function CORS (Cross Origin Resource Sharing)-aware.
+    '''Provide advanced instructions for the framework CORS handler.
 
-    Must occur *before* the ``@view`` decorator.
-
-    This decorator is very dummy at the moment; only a minimal
-    ``Access-Control-Allow-Origin: *`` header is added for the response.
+    For now this does not do anything, as the former implementation is
+    replaced by a more complete and flexible one inside the HTTP adapter,
+    and the configurable parts have not been written yet.
 
     '''
 
-    return decorator.decorator(_cors_fn_, fn)
+    return fn
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

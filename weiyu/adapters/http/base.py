@@ -80,6 +80,14 @@ class BaseHTTPReflex(BaseReflex):
         self._helper = HTTPHelper(http_config)
 
     def _do_translate_request(self, request):
+        # CORS check
+        is_cors, cors_response = self._helper.cors_helper.handle_cors(request)
+        request.is_cors, request.cors_response = is_cors, cors_response
+
+        if request.cors_preflight:
+            # skip middlewares
+            return request
+
         # Middleware
         # TODO: ability to skip response generation?
         signal_hub.fire_nullok('http-middleware-pre', request)
@@ -87,12 +95,18 @@ class BaseHTTPReflex(BaseReflex):
         return request
 
     def _do_generate_response(self, request):
-        fn, args, kwargs = request.callback_info
-        response = fn(request, *args, **kwargs)
+        # CORS
+        if request.cors_preflight and request.cors_response is not None:
+            # preflight, ignore view
+            response = request.cors_response
+        else:
+            fn, args, kwargs = request.callback_info
+            response = fn(request, *args, **kwargs)
 
-        # Middleware
-        signal_hub.fire_nullok('http-middleware-post', response)
+            # Middleware
+            signal_hub.fire_nullok('http-middleware-post', response)
 
+        self._helper.cors_helper.cors_postprocess(response)
         return response
 
     def _do_postprocess(self, response):

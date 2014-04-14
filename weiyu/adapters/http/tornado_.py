@@ -95,6 +95,21 @@ class TornadoReflex(BaseHTTPReflex):
                     )
             request.form = self._helper.parse_form(ctype, content)
 
+        # CORS support
+        origin = t_req.headers.get('Origin', None)
+        if origin is not None:
+            request.origin = smartstr(origin)
+            request.cors_request = {
+                    'method': smartstr(
+                        t_req.headers.get('Access-Control-Request-Method', ''),
+                        ),
+                    'headers': smartstr(
+                        t_req.headers.get('Access-Control-Request-Headers', ''),
+                        ),
+                    }
+        else:
+            request.origin, request.cors_request = None, {}
+
         # TODO: add more ubiquitous HTTP request headers
 
         # do session injection in baseclass
