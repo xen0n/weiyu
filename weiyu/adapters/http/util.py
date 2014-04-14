@@ -212,8 +212,13 @@ class HTTPHelper(object):
         self._acceptable_post_mimes = frozenset(acceptable_mimes)
 
     def parse_form(self, content_type, content):
-        if content_type in self._acceptable_post_mimes:
-            return _FORM_CONTENT_HANDLERS[content_type](content)
+        # canonicalize content type
+        # TODO: what does a charset specified here affect? this seems
+        # irrevelant for JSON or urlencoded form data...
+        c_type = content_type.split(';', 1)[0]
+
+        if c_type in self._acceptable_post_mimes:
+            return _FORM_CONTENT_HANDLERS[c_type](content)
 
         return None
 
