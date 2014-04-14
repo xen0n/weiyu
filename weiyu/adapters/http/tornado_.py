@@ -89,7 +89,7 @@ class TornadoReflex(BaseHTTPReflex):
 
         if content is not None and method == 'POST':
             # parse the POSTed data
-            ctype = request.content_type = t_req.headers.get(
+            ctype = request.content_type = request.env.get(
                     'CONTENT_TYPE',
                     None,
                     )
