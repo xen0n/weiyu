@@ -31,6 +31,7 @@ be done on the subclasses.
 from __future__ import unicode_literals, division
 
 import abc
+import weakref
 
 import six
 
@@ -49,7 +50,13 @@ class ReflexResponse(dict):
         self.status = status
         self.content = content
         self.context = context or {}
-        self.request = request
+
+        # avoid possible circular references
+        self._request = weakref.ref(request)
+
+    @property
+    def request(self):
+        return self._request()
 
 
 @six.add_metaclass(abc.ABCMeta)
