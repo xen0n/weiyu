@@ -59,7 +59,7 @@ def only_methods(methods=None):
 
     '''
 
-    methods = ['GET', ] if methods is None else methods
+    methods = set(['GET', ] if methods is None else methods)
 
     def _decorator_(fn):
         # Although the actual binding of methods list occurs in
