@@ -141,6 +141,12 @@ class CORSReflexHelper(object):
                 ('Access-Control-Allow-Headers', allow_headers_val, ),
                 )
 
+        # Access-Control-Max-Age
+        if self.max_age > 0:
+            headers.append(
+                    ('Access-Control-Max-Age', str(self.max_age), ),
+                    )
+
         return True, ReflexResponse(204, {}, {'headers': headers, }, request)
 
     def cors_postprocess(self, response):
