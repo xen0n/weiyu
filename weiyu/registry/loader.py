@@ -26,8 +26,7 @@ a convenient way of pre-loading configuration data before performing any
 significant actions. This module serves just that purpose, providing several
 configuration formats free to choose from; of course, you are also free to
 roll your own loader by inheriting :class:`.BaseConfig` and implement the
-``_do_loads`` method. At present, JSON, YAML and Python pickles are
-available for use.
+``_do_loads`` method. At present, JSON and YAML formats are available for use.
 
 
 Basics
@@ -351,14 +350,6 @@ class JSONConfig(BaseConfig):
             import json
 
         return json.loads(s, *args, **kwargs)
-
-
-@handler_for_ext('.pickle')
-class PickleConfig(BaseConfig):
-    '''Python pickle config backend.'''
-
-    def _do_loads(self, s, *args, **kwargs):
-        return six.moves.cPickle.loads(s, *args, **kwargs)
 
 
 @handler_for_ext('.yml')

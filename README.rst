@@ -20,8 +20,8 @@ Features
 ========
 
 * Configuration driven
-    - YAML, JSON or Python pickles are supported
-    - YAML is the default configuration format for readability
+    - Supports YAML and JSON as config file defaulting to YAML
+    - Allows inter-mixing of supported formats by means of including
 * NoSQL storage
     - Riak
     - Redis
