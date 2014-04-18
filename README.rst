@@ -7,6 +7,13 @@ weiyu
 .. image:: https://pypip.in/d/weiyu/badge.png
     :target: https://pypi.python.org/pypi/weiyu/
 
+.. image:: https://sourcegraph.com/api/repos/github.com/xen0n/weiyu/counters/views.png
+    :target: https://sourcegraph.com/github.com/xen0n/weiyu
+
+.. image:: https://sourcegraph.com/api/repos/github.com/xen0n/weiyu/counters/views-24h.png?no-count=1
+    :target: https://sourcegraph.com/github.com/xen0n/weiyu
+
+
 **weiyu** is a Web development framework for Python. Highly modular and
 configurable, ``weiyu`` strives to empower developers with convenience
 and productivity.
