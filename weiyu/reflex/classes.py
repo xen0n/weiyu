@@ -36,14 +36,14 @@ import weakref
 import six
 
 
-class ReflexRequest(dict):
+class ReflexRequest(object):
     '''Class representing a protocol-independent request.'''
 
     def __init__(self, env, *args, **kwargs):
         self.env = env
 
 
-class ReflexResponse(dict):
+class ReflexResponse(object):
     '''Class describing a protocol-independent response.'''
 
     def __init__(self, status, content, context=None, request=None):
