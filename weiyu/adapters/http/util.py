@@ -216,6 +216,13 @@ class HTTPHelper(object):
         # CORS
         self.cors_helper = CORSReflexHelper(config.get('cors', {}))
 
+        # Response headers
+        response_config = config.get('response', {})
+        self.fixed_response_hdrs = []
+
+        # Strict-Transport-Security
+        self._init_sts(response_config.get('sts', {}))
+
     def parse_form(self, content_type, content):
         # canonicalize content type
         # TODO: what does a charset specified here affect? this seems
@@ -226,6 +233,36 @@ class HTTPHelper(object):
             return _FORM_CONTENT_HANDLERS[c_type](content)
 
         return None
+
+    def _init_sts(self, config):
+        if not config.get('enabled', True):
+            self._sts_header = None
+            return
+
+        max_age = config.get('max-age', 31536000)  # 1yr
+        if not isinstance(max_age, six.integer_types):
+            raise RuntimeError('STS max-age must be integer')
+
+        include_subdomains = config.get('includeSubdomains', False)
+        sts_value = 'max-age={0}'.format(max_age)
+        if include_subdomains:
+            sts_value += '; includeSubdomains'
+
+        self._sts_header = ('Strict-Transport-Security', sts_value, )
+
+    def maybe_inject_sts_headers(self, response):
+        # Don't do anything if STS is disabled or if we're accessed in plain
+        # HTTP. As the STS header will be ignored in plain HTTP conversations,
+        # we just don't bother sending it at all.
+        if self._sts_header is None or response.request.protocol != 'https':
+            return
+
+        try:
+            response.http_headers
+        except AttributeError:
+            response.http_headers = []
+
+        response.http_headers.append(self._sts_header)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:

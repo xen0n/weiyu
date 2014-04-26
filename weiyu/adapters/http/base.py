@@ -107,6 +107,10 @@ class BaseHTTPReflex(BaseReflex):
             signal_hub.fire_nullok('http-middleware-post', response)
 
         self._helper.cors_helper.cors_postprocess(response)
+
+        # STS
+        self._helper.maybe_inject_sts_headers(response)
+
         return response
 
     def _do_postprocess(self, response):
