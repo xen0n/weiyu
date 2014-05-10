@@ -308,7 +308,7 @@ class HTTPHelper(object):
 
     def maybe_parse_payload_into(self, request):
         # TODO: allow setting custom verbs?
-        if request.method in {'POST', }:
+        if request.method in {'POST', 'PUT', }:
             request.form, request.files = self._do_parse_content(request)
 
     def _init_sts(self, config):
