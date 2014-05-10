@@ -163,6 +163,36 @@ def _parse_json_form(stream, length, options):
     return json.loads(content), None
 
 
+@_form_content_handler('multipart/form-data')
+def _parse_multipart_form(stream, length, options):
+    boundary = options.get('boundary', None)
+    if boundary is None:
+        return None, None
+
+    parser = multipart.MultipartParser(stream, boundary, length)
+    form, files = {}, {}
+    for part in parser:
+        part_name = part.name
+
+        if part.filename or not part.is_buffered():
+            try:
+                files[part_name].append(part)
+            except KeyError:
+                files[part_name] = [part, ]
+        else:
+            # XXX: see multipart's equivalent part for caveats applicable here
+            val = part.value
+            try:
+                forms[part_name].append(val)
+            except KeyError:
+                forms[part_name] = [val, ]
+
+    compact_multidict_inplace(form)
+    compact_multidict_inplace(files)
+
+    return form, files
+
+
 def canonicalize_http_headers(header_obj):
     if isinstance(header_obj, list):
         return header_obj
