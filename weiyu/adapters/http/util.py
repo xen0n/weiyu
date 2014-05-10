@@ -31,6 +31,7 @@ __all__ = [
             ]
 
 from functools import partial
+from io import BytesIO
 
 try:
     import ujson as json
@@ -38,6 +39,7 @@ except ImportError:
     import json
 
 import six
+import multipart
 
 from ...helpers.misc import smartstr, smartbytes
 
@@ -114,21 +116,51 @@ def send_content_iter(content, enc):
             yield smartbytes(chunk, enc, 'replace')
 
 
-@_form_content_handler('application/x-www-form-urlencoded')
-def _parse_urlencoded_form(content):
-    form = parse_qs(content)
+def read_request_payload_in_mem(stream, length, options):
+    # Mimicking multipart's strategy here.
+    # TODO: make the two options configurable
+    mem_limit = 2 ** 20  # 1 MiB
+    charset = options.get('charset', 'utf-8')
 
+    if length > mem_limit:
+        raise ValueError('Content-Length exceeded configured limit')
+
+    data = stream.read(mem_limit).decode(charset)
+
+    if stream.read(1):
+        raise ValueError('Request too big')
+
+    return data
+
+
+def compact_multidict_inplace(dct):
     # eliminate all those 1-element lists
-    for k in six.iterkeys(form):
-        if len(form[k]) == 1:
-            form[k] = form[k][0]
+    for k in six.iterkeys(dct):
+        if len(dct[k]) == 1:
+            dct[k] = dct[k][0]
 
-    return form
+
+@_form_content_handler('application/x-www-form-urlencoded')
+def _parse_urlencoded_form(stream, length, options):
+    try:
+        content = read_request_payload_in_mem(stream, length, options)
+    except ValueError:
+        return None, None
+
+    form = parse_qs(content)
+    compact_multidict_inplace(form)
+
+    return form, None
 
 
 @_form_content_handler('application/json')
-def _parse_json_form(content):
-    return json.loads(content)
+def _parse_json_form(stream, length, options):
+    try:
+        content = read_request_payload_in_mem(stream, length, options)
+    except ValueError:
+        return None, None
+
+    return json.loads(content), None
 
 
 def canonicalize_http_headers(header_obj):
@@ -223,16 +255,31 @@ class HTTPHelper(object):
         # Strict-Transport-Security
         self._init_sts(response_config.get('sts', {}))
 
-    def parse_form(self, content_type, content):
-        # canonicalize content type
-        # TODO: what does a charset specified here affect? this seems
-        # irrevelant for JSON or urlencoded form data...
-        c_type = content_type.split(';', 1)[0]
+    def _do_parse_payload(self, request):
+        env = request.env
 
+        # Parse Content-Type header
+        c_type_hdr = env.get('CONTENT_TYPE', '')
+        c_type, options = multipart.parse_options_header(c_type_hdr)
+
+        # Content-Length
+        c_len = int(env.get('CONTENT_LENGTH', '-1'))
+
+        # wsgi.input
+        # Using ``or`` here prevents unnecessary instantiations if the get
+        # operation is to succeed, which is almost always the case.
+        stream = env.get('wsgi.input', None) or BytesIO()
+
+        # Check mimetype of payload against configuration.
         if c_type in self._acceptable_post_mimes:
-            return _FORM_CONTENT_HANDLERS[c_type](content)
+            return _FORM_CONTENT_HANDLERS[c_type](stream, c_len, options)
 
-        return None
+        return None, None
+
+    def maybe_parse_payload_into(self, request):
+        # TODO: allow setting custom verbs?
+        if request.method in {'POST', }:
+            request.form, request.files = self._do_parse_content(request)
 
     def _init_sts(self, config):
         if not config.get('enabled', True):

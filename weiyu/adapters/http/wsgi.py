@@ -83,15 +83,8 @@ class WSGIReflex(BaseHTTPReflex):
                 pass
         request.content_length = length
 
-        # read the request body if content length is given
-        if length is not None and method == 'POST':
-            request.content = env['wsgi.input'].read(length)
-
-            # parse the POSTed data
-            ctype = request.content_type = env.get('CONTENT_TYPE', None)
-            request.form = self._helper.parse_form(ctype, request.content)
-        else:
-            request.content = None
+        # parse request body if applicable
+        self._helper.maybe_parse_payload_into(request)
 
         # CORS support
         origin = env.get('HTTP_ORIGIN', None)

@@ -87,13 +87,8 @@ class TornadoReflex(BaseHTTPReflex):
         request.content = content
         request.content_length = len(content) if content is not None else None
 
-        if content is not None and method == 'POST':
-            # parse the POSTed data
-            ctype = request.content_type = request.env.get(
-                    'CONTENT_TYPE',
-                    None,
-                    )
-            request.form = self._helper.parse_form(ctype, content)
+        # parse request body if applicable
+        self._helper.maybe_parse_payload_into(request)
 
         # CORS support
         origin = t_req.headers.get('Origin', None)
