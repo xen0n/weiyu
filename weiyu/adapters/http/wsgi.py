@@ -29,6 +29,7 @@ from ...helpers.misc import smartstr
 from ...reflex.classes import ReflexRequest
 
 from .base import BaseHTTPReflex
+from .util import parse_qs_compacted
 from .util import dummy_file_wrapper, send_content_iter
 from .util import build_host_str, gen_http_headers
 
@@ -82,6 +83,10 @@ class WSGIReflex(BaseHTTPReflex):
             except ValueError:
                 pass
         request.content_length = length
+
+        # parse query string if present
+        qs = env.get('QUERY_STRING', None)
+        request.query = parse_qs_compacted(qs) if qs is not None else {}
 
         # parse request body if applicable
         self._helper.maybe_parse_payload_into(request)

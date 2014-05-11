@@ -37,6 +37,7 @@ from ...helpers.misc import smartstr
 from ...reflex.classes import ReflexRequest
 
 from .base import BaseHTTPReflex
+from .util import parse_qs_compacted
 from .util import dummy_file_wrapper, send_content_iter, gen_http_headers
 
 
@@ -86,6 +87,10 @@ class TornadoReflex(BaseHTTPReflex):
 
         request.content = content
         request.content_length = len(content) if content is not None else None
+
+        # parse query string if present
+        qs = t_req.query
+        request.query = parse_qs_compacted(qs) if qs else {}
 
         # parse request body if applicable
         self._helper.maybe_parse_payload_into(request)
