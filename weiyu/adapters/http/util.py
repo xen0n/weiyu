@@ -24,6 +24,7 @@ __all__ = [
             'build_host_str',
             'dummy_file_wrapper',
             'send_content_iter',
+            'parse_qs_compacted',
             'canonicalize_http_headers',
             'gen_http_headers',
             'get_server_header',
@@ -140,6 +141,12 @@ def compact_multidict_inplace(dct):
             dct[k] = dct[k][0]
 
 
+def parse_qs_compacted(qs):
+    result = parse_qs(qs)
+    compact_multidict_inplace(result)
+    return result
+
+
 @_form_content_handler('application/x-www-form-urlencoded')
 def _parse_urlencoded_form(stream, length, options):
     try:
@@ -147,10 +154,7 @@ def _parse_urlencoded_form(stream, length, options):
     except ValueError:
         return None, None
 
-    form = parse_qs(content)
-    compact_multidict_inplace(form)
-
-    return form, None
+    return parse_qs_compacted(content), None
 
 
 @_form_content_handler('application/json')
