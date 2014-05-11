@@ -25,6 +25,7 @@ __all__ = [
 
 import os
 import errno
+import re
 
 import six
 
@@ -37,6 +38,7 @@ from .config.parser import parse_config
 from .reverser import reverser_for_router
 
 PROBER = ModProber('weiyu.router', '%srouter')
+VAR_INTERPOLATOR = re.compile(r'\$\{([^}]+)\}')
 
 
 class RouterHub(BaseHub):
@@ -55,10 +57,15 @@ class RouterHub(BaseHub):
         if 'classes' not in self._reg:
             self._reg['classes'] = {}
 
+        if 'variables' not in self._reg:
+            # TODO: move to registry common logic
+            self._reg['variables'] = {}
+
         # cache the references
         self._routers = self._reg['routers']
         self._endpoints = self._reg['endpoints']
         self._classes = self._reg['classes']
+        self._variables = self._reg['variables']
 
     def endpoint(self, typ, name):
         '''decorator for registering routing end points.'''
@@ -138,6 +145,13 @@ class RouterHub(BaseHub):
         # Assume that module has actually registered the wanted class...
         assert cls_name in self._classes
         return self._classes[cls_name]
+
+    def _var_interpolate_fn(self, match):
+        var_name = match.group(0).strip()
+        return self._variables.get(var_name, '')
+
+    def _interpolate_value(self, val):
+        return VAR_INTERPOLATOR.sub(self._var_interpolate_fn, val)
 
     def _do_init_router(
             self,
