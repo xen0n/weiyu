@@ -80,14 +80,6 @@ class TornadoReflex(BaseHTTPReflex):
         request.protocol = smartstr(t_req.protocol)
         method = request.method = smartstr(t_req.method)
 
-        try:
-            content = t_req.body
-        except AttributeError:
-            content = None
-
-        request.content = content
-        request.content_length = len(content) if content is not None else None
-
         # parse query string if present
         qs = t_req.query
         request.query = parse_qs_compacted(qs) if qs else {}

@@ -71,18 +71,6 @@ class WSGIReflex(BaseHTTPReflex):
         request.remote_addr = smartstr(env['REMOTE_ADDR'])
         request.protocol = smartstr(env['wsgi.url_scheme'])
         method = request.method = smartstr(env['REQUEST_METHOD'])
-        length, _env_length = None, None
-        try:
-            _env_length = smartstr(env['CONTENT_LENGTH'], 'ascii', 'ignore')
-        except KeyError:
-            pass
-
-        if _env_length is not None and len(_env_length) > 0:
-            try:
-                length = int(_env_length)
-            except ValueError:
-                pass
-        request.content_length = length
 
         # parse query string if present
         qs = env.get('QUERY_STRING', None)
