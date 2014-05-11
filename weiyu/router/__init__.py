@@ -207,7 +207,7 @@ class RouterHub(BaseHub):
                     raise RuntimeError(
                             'include directive must appear on its own'
                             )
-                include_path = v
+                include_path = self._interpolate_value(v)
             elif k == 'scope':
                 # case: scope=xxx
                 scope = v
@@ -216,7 +216,7 @@ class RouterHub(BaseHub):
                 inherited_klass = v
             elif k == 'host':
                 # case: host=xxx
-                host = v
+                host = self._interpolate_value(v)
             else:
                 # Unknown attribute, ignore it for compatibility with future
                 # versions.
