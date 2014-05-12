@@ -57,15 +57,10 @@ class RouterHub(BaseHub):
         if 'classes' not in self._reg:
             self._reg['classes'] = {}
 
-        if 'variables' not in self._reg:
-            # TODO: move to registry common logic
-            self._reg['variables'] = {}
-
         # cache the references
         self._routers = self._reg['routers']
         self._endpoints = self._reg['endpoints']
         self._classes = self._reg['classes']
-        self._variables = self._reg['variables']
 
     def endpoint(self, typ, name):
         '''decorator for registering routing end points.'''
@@ -147,8 +142,12 @@ class RouterHub(BaseHub):
         return self._classes[cls_name]
 
     def _var_interpolate_fn(self, match):
-        var_name = match.group(0).strip()
-        return self._variables.get(var_name, '')
+        var_name = match.group(1).strip()
+
+        # Pre-caching the 'variables' ref would not work, as config has not
+        # been loaded at import time. Luckily this place is not a performance
+        # bottleneck, so we just access it on demand, which is perfectly fine.
+        return self._reg['variables'].get(var_name, '')
 
     def _interpolate_value(self, val):
         return VAR_INTERPOLATOR.sub(self._var_interpolate_fn, val)
