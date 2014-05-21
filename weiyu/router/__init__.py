@@ -57,6 +57,9 @@ class RouterHub(BaseHub):
         if 'classes' not in self._reg:
             self._reg['classes'] = {}
 
+        if 'variables' not in self._reg:
+            self._reg['variables'] = {}
+
         # cache the references
         self._routers = self._reg['routers']
         self._endpoints = self._reg['endpoints']
