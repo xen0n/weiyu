@@ -30,6 +30,7 @@ from ...reflex.classes import ReflexRequest
 
 from .base import BaseHTTPReflex
 from .util import parse_qs_compacted
+from .util import parse_conditional_headers_into
 from .util import dummy_file_wrapper, send_content_iter
 from .util import build_host_str, gen_http_headers
 
@@ -95,6 +96,9 @@ class WSGIReflex(BaseHTTPReflex):
                     }
         else:
             request.origin, request.cors_request = None, {}
+
+        # Conditional requests
+        parse_conditional_headers_into(request)
 
         # TODO: add more ubiquitous HTTP request headers
 
