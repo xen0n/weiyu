@@ -26,6 +26,7 @@ __all__ = [
 from ...helpers.misc import smartbytes
 
 from ... import registry
+from ...utils import httpdate
 
 from ...reflex.classes import BaseReflex
 from ...router import router_hub
@@ -228,6 +229,14 @@ class BaseHTTPReflex(BaseReflex):
         # Server header, if explicitly enabled
         if self.send_server_hdr:
             hdrs.append(get_server_header())
+
+        # Last-Modified
+        last_modified_ts = ctx.get('last_modified', None)
+        if last_modified_ts is not None:
+            hdrs.append((
+                    b'Last-Modified',
+                    httpdate.make_http_date(last_modified_ts),
+                    ))
 
         response.http_headers.extend(hdrs)
         response._dont_render = dont_render
