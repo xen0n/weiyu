@@ -25,6 +25,7 @@ __all__ = [
             'dummy_file_wrapper',
             'send_content_iter',
             'parse_qs_compacted',
+            'parse_conditional_headers_into',
             'canonicalize_http_headers',
             'gen_http_headers',
             'get_server_header',
@@ -43,6 +44,7 @@ import six
 import multipart
 
 from ...helpers.misc import smartstr, smartbytes
+from ...utils.httpdate import parse_http_date
 
 parse_qs = six.moves.urllib.parse.parse_qs
 
@@ -145,6 +147,30 @@ def parse_qs_compacted(qs):
     result = parse_qs(qs)
     compact_multidict_inplace(result)
     return result
+
+
+def parse_conditional_headers_into(request):
+    env = request.env
+
+    result = {}
+
+    if 'HTTP_IF_MODIFIED_SINCE' in env:
+        try:
+            ts = parse_http_date(env['HTTP_IF_MODIFIED_SINCE'])
+            result['If-Modified-Since'] = ts
+        except ValueError:
+            pass
+
+    if 'HTTP_IF_UNMODIFIED_SINCE' in env:
+        try:
+            ts = parse_http_date(env['HTTP_IF_UNMODIFIED_SINCE'])
+            result['If-Unmodified-Since'] = ts
+        except ValueError:
+            pass
+
+    # TODO: support ETag-based headers (If-None-Match and friends)
+
+    request.conditional = result
 
 
 @_form_content_handler('application/x-www-form-urlencoded')
