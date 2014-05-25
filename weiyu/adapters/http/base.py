@@ -147,8 +147,7 @@ class BaseHTTPReflex(BaseReflex):
             # text/html then...
             mime = ctx.get('mimetype', 'application/octet-stream')
 
-        # is this an error response which cannot have response body?
-        # TODO: add more status codes
+        # is this a response that cannot have a body?
         if response.status in NO_RESP_BODY_STATUSES:
             dont_render = True
 
