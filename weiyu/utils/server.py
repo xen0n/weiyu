@@ -162,7 +162,7 @@ def cli_server_socketio(
 
         # Use the constructed socket.
         server = SocketIOServer(sock, app, **kwargs)
-    else
+    else:
         server = SocketIOServer(listen, app, **kwargs)
 
     server.serve_forever()
