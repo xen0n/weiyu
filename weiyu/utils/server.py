@@ -24,6 +24,7 @@ __all__ = [
         ]
 
 import sys
+import os
 import inspect
 from socket import gethostname
 
@@ -121,6 +122,8 @@ def cli_server_socketio(
         listen=None,
         application=None,
         port=None,
+        uid=None,
+        gid=None,
         **kwargs
         ):
     try:
@@ -141,11 +144,27 @@ def cli_server_socketio(
 
     # Managed (i.e. invoked by 'rain serve') invocations doesn't have the
     # ``listen`` parameter passed in, but have ``port`` set.
-    # Just make up one listening on localhost.
+    # Just make up one listening on IPADDR_ANY.
     if managed and listen is None:
         listen = ('0.0.0.0', port, )
 
-    server = SocketIOServer(listen, app, **kwargs)
+    if uid is not None:
+        # Do the socket initialization early, then set{g,u}id.
+        sock = SocketIOServer.get_listener(
+                listen[0],
+                kwargs.get('backlog', None),
+                None,  # TODO: more sensible default for family
+                )
+
+        if gid is not None:
+            os.setgid(gid)
+        os.setuid(uid)
+
+        # Use the constructed socket.
+        server = SocketIOServer(sock, app, **kwargs)
+    else
+        server = SocketIOServer(listen, app, **kwargs)
+
     server.serve_forever()
 
 
