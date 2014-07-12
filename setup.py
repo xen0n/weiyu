@@ -21,7 +21,7 @@ setup(
         license='GPLv3+',
         url='https://github.com/xen0n/weiyu/',
         download_url='https://github.com/xen0n/weiyu/',
-        install_requires=('decorator>=3.4.0', 'ply>=3.4', 'PyYAML>=3.10', 'six>=1.3.0', ),
+        install_requires=('decorator>=3.4.0', 'ply>=3.4', 'PyYAML>=3.10', 'six>=1.3.0', 'multipart>=0.1', ),
         extras_require={
             'beaker': ['Beaker>=1.6.3', ],
             'mako': ['Mako>=0.7.1', ],
