@@ -27,14 +27,32 @@ This is the Riak driver for ``weiyu``.
 
 from __future__ import unicode_literals, division
 
+import functools
+import warnings
+
 import riak
+
+try:
+    import ujson
+    HAVE_UJSON = True
+except ImportError:
+    HAVE_UJSON = False
 
 from .. import db_hub
 from .baseclass import BaseDriver
 
 
+def ujson_codec_factory():
+    '''Hands out JSON dumps and loads functions using ujson library.'''
+
+    # recommended by ujson docs for saving space
+    dumps = functools.partial(ujson.dumps, ensure_ascii=False)
+    loads = ujson.loads
+    return dumps, loads
+
+
 class RiakDriver(BaseDriver):
-    def __init__(self, protocol, host, http_port, pb_port, nodes):
+    def __init__(self, protocol, host, http_port, pb_port, nodes, use_ujson):
         super(RiakDriver, self).__init__()
 
         self.host, self.http_port, self.pb_port, self.nodes = (
@@ -62,6 +80,23 @@ class RiakDriver(BaseDriver):
                     protocol=protocol,
                     nodes=nodes,
                     )
+
+        # Configure the client to decode/encode JSON with ujson, if asked to
+        # do so.
+        if use_ujson:
+            if HAVE_UJSON:
+                ujson_dumps, ujson_loads = ujson_codec_factory()
+
+                # the MIMEs are copied from the ones hardcoded in RiakClient
+                for mime in ('application/json', 'text/json', ):
+                    client.set_encoder(mime, ujson_dumps)
+                    client.set_decoder(mime, ujson_loads)
+            else:
+                # ujson requested but not importable, raise a warning
+                warnings.warn(
+                        'ujson is requested but unavailable',
+                        RuntimeWarning,
+                        )
 
         self.conn = client
         self._buckets = {}
@@ -102,8 +137,9 @@ def riak_handler(
         http_port=8098,
         pb_port=8087,
         nodes=None,
+        use_ujson=True,
         ):
-    return RiakDriver(protocol, host, http_port, pb_port, nodes)
+    return RiakDriver(protocol, host, http_port, pb_port, nodes, use_ujson)
 
 
 # vim:set ai et ts=4 sw=4 sts=4 fenc=utf-8:
