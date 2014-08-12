@@ -145,7 +145,7 @@ class MapperHub(BaseHub):
                     )
 
         result = encoder(obj)
-        result[VERSION_FIELD] = maxver
+        result[VERSION_FIELD] = use_ver
         return result
 
 
