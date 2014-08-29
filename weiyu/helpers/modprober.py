@@ -52,6 +52,8 @@ class ModProber(object):
     def modprobe(self, name):
         self._ensure_parent_package()
 
+        # TODO: do we need to memoize modules (with weakrefs of course) to
+        # potentially push performance up?
         return importlib.import_module(
                 self.get_relative_path(name),
                 self.package,
