@@ -1,10 +1,10 @@
 weiyu
 =====
 
-.. image:: https://pypip.in/v/weiyu/badge.png
+.. image:: https://img.shields.io/pypi/v/weiyu.svg
     :target: https://pypi.python.org/pypi/weiyu/
 
-.. image:: https://pypip.in/d/weiyu/badge.png
+.. image:: https://img.shields.io/pypi/dm/weiyu.svg
     :target: https://pypi.python.org/pypi/weiyu/
 
 .. image:: https://sourcegraph.com/api/repos/github.com/xen0n/weiyu/counters/views.png
